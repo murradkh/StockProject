@@ -30,7 +30,7 @@ def single_stock(request, symbol):
     except Exception as e:
         response = render(request, 'exception.html',
                           {'404_error_message': "Unknown Error occurred: {}".format(", ".join(e.args))})
-        response.status_code = 404
+        response.status_code = 520  # Unknown Error
         return response
     else:
         return render(request, 'single_stock.html', {'page_title': 'Stock Page - %s' % symbol, 'data': data})
