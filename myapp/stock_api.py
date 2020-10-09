@@ -57,4 +57,12 @@ def get_stock_info(symbol):
 
 
 def get_stock_historic_prices(symbol, time_range='1m'):
-    return _request_data('/stable/stock/{symbol}/chart/{time_range}'.format(symbol=symbol, time_range=time_range))
+    try:
+        return _request_data('/stable/stock/{symbol}/chart/{time_range}'.format(symbol=symbol, time_range=time_range))
+    except ConnectionError:
+        raise StockServerUnReachable("Stock server UnReachable!")
+    except Exception as e:
+        for arg in e.args:
+            if isinstance(arg, dict) and b"Unknown symbol" in arg.values():
+                raise StockSymbolNotFound("Unknown Stock Symbol!")
+        raise e
