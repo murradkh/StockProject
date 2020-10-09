@@ -21,7 +21,7 @@ def single_stock(request, symbol):
         data = stock_api.get_stock_info(symbol)
     except StockSymbolNotFound as e:
         response = render(request, 'exception.html', {'404_error_message': e.message})
-        response.status_code = 404  # not found code
+        response.status_code = 404
         return response
     except StockServerUnReachable as e:
         response = render(request, 'exception.html', {'503_error_message': e.message})
@@ -30,7 +30,7 @@ def single_stock(request, symbol):
     except Exception as e:
         response = render(request, 'exception.html',
                           {'404_error_message': "Unknown Error occurred: {}".format(", ".join(e.args))})
-        response.status_code = 404  # Service Unavailable code
+        response.status_code = 404
         return response
     else:
         return render(request, 'single_stock.html', {'page_title': 'Stock Page - %s' % symbol, 'data': data})
