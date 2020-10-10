@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <table>
+        <tr>
+            <td>You are currently logged in as <b>{{ profile.user }} &emsp;</td>
+            <td><a type="button" class="btn btn-primary" href="{% url 'logout' %}"><i class="fa fa-sign-out"></i> Log out</a></td>
+            <td><a type="button" class="btn btn-outline-secondary disabled" href="#"><i class="fa fa-cog"></i> Change login credentials</a></td>
+        </tr>
+{% endblock %}
