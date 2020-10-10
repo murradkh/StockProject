@@ -79,7 +79,7 @@ def page_not_found(request):
     if request.path[-1] != '/':
         return redirect(request.path + '/')
     else:
-        status_code = 404  # stock symbol not found!
+        status_code = 404
         resp = render(request, "exception.html", {'error_message': "Page Not Found!", "status_code": status_code})
         resp.status_code = status_code
         return resp
