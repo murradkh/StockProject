@@ -71,3 +71,15 @@ def logout_view(request):
 def single_stock_historic(request, symbol):
     data = stock_api.get_stock_historic_prices(symbol, time_range='1m')
     return JsonResponse({'data': data})
+
+
+def page_not_found(request):
+    # checking if the request url path doesn't trailing with / character
+    # if not then redirecting to the same url with / trailer
+    if request.path[-1] != '/':
+        return redirect(request.path + '/')
+    else:
+        status_code = 404  # stock symbol not found!
+        resp = render(request, "exception.html", {'error_message': "Page Not Found!", "status_code": status_code})
+        resp.status_code = status_code
+        return resp
