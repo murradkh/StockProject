@@ -17,23 +17,29 @@ def index(request):
 # View for the single stock page
 # symbol is the requested stock's symbol ('AAPL' for Apple)
 def single_stock(request, symbol):
+    context = {}
+    status_code = 200
+    template = 'single_stock.html'
     try:
         data = stock_api.get_stock_info(symbol)
     except StockSymbolNotFound as e:
-        response = render(request, 'exception.html', {'404_error_message': e.message})
-        response.status_code = 404
-        return response
+        status_code = 404  # stock symbol not found!
+        context = {'error_message': e.message, "status_code": status_code}
+        template = "exception.html"
     except StockServerUnReachable as e:
-        response = render(request, 'exception.html', {'503_error_message': e.message})
-        response.status_code = 503  # Service Unavailable code
-        return response
+        status_code = 503  # Service Unavailable code
+        context = {'error_message': e.message, "status_code": status_code}
+        template = "exception.html"
     except Exception as e:
-        response = render(request, 'exception.html',
-                          {'404_error_message': "Unknown Error occurred: {}".format(", ".join(e.args))})
-        response.status_code = 520  # Unknown Error
-        return response
+        status_code = 520  # Unknown Error
+        context = {'error_message': "Unknown Error occurred: {}".format(", ".join(e.args)), "status_code": status_code}
+        template = "exception.html"
     else:
-        return render(request, 'single_stock.html', {'page_title': 'Stock Page - %s' % symbol, 'data': data})
+        context = {'page_title': 'Stock Page - %s' % symbol, 'data': data}
+    finally:
+        resp = render(request, template, context)
+        resp.status_code = status_code
+        return resp
 
 
 def register(request):

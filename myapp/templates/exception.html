@@ -6,7 +6,7 @@
 <link href="{% static 'css/exception.css' %}" rel="stylesheet" type="text/css">
 
 <div class="main">
-    {% if 404_error_message %}
+    {% if status_code == 404 %}
     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="470" height="290"
          viewBox="0 0 470 290">
         <defs>
@@ -67,10 +67,10 @@
             </g>
         </g>
     </svg>
-    <h4>{{404_error_message}}</h4>
+    <h4>{{error_message}}</h4>
     {% else %}
-    <h1>ERROR 503 </h1>
-    <h4>Service Unavailable, {{503_error_message}}</h4>
+    <h1>ERROR {{status_code}} </h1>
+    <h4>{{error_message}}</h4>
     {% endif %}
 </div>
 
