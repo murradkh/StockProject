@@ -30,7 +30,7 @@ class Stock(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    watchlist = models.ManyToManyField(Stock)
+    watchlist = models.ManyToManyField(Stock, blank=True)
     # portfolio = models.ManyToManyField(Stock)
 
     def __str__(self):

@@ -34,12 +34,12 @@
                 ">{{ stock.change_percent|floatformat:2 }}%</td>
                 {% if request.user.is_authenticated %}
                 <td>{% if stock in profile.watchlist.all %}
-                    <form method="post" action="stock/{{ stock.symbol }}/wremove"> {% csrf_token %}
+                    <form method="post" action="{% url 'watchlist_remove' symbol=stock.symbol %}"> {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.path }}">
                         <button type="submit" class="btn btn-outline-danger" style="padding: 0px 6px;"><i class="fa fa-eye-slash"></i></button>
                     </form>
                     {% else %}
-                    <form method="post" action="stock/{{ stock.symbol }}/wadd"> {% csrf_token %}
+                    <form method="post" action="{% url 'watchlist_add' symbol=stock.symbol %}"> {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.path }}">
                         <button type="submit" class="btn btn-outline-primary" style="padding: 0px 6px;"><i class="fa fa-eye"></i></button>
                     </form>

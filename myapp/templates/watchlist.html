@@ -28,7 +28,7 @@
                         text-danger
                     {% endif %}
                     ">{{ stock.change_percent|floatformat:2 }}%</td>
-                    <td><form method="post" action="../stock/{{ stock.symbol }}/wremove"> {% csrf_token %}
+                    <td><form method="post" action="{% url 'watchlist_remove' symbol=stock.symbol %}"> {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.path }}">
                         <button type="submit" class="btn btn-outline-danger" style="padding: 0px 6px;"><i class="fa fa-eye-slash"></i></button>
                     </form></td>

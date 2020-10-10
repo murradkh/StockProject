@@ -14,7 +14,7 @@ def index(request):
 	data = Stock.objects.filter(top_rank__isnull=False).order_by('top_rank')
 	profile = None
 	if request.user.is_authenticated:
-		profile = Profile.objects.get(id=request.user.id)
+		profile = Profile.objects.get(user=request.user)
 	return render(request, 'index.html', {'page_title': 'Main', 'data': data, 'profile': profile})
 
 
@@ -25,7 +25,7 @@ def single_stock(request, symbol):
 	stock = Stock.objects.get(symbol=symbol)
 	profile = None
 	if request.user.is_authenticated:
-		profile = Profile.objects.get(id=request.user.id)
+		profile = Profile.objects.get(user=request.user)
 	return render(request, 'single_stock.html', {'page_title': 'Stock Page - %s' % symbol, 'data': data, 'stock': stock, 'profile': profile})
 
 
@@ -50,20 +50,20 @@ def register(request):
 
 @login_required(login_url='login')
 def profile_view(request):
-	profile = Profile.objects.get(id=request.user.id)
+	profile = Profile.objects.get(user=request.user)
 	return render(request, 'profile.html', {'page_title': 'My account', 'profile': profile})
 
 
 @login_required(login_url='login')
 def watchlist_view(request):
-	profile = Profile.objects.get(id=request.user.id)
+	profile = Profile.objects.get(user=request.user)
 	return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile})
 
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def watchlist_add_view(request, symbol):
-	profile = Profile.objects.get(id=request.user.id)
+	profile = Profile.objects.get(user=request.user)
 	stock = Stock.objects.filter(symbol=symbol)
 	if not stock.exists():
 		return Response(status=status.HTTP_404_NOT_FOUND)
@@ -76,7 +76,7 @@ def watchlist_add_view(request, symbol):
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def watchlist_remove_view(request, symbol):
-	profile = Profile.objects.get(id=request.user.id)
+	profile = Profile.objects.get(user=request.user)
 	stock = Stock.objects.filter(symbol=symbol)
 	if not stock.exists():
 		return Response(status=status.HTTP_404_NOT_FOUND)
