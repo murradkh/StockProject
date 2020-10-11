@@ -5,7 +5,7 @@
 	<table>
 		<tr>
 			<td><h2>{{ data.companyName }}<small class="text-muted">({{ data.symbol }}) &emsp14;</small></h2></td>
-			{% if request.user.is_authenticated %}
+			{% if profile %}
 			<td>{% if stock in profile.watchlist.all %}
 				<form method="post" action="{% url 'watchlist_remove' symbol=stock.symbol %}"> {% csrf_token %}
 					<input type="hidden" name="next" value="{{ request.path }}">

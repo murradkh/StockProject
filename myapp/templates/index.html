@@ -14,7 +14,7 @@
             <th>Name</th>
             <th>Price</th>
             <th>Change</th>
-            {% if request.user.is_authenticated %}
+            {% if profile %}
                 <th>Actions</th>
             {% endif %}
         </tr>
@@ -32,7 +32,7 @@
                     text-danger
                 {% endif %}
                 ">{{ stock.change_percent|floatformat:2 }}%</td>
-                {% if request.user.is_authenticated %}
+                {% if profile %}
                 <td>{% if stock in profile.watchlist.all %}
                     <form method="post" action="{% url 'watchlist_remove' symbol=stock.symbol %}"> {% csrf_token %}
                         <input type="hidden" name="next" value="{{ request.path }}">

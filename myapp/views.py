@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from myapp import stock_api
 from myapp.models import Stock, Profile
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
@@ -66,7 +66,7 @@ def watchlist_add_view(request, symbol):
 	profile = Profile.objects.get(user=request.user)
 	stock = Stock.objects.filter(symbol=symbol)
 	if not stock.exists():
-		return Response(status=status.HTTP_404_NOT_FOUND)
+		raise Http404("Stock does not exist")
 	else:
 		Stock.add_to_watchlist(profile, symbol)
 		next = request.POST.get('next', '/')
@@ -79,7 +79,7 @@ def watchlist_remove_view(request, symbol):
 	profile = Profile.objects.get(user=request.user)
 	stock = Stock.objects.filter(symbol=symbol)
 	if not stock.exists():
-		return Response(status=status.HTTP_404_NOT_FOUND)
+		raise Http404("Stock does not exist")
 	else:
 		Stock.remove_from_watchlist(profile, symbol)
 		next = request.POST.get('next', '/')
