@@ -63,6 +63,6 @@ def get_stock_historic_prices(symbol, time_range='1m'):
         raise StockServerUnReachable("Stock server UnReachable!")
     except Exception as e:
         for arg in e.args:
-            if isinstance(arg, dict) and b"Unknown symbol" in arg.values():
+            if isinstance(arg, dict) and (b"Unknown symbol" in arg.values() or b"Not found" in arg.values()):
                 raise StockSymbolNotFound("Unknown Stock Symbol!")
         raise e
