@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 
-urlpatterns = [
+urlpat terns = [
 	path('', views.index, name='index'),
 	path('stock/<str:symbol>/', views.single_stock, name='single_stock'),
 	path('historic/<str:symbol>/', views.single_stock_historic, name='single_stock_historic'),
