@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 
 from myapp.models import Stock
 
-
+ wef
 class SingleStockTestCase(TestCase):
     def setUp(self):
         Stock.objects.create(
