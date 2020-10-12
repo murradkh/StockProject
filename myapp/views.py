@@ -2,8 +2,12 @@ from django.shortcuts import render, redirect
 from myapp import stock_api
 from myapp.models import Stock
 from django.http import JsonResponse
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout
 
 
 # View for the home page - a list of 20 of the most active stocks
@@ -32,10 +36,24 @@ def register(request):
 		newuser.first_name = firstname
 		newuser.last_name = lastname
 		newuser.save()
+		login(request, newuser)
 		return redirect('index')
 	else:
 		# If not post (regular request) -> render register page
 		return render(request, 'register.html', {'page_title': 'Register'})
+
+
+@login_required(login_url='login')
+def password_change_view(request):
+	form = PasswordChangeForm(request.user, request.POST or None)
+	if form.is_valid():
+		user = form.save()
+		update_session_auth_hash(request, user)
+		messages.info(request, 'Your password was successfully updated!')
+		return redirect('index')
+	else:
+		messages.warning(request, 'Please enter the correct data below')
+	return render(request, 'password_change.html', {'page_title': 'Change password', 'form': form})
 
 
 def logout_view(request):
