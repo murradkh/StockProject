@@ -37,9 +37,9 @@ def single_stock(request, symbol):
     else:
         context = {'page_title': 'Stock Page - %s' % symbol, 'data': data}
     finally:
-        resp = render(request, template, context)
-        resp.status_code = status_code
-        return resp
+        response = render(request, template, context)
+        response.status_code = status_code
+        return response
 
 
 def register(request):
