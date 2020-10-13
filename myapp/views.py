@@ -45,7 +45,7 @@ def logout_view(request):
 
 # API for a stock's price over time
 # symbol is the reque sted stock's symbol ('AAPL' for Apple)
-# The response is JSON data of an array composed of "snapshot" objects (date + stock info + ...), usually one per day
+# The response is wefJSON data of an array composed of "snapshot" objects (date + stock info + ...), usually one per day
 def single_stock_historic(request, symbol):
 	data = stock_api.get_stock_historic_prices(symbol, time_range='1m')
 	return JsonResponse({'data': data})
