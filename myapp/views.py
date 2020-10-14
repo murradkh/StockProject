@@ -24,33 +24,33 @@ def index(request):
 
 
 def single_stock(request, symbol):
-    context = {}
+	context = {}
 	profile = None
-    status_code = 200
-    template = 'single_stock.html'
-    try:
-        data = stock_api.get_stock_info(symbol)
+	status_code = 200
+	template = 'single_stock.html'
+	try:
+		data = stock_api.get_stock_info(symbol)
 		stock = Stock.objects.get(symbol=symbol)
 		if request.user.is_authenticated:
 			profile = Profile.objects.get(user=request.user)
-    except StockSymbolNotFound as e:
-        status_code = 404  # stock symbol not found!
-        context = {'error_message': e.message, "status_code": status_code}
-        template = "exception.html"
-    except StockServerUnReachable as e:
-        status_code = 503  # Service Unavailable code
-        context = {'error_message': e.message, "status_code": status_code}
-        template = "exception.html"
-    except Exception as e:
-        status_code = 520  # Unknown Error
-        context = {'error_message': "Unknown Error occurred: {}".format(", ".join(e.args)), "status_code": status_code}
-        template = "exception.html"
-    else:
-        context = {'page_title': 'Stock Page - %s' % symbol, 'data': data, 'stock': stock, 'profile': profile}
-    finally:
-        response = render(request, template, context)
-        response.status_code = status_code
-        return response
+	except StockSymbolNotFound as e:
+		status_code = 404  # stock symbol not found!
+		context = {'error_message': e.message, "status_code": status_code}
+		template = "exception.html"
+	except StockServerUnReachable as e:
+		status_code = 503  # Service Unavailable code
+		context = {'error_message': e.message, "status_code": status_code}
+		template = "exception.html"
+	except Exception as e:
+		status_code = 520  # Unknown Error
+		context = {'error_message': "Unknown Error occurred: {}".format(", ".join(e.args)), "status_code": status_code}
+		template = "exception.html"
+	else:
+		context = {'page_title': 'Stock Page - %s' % symbol, 'data': data, 'stock': stock, 'profile': profile}
+	finally:
+		response = render(request, template, context)
+		response.status_code = status_code
+		return response
 
 
 def register(request):
