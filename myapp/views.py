@@ -71,4 +71,3 @@ def logout_view(request):
 def single_stock_historic(request, symbol):
     data = stock_api.get_stock_historic_prices(symbol, time_range='1m')
     return JsonResponse({'data': data})
-
