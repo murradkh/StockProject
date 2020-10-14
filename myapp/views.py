@@ -2,8 +2,12 @@ from django.shortcuts import render, redirect
 from myapp import stock_api
 from myapp.models import Stock
 from django.http import JsonResponse
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
 
 
@@ -43,26 +47,40 @@ def single_stock(request, symbol):
 
 
 def register(request):
-    # If post -> register the user and redirect to main page
-    if request.method == 'POST':
-        firstname = request.POST.get('firstname')
-        lastname = request.POST.get('lastname')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+	# If post -> register the user and redirect to main page
+	if request.method == 'POST':
+		firstname = request.POST.get('firstname')
+		lastname = request.POST.get('lastname')
+		email = request.POST.get('email')
+		password = request.POST.get('password')
 
-        newuser = User.objects.create_user(username=email, email=email, password=password)
-        newuser.first_name = firstname
-        newuser.last_name = lastname
-        newuser.save()
-        return redirect('index')
-    else:
-        # If not post (regular request) -> render register page
-        return render(request, 'register.html', {'page_title': 'Register'})
+		newuser = User.objects.create_user(username=email, email=email, password=password)
+		newuser.first_name = firstname
+		newuser.last_name = lastname
+		newuser.save()
+		login(request, newuser)
+		return redirect('index')
+	else:
+		# If not post (regular request) -> render register page
+		return render(request, 'register.html', {'page_title': 'Register'})
+
+
+@login_required(login_url='login')
+def password_change_view(request):
+	form = PasswordChangeForm(request.user, request.POST or None)
+	if form.is_valid():
+		user = form.save()
+		update_session_auth_hash(request, user)
+		messages.info(request, 'Your password was successfully updated!')
+		return redirect('index')
+	else:
+		messages.warning(request, 'Please enter the correct data below')
+	return render(request, 'password_change.html', {'page_title': 'Change password', 'form': form})
 
 
 def logout_view(request):
-    logout(request)
-    return redirect('index')
+	logout(request)
+	return redirect('index')
 
 
 # API for a stock's price over time
