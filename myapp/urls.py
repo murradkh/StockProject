@@ -13,5 +13,6 @@ urlpatterns = [
 	path('stock/<str:symbol>/wremove/', views.watchlist_remove_view, name='watchlist_remove'),
 	path('stock/<str:symbol>/wadd/', views.watchlist_add_view, name='watchlist_add'),
 	path('accounts/profile/', views.profile_view, name='profile'),
+	path('accounts/password/', views.password_change_view, name='password_change'),
 	path('accounts/register/', views.register, name='register'),
 ]

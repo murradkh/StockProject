@@ -2,10 +2,15 @@ from django.shortcuts import render, redirect
 from myapp import stock_api
 from myapp.models import Stock, Profile
 from django.http import JsonResponse, Http404
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
+from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
 
 
 # View for the home page - a list of 20 of the most active stocks
@@ -18,15 +23,34 @@ def index(request):
 	return render(request, 'index.html', {'page_title': 'Main', 'data': data, 'profile': profile})
 
 
-# View for the single stock page
-# symbol is the requested stock's symbol ('AAPL' for Apple)
 def single_stock(request, symbol):
-	data = stock_api.get_stock_info(symbol)
-	stock = Stock.objects.get(symbol=symbol)
+    context = {}
 	profile = None
-	if request.user.is_authenticated:
-		profile = Profile.objects.get(user=request.user)
-	return render(request, 'single_stock.html', {'page_title': 'Stock Page - %s' % symbol, 'data': data, 'stock': stock, 'profile': profile})
+    status_code = 200
+    template = 'single_stock.html'
+    try:
+        data = stock_api.get_stock_info(symbol)
+		stock = Stock.objects.get(symbol=symbol)
+		if request.user.is_authenticated:
+			profile = Profile.objects.get(user=request.user)
+    except StockSymbolNotFound as e:
+        status_code = 404  # stock symbol not found!
+        context = {'error_message': e.message, "status_code": status_code}
+        template = "exception.html"
+    except StockServerUnReachable as e:
+        status_code = 503  # Service Unavailable code
+        context = {'error_message': e.message, "status_code": status_code}
+        template = "exception.html"
+    except Exception as e:
+        status_code = 520  # Unknown Error
+        context = {'error_message': "Unknown Error occurred: {}".format(", ".join(e.args)), "status_code": status_code}
+        template = "exception.html"
+    else:
+        context = {'page_title': 'Stock Page - %s' % symbol, 'data': data, 'stock': stock, 'profile': profile}
+    finally:
+        response = render(request, template, context)
+        response.status_code = status_code
+        return response
 
 
 def register(request):
@@ -86,6 +110,19 @@ def watchlist_remove_view(request, symbol):
 		return redirect(next)
 
 
+@login_required(login_url='login')
+def password_change_view(request):
+	form = PasswordChangeForm(request.user, request.POST or None)
+	if form.is_valid():
+		user = form.save()
+		update_session_auth_hash(request, user)
+		messages.info(request, 'Your password was successfully updated!')
+		return redirect('index')
+	else:
+		messages.warning(request, 'Please enter the correct data below')
+	return render(request, 'password_change.html', {'page_title': 'Change password', 'form': form})
+
+
 def logout_view(request):
 	logout(request)
 	return redirect('index')
@@ -95,5 +132,21 @@ def logout_view(request):
 # symbol is the requested stock's symbol ('AAPL' for Apple)
 # The response is JSON data of an array composed of "snapshot" objects (date + stock info + ...), usually one per day
 def single_stock_historic(request, symbol):
-	data = stock_api.get_stock_historic_prices(symbol, time_range='1m')
-	return JsonResponse({'data': data})
+    context = None
+    status_code = 200
+    try:
+        data = stock_api.get_stock_historic_prices(symbol, time_range='1m')
+        context = {'data': data}
+    except StockSymbolNotFound as e:
+        context = {"error_message": e.message}
+        status_code = 404
+    except StockServerUnReachable as e:
+        context = {"error_message": e.message}
+        status_code = 503
+    except Exception as e:
+        context = {"error_message": "Unknown Error occurred: {}".format(", ".join(e.args))}
+        status_code = 520
+    finally:
+        response = JsonResponse(context)
+        response.status_code = status_code
+        return response
