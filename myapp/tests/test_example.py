@@ -18,4 +18,3 @@ class SingleStockTestCase(TestCase):
         c = Client()
         response = c.get('/stock/GE/')
         self.assertEquals(response.status_code, 200)
-
