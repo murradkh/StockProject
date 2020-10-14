@@ -14,9 +14,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from . import views
+from django.views.generic.base import RedirectView
+
 
 urlpatterns = [
     path('', include('myapp.urls')),
     path('admin/', admin.site.urls),
+    # checking if the request url path doesn't trailing with / character
+    # if not then redirecting to the same url with / trailer
+    re_path(r"^(?P<endpoint>(([\w|/])*\w)(?!/))$", RedirectView.as_view(url="/%(endpoint)s/")),
+    re_path(r"", views.page_not_found, name='page_not_found'),
+
 ]
