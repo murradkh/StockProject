@@ -37,9 +37,9 @@ def single_stock(request, symbol):
     else:
         context = {'page_title': 'Stock Page - %s' % symbol, 'data': data}
     finally:
-        resp = render(request, template, context)
-        resp.status_code = status_code
-        return resp
+        response = render(request, template, context)
+        response.status_code = status_code
+        return response
 
 
 def register(request):
@@ -69,5 +69,21 @@ def logout_view(request):
 # symbol is the requested stock's symbol ('AAPL' for Apple)
 # The response is JSON data of an array composed of "snapshot" objects (date + stock info + ...), usually one per day
 def single_stock_historic(request, symbol):
-    data = stock_api.get_stock_historic_prices(symbol, time_range='1m')
-    return JsonResponse({'data': data})
+    context = None
+    status_code = 200
+    try:
+        data = stock_api.get_stock_historic_prices(symbol, time_range='1m')
+        context = {'data': data}
+    except StockSymbolNotFound as e:
+        context = {"error_message": e.message}
+        status_code = 404
+    except StockServerUnReachable as e:
+        context = {"error_message": e.message}
+        status_code = 503
+    except Exception as e:
+        context = {"error_message": "Unknown Error occurred: {}".format(", ".join(e.args))}
+        status_code = 520
+    finally:
+        response = JsonResponse(context)
+        response.status_code = status_code
+        return response
