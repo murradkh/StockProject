@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="col-md-12 text-left">
+		<h3>Your Watchlist</h3>
+</div>
+    {% if profile.watchlist.all %}
+        <table class="table table-hover data-table">
+            <tr>
+                <th>#</th>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Change</th>
+                <th>Actions</th>
+            </tr>
+            {% for stock in profile.watchlist.all %}
+                <tr class="clickable-row" data-href="/stock/{{ stock.symbol }}">
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ stock.symbol }}</td>
+                    <td>{{ stock.name }}</td>
+                    <td>{{ stock.price|floatformat:2 }}</td>
+                    <td class="
+                    {% if stock.change_percent >= 0 %}
+                        text-success
+                    {% else %}
+                        text-danger
+                    {% endif %}
+                    ">{{ stock.change_percent|floatformat:2 }}%</td>
+                    <td><form method="post" action="{% url 'watchlist_remove' symbol=stock.symbol %}"> {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="btn btn-outline-danger" style="padding: 0px 6px;"><i class="fa fa-eye-slash"></i></button>
+                    </form></td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        Your watchlist is currently empty 
+    {% endif %}
+</div>
+{% endblock %}
+
