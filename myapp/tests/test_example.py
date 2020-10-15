@@ -14,6 +14,6 @@ class SingleStockTestCase(TestCase):
         )
 
     def test_get_stock(self):   # NOTE: Test function name must always start with test_
-        c = Client()
-        response = c.get('/stock/GE/')
-        self.assertEquals(response.status_code, 200)
+        client = Client()
+        response = client.get('/stock/GE/')
+        self.assertEqual(response.status_code, 200)
