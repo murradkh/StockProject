@@ -23,6 +23,8 @@ def index(request):
 	return render(request, 'index.html', {'page_title': 'Main', 'data': data, 'profile': profile})
 
 
+# View for the single stock page
+# symbol is the requested stock's symbol ('AAPL' for Apple)
 def single_stock(request, symbol):
 	context = {}
 	profile = None
