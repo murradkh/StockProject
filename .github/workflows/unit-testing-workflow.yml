@@ -1,7 +1,6 @@
 name: Stock App Testing
 
-on:
-  [pull_request]
+on: [pull_request]
 
 
 
