@@ -1,7 +1,9 @@
-name: Unit Testing
+name: Stock App Testing
 
 on:
-  [pull_request]
+  # change this
+  [push]
+
 
 
 jobs:
