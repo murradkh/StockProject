@@ -1,5 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from .stock_api_update import stock_api_update
+from django.core import management
 
 
 def start():
