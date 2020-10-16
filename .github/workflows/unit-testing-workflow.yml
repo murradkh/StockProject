@@ -1,4 +1,4 @@
-name: Stock App Testing
+name: Unite Testing
 
 on: [pull_request]
 
