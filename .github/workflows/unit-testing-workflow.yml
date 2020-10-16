@@ -1,8 +1,7 @@
 name: Stock App Testing
 
 on:
-  # change this
-  [push]
+  [pull_request]
 
 
 
