@@ -8,7 +8,7 @@ from myapp import stock_api
 # It will run 'handle' function
 class Command(BaseCommand):
 	def update_top_stocks(self):
-		top_stocks = stock_api._get_top_stocks()
+		top_stocks = stock_api.get_top_stocks()
 
 		index = 1
 		for stock in top_stocks:

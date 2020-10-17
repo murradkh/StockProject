@@ -1,7 +1,7 @@
 from django.test import TestCase
-
+from datetime import datetime
 from myapp.exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
-from myapp.stock_api import get_stock_info
+from myapp.stock_api import get_stock_info, get_stock_historic_prices, get_top_stocks
 
 
 class StockApiTestCase(TestCase):
@@ -12,7 +12,7 @@ class StockApiTestCase(TestCase):
 
     def test_service_is_up(self):
         try:
-            get_stock_info('AAL')
+            get_stock_info(self.existed_symbols[0])
         except StockServerUnReachable as e:
             raise AssertionError(e)
 
@@ -25,8 +25,21 @@ class StockApiTestCase(TestCase):
 
     def test_get_stock_historic_prices(self):
         for symbol in self.not_existed_symbols:
-            self.assertRaises(StockSymbolNotFound, get_stock_info, symbol)
+            self.assertRaises(StockSymbolNotFound, get_stock_historic_prices, symbol)
         for symbol in self.existed_symbols:
-            response = get_stock_info(symbol)
-            self.assertIsInstance(response, dict)
+            response = get_stock_historic_prices(symbol)
+            self.assertIsInstance(response, list)
 
+        # testing time range
+        response = get_stock_historic_prices(self.existed_symbols[0], '1m')
+        first_month = datetime.fromisoformat(response[0].get('date')).month
+        second_month = datetime.today().month
+        self.assertEquals(second_month - first_month, 1)
+        response = get_stock_historic_prices(self.existed_symbols[0], '1d')
+        first_day = datetime.fromisoformat(response[0].get('date')).day
+        second_day = datetime.today().day
+        self.assertEquals(second_day - first_day, 1)
+
+    def test_get_top_stocks(self):
+        response = get_top_stocks()
+        self.assertIsInstance(response, list)

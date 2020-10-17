@@ -36,10 +36,19 @@ def _request_data(url, filter='', additional_parameters={}):
     return response.json()
 
 
-def _get_top_stocks():
-    return _request_data('/stable/stock/market/list/mostactive',
-                         filter='symbol,companyName,latestVolume,change,changePercent,primaryExchange,marketCap,latestPrice,calculationPrice',
-                         additional_parameters={'displayPercent': 'true', 'listLimit': '20'})
+def get_top_stocks():
+    try:
+        return _request_data('/stable/stock/market/list/mostactive',
+                             filter='symbol,companyName,latestVolume,change,changePercent,primaryExchange,marketCap,'
+                                    'latestPrice,calculationPrice',
+                             additional_parameters={'displayPercent': 'true', 'listLimit': '20'})
+    except ConnectionError:
+        raise StockServerUnReachable("Stock server UnReachable!")
+    except Exception as e:
+        for arg in e.args:
+            if isinstance(arg, dict) and (b"Unknown symbol" in arg.values() or b"Not found" in arg.values()):
+                raise StockSymbolNotFound("Stock symbol not found!")
+        raise e
 
 
 def get_stock_info(symbol):
@@ -49,7 +58,6 @@ def get_stock_info(symbol):
                              additional_parameters={'displayPercent': 'true'})
     except ConnectionError:
         raise StockServerUnReachable("Stock server UnReachable!")
-
     except Exception as e:
         for arg in e.args:
             if isinstance(arg, dict) and (b"Unknown symbol" in arg.values() or b"Not found" in arg.values()):
