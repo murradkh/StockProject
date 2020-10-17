@@ -2,8 +2,11 @@ from django.test import TestCase, Client
 from myapp.models import Stock
 
 
-class SingleStockTestCase(TestCase):
-    def setUp(self):            # NOTE: Optional function for setting up initial conditions
+class SingleStockTestCase(TestCase):  # If your class doesn't use a database, use SimpleTestCase to inherit from
+    fixtures = ['stocks.json']
+
+    @classmethod
+    def setUpTestData(cls):  # allows the creation of initial data at the class level, once for the whole TestCase.
         Stock.objects.create(
             symbol="GE",
             name='General Electric',
@@ -13,7 +16,10 @@ class SingleStockTestCase(TestCase):
             change_percent=15.0
         )
 
-    def test_get_stock(self):   # NOTE: Test function name must always start with test_
-        client = Client()
-        response = client.get('/stock/GE/')
+    def setUp(self):  # NOTE: Optional function for setting up initial setups
+        pass
+
+    def test_get_stock(self):  # NOTE: Test function name must always start with test_
+        # this instance creation is uneeded when the clsas inherting from TestCase, it has a default one "self.client"
+        response = self.client.get('/stock/GE/')
         self.assertEqual(response.status_code, 200)
