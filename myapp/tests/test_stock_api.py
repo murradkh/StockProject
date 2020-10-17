@@ -7,7 +7,7 @@ from myapp.stock_api import get_stock_info
 class StockApiTestCase(TestCase):
 
     def setUp(self):
-        self.existed_symbols = ['AAL', 'WFC', "CCL"]
+        self.existed_symbols = ['AAL', 'WFC', "DFS"]
         self.not_existed_symbols = ['kamal', 'murad', 'malak']
 
     def test_service_is_up(self):
