@@ -20,6 +20,6 @@ class SingleStockTestCase(TestCase):  # If your class doesn't use a database, us
         pass
 
     def test_get_stock(self):  # NOTE: Test function name must always start with test_
-        # this instance creation is uneeded when the clsas inherting from TestCase, it has a default one "self.client"
+        # this instance creation is unneeded when the class inheriting from TestCase, it has a default one "self.client"
         response = self.client.get('/stock/GE/')
         self.assertEqual(response.status_code, 200)
