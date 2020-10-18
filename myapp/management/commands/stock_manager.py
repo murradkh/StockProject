@@ -7,5 +7,6 @@ from myapp.scheduler import stock_api_update
 # It will run 'handle' function
 class Command(BaseCommand):
 
+
     def handle(self, *args, **kwargs):
         stock_api_update.stock_api_update()
