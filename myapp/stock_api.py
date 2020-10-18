@@ -37,7 +37,7 @@ def _request_data(url, filter='', additional_parameters={}):
 
 
 
-def _get_top_stocks():
+def get_top_stocks():
 
     try:
         return _request_data('/stable/stock/market/list/mostactive',
