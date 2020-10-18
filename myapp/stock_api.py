@@ -36,9 +36,7 @@ def _request_data(url, filter='', additional_parameters={}):
     return response.json()
 
 
-
-def _get_top_stocks():
-
+def get_top_stocks():
     try:
         return _request_data('/stable/stock/market/list/mostactive',
                              filter='symbol,companyName,latestVolume,change,changePercent,primaryExchange,marketCap,'
