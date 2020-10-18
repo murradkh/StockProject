@@ -35,10 +35,6 @@ class StockApiTestCase(TestCase):
         first_month = datetime.fromisoformat(response[0].get('date')).month
         second_month = datetime.today().month
         self.assertEquals(second_month - first_month, 1)
-        response = get_stock_historic_prices(self.existed_symbols[0], '1d')
-        first_day = datetime.fromisoformat(response[0].get('date')).day
-        second_day = datetime.today().day
-        self.assertEquals(second_day - first_day, 1)
 
     def test_get_top_stocks(self):
         response = get_top_stocks()
