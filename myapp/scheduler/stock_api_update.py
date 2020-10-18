@@ -5,7 +5,7 @@ from django.db import transaction
 
 @transaction.atomic
 def stock_api_update():
-    top_stocks = stock_api._get_top_stocks()
+    top_stocks = stock_api.get_top_stocks()
     index = 1
     try:
         for stock in top_stocks:
