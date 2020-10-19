@@ -18,7 +18,7 @@
                 <th>Actions</th>
             {% endif %}
         </tr>
-        {% for stock in data %}
+        {% for stock in page_obj %}
             <tr class="clickable-row" data-href="/stock/{{ stock.symbol }}">
 
                 <td>{{ forloop.counter }}</td>
@@ -49,5 +49,38 @@
 
             </tr>
         {% endfor %}
+
     </table>
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                {% else %}
+            <li class="page-item disabled">
+                {% endif %}
+                <a class="page-link" href="?page=1&{{msgs_per_page_query}}&{{search_query}}">First</a>
+            </li>
+            {% for i in pages_indices %}
+            {% if page_obj.number != i %}
+            <li class="page-item"><a class="page-link"
+                                     href="?page={{i}}&{{msgs_per_page_query}}&{{search_query}}">{{i}}</a></li>
+            {% else %}
+            <li class="page-item disabled"><a class="page-link"
+                                              href="?page={{i}}&{{msgs_per_page_query}}&{{search_query}}" tabindex="-1">
+                {{i}}
+            </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                {% else %}
+            <li class="page-item disabled">
+                {% endif %}
+                <a class="page-link"
+                   href="?page={{page_obj.paginator.num_pages}}&{{msgs_per_page_query}}&{{search_query}}">Last</a>
+            </li>
+        </ul>
+    </nav>
 {% endblock %}

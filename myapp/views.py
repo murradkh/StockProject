@@ -1,4 +1,9 @@
+from urllib.parse import urlencode
+
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+from django.urls import reverse
+
 from myapp import stock_api
 from myapp.models import Stock, Profile
 from django.http import JsonResponse, Http404
@@ -12,15 +17,50 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
 
+DEF_MSGS_PER_PAGE = 10
 
-# View for the home page - a list of 20 of the most active stocks
+
 def index(request):
-    # Query the stock table, filter for top ranked stocks and order by their rank.
-    data = Stock.objects.filter(top_rank__isnull=False).order_by('top_rank')
-    profile = None
-    if request.user.is_authenticated:
-        profile = Profile.objects.get(user=request.user)
-    return render(request, 'index.html', {'page_title': 'Main', 'data': data, 'profile': profile})
+    if request.method == "GET":
+        kwargs = request.GET
+        msgs_per_page_query = {}
+        search_query = {}
+
+        if "search_title" in kwargs:
+            stocks = Stock.objects.filter(title__contains=kwargs['search_title']).order_by('-created_on')
+            search_query = {"search_title": kwargs['search_title']}
+        else:
+            stocks = Stock.objects.all().order_by('top_rank')
+
+        if "msgs_per_page" in kwargs and kwargs.get("msgs_per_page").isdecimal() \
+                and int(kwargs.get("msgs_per_page")) > 0:
+            paginator = Paginator(stocks, int(kwargs.get("msgs_per_page")))
+            msgs_per_page_query.update({"msgs_per_page": kwargs['msgs_per_page']})
+        else:
+            paginator = Paginator(stocks, DEF_MSGS_PER_PAGE)
+
+        if "page" in kwargs:
+            page_number = kwargs.get('page')
+        else:
+            page_number = 1
+        page_obj = paginator.get_page(page_number)
+
+        profile = None
+        if request.user.is_authenticated:
+            profile = Profile.objects.get(user=request.user)
+
+        context = {
+            'page_obj': page_obj,
+            "pages_indices": range(1, paginator.num_pages + 1),
+            # "search_form": SearchForm,
+            "search_query": urlencode(search_query),
+            "msgs_per_page_query": urlencode(msgs_per_page_query),
+            'page_title': 'Main',
+            'profile': profile
+        }
+
+        return render(request, 'index.html', context)
+    return redirect(reverse("index"))
 
 
 # View for the single stock page
