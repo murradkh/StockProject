@@ -6,7 +6,7 @@
 		<h3>Your Watchlist</h3>
 </div>
     {% if profile.watchlist.all %}
-        <table class="table table-hover data-table">
+        <table id="stockstable" class="table table-hover data-table">
             <tr>
                 <th>#</th>
                 <th>Symbol</th>
@@ -16,7 +16,7 @@
                 <th>Actions</th>
             </tr>
             {% for stock in profile.watchlist.all %}
-                <tr class="clickable-row" data-href="/stock/{{ stock.symbol }}">
+                <tr id="row{{forloop.counter}}" class="clickable-row" data-href="/stock/{{ stock.symbol }}">
                     <td>{{ forloop.counter }}</td>
                     <td>{{ stock.symbol }}</td>
                     <td>{{ stock.name }}</td>
@@ -26,12 +26,12 @@
                         text-success
                     {% else %}
                         text-danger
-                    {% endif %}
-                    ">{{ stock.change_percent|floatformat:2 }}%</td>
-                    <td><form method="post" action="{% url 'watchlist_remove' symbol=stock.symbol %}"> {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit" class="btn btn-outline-danger" style="padding: 0px 6px;"><i class="fa fa-eye-slash"></i></button>
-                    </form></td>
+                    {% endif %}">
+                    {{ stock.change_percent|floatformat:2 }}%
+                    </td>
+                    <td onclick="event.cancelBubble=true; return false;">
+                        <button onclick="watchlistRemove('{{stock.symbol}}','{{forloop.counter}}')" class="btn btn-outline-danger" style="padding: 0px 6px;"><i class='fa fa-eye-slash'></i></button>
+                    </td>
                 </tr>
             {% endfor %}
         </table>
@@ -41,3 +41,24 @@
 </div>
 {% endblock %}
 
+{% block scripts %}
+<script>
+    function watchlistRemove(symbol, number) {
+    
+        var row = document.getElementById("row" + number);
+        row.parentNode.removeChild(row);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", `../../stock/${symbol}/wremove/`, true);
+        xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+        xhr.send();
+
+        var table = document.getElementById('stockstable');
+        var rowCount = table.rows.length;
+
+        if (rowCount == "1"){
+            table.innerHTML="Your watchlist is currently empty";
+        }
+    }
+</script>
+{% endblock %}

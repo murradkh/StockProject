@@ -32,7 +32,7 @@ def single_stock(request, symbol):
 	template = 'single_stock.html'
 	try:
 		data = stock_api.get_stock_info(symbol)
-		stock = Stock.objects.get(symbol=symbol)
+		stock = Stock.objects.filter(symbol=symbol)[:1]
 		if request.user.is_authenticated:
 			profile = Profile.objects.get(user=request.user)
 	except StockSymbolNotFound as e:
@@ -88,28 +88,20 @@ def watchlist_view(request):
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
-def watchlist_add_view(request, symbol):
-	profile = Profile.objects.get(user=request.user)
-	stock = Stock.objects.filter(symbol=symbol)
-	if not stock.exists():
-		raise Http404("Stock does not exist")
-	else:
-		Stock.add_to_watchlist(profile, symbol)
-		next = request.POST.get('next', '/')
-		return redirect(next)
-
-
-@require_http_methods(['POST'])
-@login_required(login_url='login')
-def watchlist_remove_view(request, symbol):
-	profile = Profile.objects.get(user=request.user)
-	stock = Stock.objects.filter(symbol=symbol)
-	if not stock.exists():
-		raise Http404("Stock does not exist")
-	else:
-		Stock.remove_from_watchlist(profile, symbol)
-		next = request.POST.get('next', '/')
-		return redirect(next)
+def watchlist_edit_view(request, symbol, operation):
+    profile = Profile.objects.get(user=request.user)
+    stock = Stock.objects.filter(symbol=symbol)[:1]
+    if not stock.exists():
+        response = render(request, "exception.html", {'error_message': 'Stock symbol not found', 'status_code': 404})
+        response.status_code = 404
+        return response
+    else:
+        if operation == "wremove":
+            Stock.remove_from_watchlist(profile, symbol)
+        if operation == "wadd":
+            Stock.add_to_watchlist(profile, symbol)
+        nextpage = request.POST.get('next', '/')
+        return redirect(nextpage)               # NOTE: last two lines no longer needed, remove?
 
 
 @login_required(login_url='login')

@@ -33,16 +33,11 @@
                 {% endif %}
                 ">{{ stock.change_percent|floatformat:2 }}%</td>
                 {% if profile %}
-                <td>{% if stock in profile.watchlist.all %}
-                    <form method="post" action="{% url 'watchlist_remove' symbol=stock.symbol %}"> {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit" class="btn btn-outline-danger" style="padding: 0px 6px;"><i class="fa fa-eye-slash"></i></button>
-                    </form>
+                <td onclick="event.cancelBubble=true; return false;">
+                    {% if stock in profile.watchlist.all %}
+                        <button id="editbutton{{forloop.counter}}" onclick="watchlistEdit('{{stock.symbol}}','{{forloop.counter}}')" class="btn btn-outline-danger" style="padding: 0px 6px;"><i id="eyeicon{{forloop.counter}}" class='fa fa-eye-slash'></i></button>
                     {% else %}
-                    <form method="post" action="{% url 'watchlist_add' symbol=stock.symbol %}"> {% csrf_token %}
-                        <input type="hidden" name="next" value="{{ request.path }}">
-                        <button type="submit" class="btn btn-outline-primary" style="padding: 0px 6px;"><i class="fa fa-eye"></i></button>
-                    </form>
+                        <button id="editbutton{{forloop.counter}}" onclick="watchlistEdit('{{stock.symbol}}','{{forloop.counter}}')" class="btn btn-outline-primary" style="padding: 0px 6px;"><i id="eyeicon{{forloop.counter}}" class='fa fa-eye'></i></button>
                     {% endif %}
                 </td>
                 {% endif %}
@@ -50,4 +45,26 @@
             </tr>
         {% endfor %}
     </table>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function watchlistEdit(symbol, number) {
+        var xhr = new XMLHttpRequest();
+        var icon = document.getElementById("eyeicon" + number);
+        var editButton = document.getElementById("editbutton" + number);
+        if (icon.className == "fa fa-eye") {
+            xhr.open("POST", `stock/${symbol}/wadd/`, true);
+            icon.className = "fa fa-eye-slash";
+            editButton.className = "btn btn-outline-danger";
+        } 
+        else {
+            xhr.open("POST", `stock/${symbol}/wremove/`, true);
+            icon.className = "fa fa-eye";
+            editButton.className = "btn btn-outline-primary";     
+        }
+        xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+        xhr.send();
+    }
+</script>
 {% endblock %}
