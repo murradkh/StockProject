@@ -17,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
 
-DEF_MSGS_PER_PAGE = 10
+STOCKS_PER_PAGE = 10
 
 
 def index(request):
@@ -37,7 +37,7 @@ def index(request):
             paginator = Paginator(stocks, int(kwargs.get("msgs_per_page")))
             msgs_per_page_query.update({"msgs_per_page": kwargs['msgs_per_page']})
         else:
-            paginator = Paginator(stocks, DEF_MSGS_PER_PAGE)
+            paginator = Paginator(stocks, STOCKS_PER_PAGE)
 
         if "page" in kwargs:
             page_number = kwargs.get('page')
