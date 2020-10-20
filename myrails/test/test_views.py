@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 
-class ViewsTestCase(TestCase):
+class UnknownPagesTestCase(TestCase):
 
     def setUp(self):
         self.not_existed_endpoints = ['/test/', "/test/test/", "/historic/", "/stock/", "/stock/AAL/test/",
