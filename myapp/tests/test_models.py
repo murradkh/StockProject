@@ -30,6 +30,6 @@ class StockWatchlistTestCase(TestCase):
 
     def test_watchlist_stock_deleted(self):
         self.client.post('/accounts/login/', {'username': 'tester', 'password': 'randomexample'})
-        response = self.client.post('/stock/APPL/wadd/')
+        self.client.post('/stock/APPL/wadd/')
         self.test_stock.delete()    # Deleted stock also removed from watchlist
         self.assertEqual(Profile.objects.get(user=self.test_user).watchlist.all().count(), 0)
