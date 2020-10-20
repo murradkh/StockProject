@@ -4,7 +4,7 @@ from myapp.exceptions.stock_service import StockServerUnReachable, StockSymbolNo
 from myapp.stock_api import get_stock_info
 
 
-class ViewsTestCase(TestCase):
+class EndPointsTestCase(TestCase):
 
     def setUp(self):
         self.existed_symbols = ['AAL', 'WFC', "CCL"]
