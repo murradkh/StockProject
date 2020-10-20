@@ -23,7 +23,7 @@ STOCKS_PER_PAGE = 10
 def index(request):
     if request.method == "GET":
         kwargs = request.GET
-        msgs_per_page_query = {}
+        stocks_per_page_query = {}
         search_query = {}
 
         if "search_title" in kwargs:
@@ -32,10 +32,10 @@ def index(request):
         else:
             stocks = Stock.objects.all().order_by('top_rank')
 
-        if "msgs_per_page" in kwargs and kwargs.get("msgs_per_page").isdecimal() \
-                and int(kwargs.get("msgs_per_page")) > 0:
-            paginator = Paginator(stocks, int(kwargs.get("msgs_per_page")))
-            msgs_per_page_query.update({"msgs_per_page": kwargs['msgs_per_page']})
+        if "stocks_per_page" in kwargs and kwargs.get("stocks_per_page").isdecimal() \
+                and int(kwargs.get("stocks_per_page")) > 0:
+            paginator = Paginator(stocks, int(kwargs.get("stocks_per_page")))
+            stocks_per_page_query.update({"stocks_per_page": kwargs['stocks_per_page']})
         else:
             paginator = Paginator(stocks, STOCKS_PER_PAGE)
 
@@ -54,7 +54,7 @@ def index(request):
             "pages_indices": range(1, paginator.num_pages + 1),
             # "search_form": SearchForm,
             "search_query": urlencode(search_query),
-            "msgs_per_page_query": urlencode(msgs_per_page_query),
+            "stocks_per_page_query": urlencode(stocks_per_page_query),
             'page_title': 'Main',
             'profile': profile
         }
