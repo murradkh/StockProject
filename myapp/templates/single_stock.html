@@ -121,18 +121,34 @@
     });
     
     function watchlistEdit() {
-        var xhr = new XMLHttpRequest();
         var editButton = document.getElementById("editbutton");
+
         if (editButton.innerHTML.includes("Add to watchlist")) {
-            xhr.open("POST", "{% url 'watchlist_edit' symbol=data.symbol operation='wadd' %}", true);
-            editButton.innerHTML = "<i class='fa fa-eye-slash'></i> Remove from watchlist";
-            editButton.className = "btn btn-outline-danger";   
-        } 
-        else {
-            xhr.open("POST", "{% url 'watchlist_edit' symbol=data.symbol operation='wremove' %}", true);
-            editButton.innerHTML = "<i class='fa fa-eye'></i> Add to watchlist";
-            editButton.className = "btn btn-outline-primary";            
+            var operation = "wadd";
         }
+        else {
+            var operation = "wremove";   
+        }
+ 
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", `${operation}/`, true);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                var status = xhr.status;
+                // In local files, status is 0 upon success
+                if (status === 0 || (status >= 200 && status < 400)) {
+                    if (operation == "wadd") {
+                        editButton.innerHTML = "<i class='fa fa-eye-slash'></i> Remove from watchlist";
+                        editButton.className = "btn btn-outline-danger";   
+                    } 
+                    else {
+                        editButton.innerHTML = "<i class='fa fa-eye'></i> Add to watchlist";
+                        editButton.className = "btn btn-outline-primary";            
+                    }
+                }
+            }
+        };
         xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
         xhr.send();
     }
