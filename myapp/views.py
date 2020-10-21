@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from myapp import stock_api
 from myapp.models import Stock, Profile
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpResponse
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
@@ -100,8 +100,7 @@ def watchlist_edit_view(request, symbol, operation):
             Stock.remove_from_watchlist(profile, symbol)
         if operation == "wadd":
             Stock.add_to_watchlist(profile, symbol)
-        nextpage = request.POST.get('next', '/')
-        return redirect(nextpage)               # NOTE: last two lines no longer needed, remove?
+        return HttpResponse("OK")
 
 
 @login_required(login_url='login')
