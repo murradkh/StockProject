@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from myapp import stock_api
 from myapp.models import Stock, Profile
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpResponse
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
@@ -72,7 +72,7 @@ def single_stock(request, symbol):
     template = 'single_stock.html'
     try:
         data = stock_api.get_stock_info(symbol)
-        stock = Stock.objects.get(symbol=symbol)
+        stock = Stock.objects.filter(symbol=symbol)[:1]
         if request.user.is_authenticated:
             profile = Profile.objects.get(user=request.user)
     except StockSymbolNotFound as e:
@@ -130,26 +130,30 @@ def watchlist_view(request):
 @login_required(login_url='login')
 def watchlist_add_view(request, symbol):
     profile = Profile.objects.get(user=request.user)
-    stock = Stock.objects.filter(symbol=symbol)
+    stock = Stock.objects.filter(symbol=symbol)[:1]
     if not stock.exists():
-        raise Http404("Stock does not exist")
+        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
+        response = render(request, 'exception.html', context)
+        response.status_code = 404
     else:
         Stock.add_to_watchlist(profile, symbol)
-        next = request.POST.get('next', '/')
-        return redirect(next)
+        response = HttpResponse('OK')
+    return response
 
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def watchlist_remove_view(request, symbol):
     profile = Profile.objects.get(user=request.user)
-    stock = Stock.objects.filter(symbol=symbol)
+    stock = Stock.objects.filter(symbol=symbol)[:1]
     if not stock.exists():
-        raise Http404("Stock does not exist")
+        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
+        response = render(request, 'exception.html', context)
+        response.status_code = 404
     else:
         Stock.remove_from_watchlist(profile, symbol)
-        next = request.POST.get('next', '/')
-        return redirect(next)
+        response = HttpResponse('OK')
+    return response
 
 
 @login_required(login_url='login')
