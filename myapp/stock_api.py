@@ -6,7 +6,6 @@ import requests
 BASE_URL = 'https://sandbox.iexapis.com'
 PUBLIC_TOKEN = 'Tpk_c818732500c24764801eb121fa658bb6'
 
-
 # Real API - FOR PRODUCTION
 # YOU NEED TO CREATE AN ACCOUNT TO RECEIVE YOUR OWN API KEYS (its free)
 # BASE_URL = '<MAKE_AN_ACCOUNT>'
@@ -18,6 +17,10 @@ PUBLIC_TOKEN = 'Tpk_c818732500c24764801eb121fa658bb6'
 
 # For all symbols with prices (*free weight*)
 # https://cloud.iexapis.com/stable/tops/last?token=pk_dd07f5a1aaea4a039cfe8118f3d9727a
+
+STOCKS_AMOUNT_TO_FETCH = 200
+
+
 def _request_data(url, filter='', additional_parameters={}):
     final_url = BASE_URL + url
 
@@ -36,14 +39,12 @@ def _request_data(url, filter='', additional_parameters={}):
     return response.json()
 
 
-
 def get_top_stocks():
-
     try:
         return _request_data('/stable/stock/market/list/mostactive',
                              filter='symbol,companyName,latestVolume,change,changePercent,primaryExchange,marketCap,'
                                     'latestPrice,calculationPrice',
-                             additional_parameters={'displayPercent': 'true', 'listLimit': '20'})
+                             additional_parameters={'displayPercent': 'true', 'listLimit': STOCKS_AMOUNT_TO_FETCH})
     except ConnectionError:
         raise StockServerUnReachable("Stock server UnReachable!")
     except Exception as e:
