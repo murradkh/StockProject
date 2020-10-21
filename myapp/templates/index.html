@@ -22,7 +22,7 @@
     </div>
 </div>
 
-</div>
+{% load myapp_tags %}
 
 <table class="table table-hover data-table">
     <tr>
@@ -35,10 +35,10 @@
         <th>Actions</th>
         {% endif %}
     </tr>
+    {% with len=page_obj|length page_num=page_obj.number %}
     {% for stock in page_obj %}
     <tr class="clickable-row" data-href="/stock/{{ stock.symbol }}">
-
-        <td>{{ forloop.counter }}</td>
+        <td>{% cal_index forloop.counter page_num len %}</td>
         <td>{{ stock.symbol }}</td>
         <td>{{ stock.name }}</td>
         <td>{{ stock.price|floatformat:2 }}</td>
@@ -69,6 +69,7 @@
 
     </tr>
     {% endfor %}
+    {% endwith %}
 
 </table>
 
