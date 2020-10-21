@@ -12,9 +12,10 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
-
 
 STOCKS_PER_PAGE = 10
 
@@ -125,26 +126,33 @@ def watchlist_view(request):
     return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile})
 
 
+@require_http_methods(['POST'])
 @login_required(login_url='login')
-def watchlist_edit_view(request, symbol, operation):
-    permitted_operations = ['wremove', 'wadd']
+def watchlist_add_view(request, symbol):
     profile = Profile.objects.get(user=request.user)
     stock = Stock.objects.filter(symbol=symbol)[:1]
-    if request.method == 'POST':
-        if not stock.exists() or operation not in permitted_operations:
-            context = {'error_message': 'Stock symbol or operation not found', 'status_code': 404}
-            response = render(request, 'exception.html', context)
-            response.status_code = 404
-        else:
-            if operation == permitted_operations[0]:
-                Stock.remove_from_watchlist(profile, symbol)
-            if operation == permitted_operations[1]:
-                Stock.add_to_watchlist(profile, symbol)
-            response = HttpResponse('OK')
-    else:
-        context = {'error_message': 'GET method not allowed', 'status_code': 405}
+    if not stock.exists():
+        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
         response = render(request, 'exception.html', context)
-        response.status_code = 405
+        response.status_code = 404
+    else:
+        Stock.add_to_watchlist(profile, symbol)
+        response = HttpResponse('OK')
+    return response
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def watchlist_remove_view(request, symbol):
+    profile = Profile.objects.get(user=request.user)
+    stock = Stock.objects.filter(symbol=symbol)[:1]
+    if not stock.exists():
+        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
+        response = render(request, 'exception.html', context)
+        response.status_code = 404
+    else:
+        Stock.remove_from_watchlist(profile, symbol)
+        response = HttpResponse('OK')
     return response
 
 
