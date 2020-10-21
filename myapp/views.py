@@ -26,9 +26,10 @@ def index(request):
         stocks_per_page_query = {}
         search_query = {}
 
-        if "search_title" in kwargs:
-            stocks = Stock.objects.filter(title__contains=kwargs['search_title']).order_by('-created_on')
-            search_query = {"search_title": kwargs['search_title']}
+        if "search_text" in kwargs:
+            stocks = Stock.objects.filter(symbol__contains=kwargs['search_text'],
+                                          name__contains=kwargs['search_text']).order_by('top_rank')
+            search_query = {"search_text": kwargs['search_text']}
         else:
             stocks = Stock.objects.all().order_by('top_rank')
 

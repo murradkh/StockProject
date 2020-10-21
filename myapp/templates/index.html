@@ -3,7 +3,23 @@
 {% block content %}
 
 <div class="row">
-    <div class="offset-sm-10">
+
+
+        <div class="col-9">
+            <!--  Search form -->
+            <form class="form-inline mr-auto" method="get">
+                {% csrf_token %}
+                <div class="md-form my-0">
+                    <input class="form-control" type="text" placeholder="Type Stock Name / Symbol" aria-label="Search"
+                           name="search_text">
+                    <button class="btn btn-secondary btn-sm" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+
+
+
+    <div class="offset-sm-1">
         <div class="btn-group">
             <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split btn-sm"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
