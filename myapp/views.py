@@ -16,6 +16,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
+from django.db.models import Q
 
 STOCKS_PER_PAGE = 10
 
@@ -27,8 +28,11 @@ def index(request):
         search_query = {}
 
         if "search_text" in kwargs:
-            stocks = Stock.objects.filter(symbol__contains=kwargs['search_text'],
-                                          name__contains=kwargs['search_text']).order_by('top_rank')
+
+            stocks = Stock.objects.filter(
+                Q(symbol__contains=kwargs['search_text']) | Q(name__contains=kwargs['search_text']))
+            #TODO
+            # order_by('top_rank')
             search_query = {"search_text": kwargs['search_text']}
         else:
             stocks = Stock.objects.all().order_by('top_rank')
