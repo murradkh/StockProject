@@ -131,7 +131,7 @@ def watchlist_view(request):
 def watchlist_edit_view(request, symbol, operation):
     profile = Profile.objects.get(user=request.user)
     stock = Stock.objects.filter(symbol=symbol)[:1]
-    if not stock.exists():
+    if not stock.exists() or (operation != "wremove" or operation != "wadd"):
         response = render(request, "exception.html", {'error_message': 'Stock symbol not found', 'status_code': 404})
         response.status_code = 404
         return response
