@@ -6,16 +6,10 @@
 		<tr>
 			<td><h2>{{ data.companyName }}<small class="text-muted">({{ data.symbol }}) &emsp14;</small></h2></td>
 			{% if profile %}
-			<td>{% if stock in profile.watchlist.all %}
-				<form method="post" action="{% url 'watchlist_remove' symbol=stock.symbol %}"> {% csrf_token %}
-					<input type="hidden" name="next" value="{{ request.path }}">
-					<button type="submit" class="btn btn-outline-danger"><i class="fa fa-eye-slash"></i> Remove from watchlist</button>
-				</form>
-				{% else %}
-				<form method="post" action="{% url 'watchlist_add' symbol=stock.symbol %}"> {% csrf_token %}
-					<input type="hidden" name="next" value="{{ request.path }}">
-					<button type="submit" class="btn btn-outline-primary"><i class="fa fa-eye"></i> Add to watchlist</button>
-				</form>
+			<td>{% if stock.0 in profile.watchlist.all %}
+                <button id="editbutton" onclick="watchlistEdit()" class="btn btn-outline-danger"><i class='fa fa-eye-slash'></i> Remove from watchlist</button>
+                {% else %}
+                <button id="editbutton" onclick="watchlistEdit()" class="btn btn-outline-primary"><i class='fa fa-eye'></i> Add to watchlist</button>
 				{% endif %}</td>
 			{% endif %} 
 		</tr>
@@ -124,6 +118,39 @@
 				}
 			});
 		});
-	});
+    });
+    
+    function watchlistEdit() {
+        var editButton = document.getElementById("editbutton");
+
+        if (editButton.innerHTML.includes("Add to watchlist")) {
+            var operation = "wadd";
+        }
+        else {
+            var operation = "wremove";   
+        }
+ 
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", `${operation}/`, true);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                var status = xhr.status;
+                // In local files, status is 0 upon success
+                if (status === 0 || (status >= 200 && status < 400)) {
+                    if (operation == "wadd") {
+                        editButton.innerHTML = "<i class='fa fa-eye-slash'></i> Remove from watchlist";
+                        editButton.className = "btn btn-outline-danger";   
+                    } 
+                    else {
+                        editButton.innerHTML = "<i class='fa fa-eye'></i> Add to watchlist";
+                        editButton.className = "btn btn-outline-primary";            
+                    }
+                }
+            }
+        };
+        xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+        xhr.send();
+    }
 </script>
 {% endblock %}
