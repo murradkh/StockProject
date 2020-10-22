@@ -1,26 +1,66 @@
+from urllib.parse import urlencode
+
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
+from django.urls import reverse
+
 from myapp import stock_api
 from myapp.models import Stock, Profile
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
 
 
-# View for the home page - a list of 20 of the most active stocks
+STOCKS_PER_PAGE = 10
+
+
 def index(request):
-    # Query the stock table, filter for top ranked stocks and order by their rank.
-    data = Stock.objects.filter(top_rank__isnull=False).order_by('top_rank')
-    profile = None
-    if request.user.is_authenticated:
-        profile = Profile.objects.get(user=request.user)
-    return render(request, 'index.html', {'page_title': 'Main', 'data': data, 'profile': profile})
+    if request.method == "GET":
+        kwargs = request.GET
+        stocks_per_page_query = {}
+        search_query = {}
+
+        if "search_title" in kwargs:
+            stocks = Stock.objects.filter(title__contains=kwargs['search_title']).order_by('-created_on')
+            search_query = {"search_title": kwargs['search_title']}
+        else:
+            stocks = Stock.objects.all().order_by('top_rank')
+
+        if "stocks_per_page" in kwargs and kwargs.get("stocks_per_page").isdecimal() \
+                and int(kwargs.get("stocks_per_page")) > 0:
+            paginator = Paginator(stocks, int(kwargs.get("stocks_per_page")))
+            stocks_per_page_query.update({"stocks_per_page": kwargs['stocks_per_page']})
+        else:
+            paginator = Paginator(stocks, STOCKS_PER_PAGE)
+
+        if "page" in kwargs:
+            page_number = kwargs.get('page')
+        else:
+            page_number = 1
+        page_obj = paginator.get_page(page_number)
+
+        profile = None
+        if request.user.is_authenticated:
+            profile, created = Profile.objects.get_or_create(user=request.user)
+
+        context = {
+            'page_obj': page_obj,
+            "pages_indices": range(1, paginator.num_pages + 1),
+            # "search_form": SearchForm,
+            "search_query": urlencode(search_query),
+            "stocks_per_page_query": urlencode(stocks_per_page_query),
+            'page_title': 'Main',
+            'profile': profile
+        }
+
+        return render(request, 'index.html', context)
+    return redirect(reverse("index"))
 
 
 # View for the single stock page
@@ -32,9 +72,9 @@ def single_stock(request, symbol):
     template = 'single_stock.html'
     try:
         data = stock_api.get_stock_info(symbol)
-        stock = Stock.objects.get(symbol=symbol)
+        stock = Stock.objects.filter(symbol=symbol)[:1]
         if request.user.is_authenticated:
-            profile = Profile.objects.get(user=request.user)
+            profile, created = Profile.objects.get_or_create(user=request.user)
     except StockSymbolNotFound as e:
         status_code = 404  # stock symbol not found!
         context = {'error_message': e.message, "status_code": status_code}
@@ -76,40 +116,44 @@ def register(request):
 
 @login_required(login_url='login')
 def profile_view(request):
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     return render(request, 'profile.html', {'page_title': 'My account', 'profile': profile})
 
 
 @login_required(login_url='login')
 def watchlist_view(request):
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile})
 
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def watchlist_add_view(request, symbol):
-    profile = Profile.objects.get(user=request.user)
-    stock = Stock.objects.filter(symbol=symbol)
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    stock = Stock.objects.filter(symbol=symbol)[:1]
     if not stock.exists():
-        raise Http404("Stock does not exist")
+        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
+        response = render(request, 'exception.html', context)
+        response.status_code = 404
     else:
         Stock.add_to_watchlist(profile, symbol)
-        next = request.POST.get('next', '/')
-        return redirect(next)
+        response = HttpResponse('OK')
+    return response
 
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def watchlist_remove_view(request, symbol):
-    profile = Profile.objects.get(user=request.user)
-    stock = Stock.objects.filter(symbol=symbol)
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    stock = Stock.objects.filter(symbol=symbol)[:1]
     if not stock.exists():
-        raise Http404("Stock does not exist")
+        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
+        response = render(request, 'exception.html', context)
+        response.status_code = 404
     else:
         Stock.remove_from_watchlist(profile, symbol)
-        next = request.POST.get('next', '/')
-        return redirect(next)
+        response = HttpResponse('OK')
+    return response
 
 
 @login_required(login_url='login')
