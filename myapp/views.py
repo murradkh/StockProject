@@ -30,12 +30,11 @@ def index(request):
         if "search_text" in kwargs:
 
             stocks = Stock.objects.filter(
-                Q(symbol__contains=kwargs['search_text']) | Q(name__contains=kwargs['search_text']))
-            #TODO
-            # order_by('top_rank')
+                Q(symbol__contains=kwargs['search_text']) | Q(name__contains=kwargs['search_text'])).order_by(
+                '-top_rank')
             search_query = {"search_text": kwargs['search_text']}
         else:
-            stocks = Stock.objects.all().order_by('top_rank')
+            stocks = Stock.objects.all().order_by('-top_rank')
 
         if "stocks_per_page" in kwargs and kwargs.get("stocks_per_page").isdecimal() \
                 and int(kwargs.get("stocks_per_page")) > 0:
