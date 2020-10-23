@@ -6,17 +6,17 @@ from django.urls import reverse
 
 from myapp import stock_api
 from myapp.models import Stock, Profile
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
 from django.db.models import Q
+
 
 STOCKS_PER_PAGE = 10
 
@@ -51,7 +51,7 @@ def index(request):
 
         profile = None
         if request.user.is_authenticated:
-            profile = Profile.objects.get(user=request.user)
+            profile, created = Profile.objects.get_or_create(user=request.user)
 
         context = {
             'page_obj': page_obj,
@@ -76,9 +76,9 @@ def single_stock(request, symbol):
     template = 'single_stock.html'
     try:
         data = stock_api.get_stock_info(symbol)
-        stock = Stock.objects.get(symbol=symbol)
+        stock = Stock.objects.filter(symbol=symbol)[:1]
         if request.user.is_authenticated:
-            profile = Profile.objects.get(user=request.user)
+            profile, created = Profile.objects.get_or_create(user=request.user)
     except StockSymbolNotFound as e:
         status_code = 404  # stock symbol not found!
         context = {'error_message': e.message, "status_code": status_code}
@@ -120,40 +120,44 @@ def register(request):
 
 @login_required(login_url='login')
 def profile_view(request):
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     return render(request, 'profile.html', {'page_title': 'My account', 'profile': profile})
 
 
 @login_required(login_url='login')
 def watchlist_view(request):
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile})
 
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def watchlist_add_view(request, symbol):
-    profile = Profile.objects.get(user=request.user)
-    stock = Stock.objects.filter(symbol=symbol)
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    stock = Stock.objects.filter(symbol=symbol)[:1]
     if not stock.exists():
-        raise Http404("Stock does not exist")
+        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
+        response = render(request, 'exception.html', context)
+        response.status_code = 404
     else:
         Stock.add_to_watchlist(profile, symbol)
-        next = request.POST.get('next', '/')
-        return redirect(next)
+        response = HttpResponse('OK')
+    return response
 
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def watchlist_remove_view(request, symbol):
-    profile = Profile.objects.get(user=request.user)
-    stock = Stock.objects.filter(symbol=symbol)
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    stock = Stock.objects.filter(symbol=symbol)[:1]
     if not stock.exists():
-        raise Http404("Stock does not exist")
+        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
+        response = render(request, 'exception.html', context)
+        response.status_code = 404
     else:
         Stock.remove_from_watchlist(profile, symbol)
-        next = request.POST.get('next', '/')
-        return redirect(next)
+        response = HttpResponse('OK')
+    return response
 
 
 @login_required(login_url='login')

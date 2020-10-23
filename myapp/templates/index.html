@@ -3,24 +3,20 @@
 {% block content %}
 
 <div class="row">
+    <div class="col-9">
+        <!--  Search form -->
+        <form class="form-inline mr-auto" method="get">
+            {% csrf_token %}
+            <div class="md-form my-0">
+                <input class="form-control" type="text" placeholder="Type Stock Name / Symbol" aria-label="Search"
+                       name="search_text">
+                <button class="btn btn-secondary btn-sm" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
 
-
-        <div class="col-9">
-            <!--  Search form -->
-            <form class="form-inline mr-auto" method="get">
-                {% csrf_token %}
-                <div class="md-form my-0">
-                    <input class="form-control" type="text" placeholder="Type Stock Name / Symbol" aria-label="Search"
-                           name="search_text">
-                    <button class="btn btn-secondary btn-sm" type="submit">Search</button>
-                </div>
-            </form>
-        </div>
-
-
-
-    <div class="offset-sm-1">
-        <div class="btn-group">
+    <div class="offset-sm-10">
+        <div class="btn-group" style="padding-bottom: 10px;">
             <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split btn-sm"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Stocks Per Page
@@ -52,39 +48,30 @@
         {% endif %}
     </tr>
     {% with len=page_obj|length page_num=page_obj.number %}
-    {% for stock in page_obj %}
-    <tr class="clickable-row" data-href="/stock/{{ stock.symbol }}">
-        <td>{% cal_index forloop.counter page_num len %}</td>
-        <td>{{ stock.symbol }}</td>
-        <td>{{ stock.name }}</td>
-        <td>{{ stock.price|floatformat:2 }}</td>
-        <td class="
-                {% if stock.change_percent >= 0 %}
-                    text-success
-                {% else %}
-                    text-danger
+        {% for stock in page_obj %}
+            <tr class="clickable-row" data-href="/stock/{{ stock.symbol }}">
+                <td>{% cal_index forloop.counter page_num len %}</td>
+                <td>{{ stock.symbol }}</td>
+                <td>{{ stock.name }}</td>
+                <td>{{ stock.price|floatformat:2 }}</td>
+                <td class="
+                        {% if stock.change_percent >= 0 %}
+                            text-success
+                        {% else %}
+                            text-danger
+                        {% endif %}
+                ">{{ stock.change_percent|floatformat:2 }}%</td>
+                {% if profile %}
+                <td onclick="event.cancelBubble=true; return false;">
+                    {% if stock in profile.watchlist.all %}
+                        <button id="editbutton{{forloop.counter}}" onclick="watchlistEdit('{{stock.symbol}}','{{forloop.counter}}')" class="btn btn-outline-danger" style="padding: 0px 6px;"><i id="eyeicon{{forloop.counter}}" class='fa fa-eye-slash'></i></button>
+                    {% else %}
+                        <button id="editbutton{{forloop.counter}}" onclick="watchlistEdit('{{stock.symbol}}','{{forloop.counter}}')" class="btn btn-outline-primary" style="padding: 0px 6px;"><i id="eyeicon{{forloop.counter}}" class='fa fa-eye'></i></button>
+                    {% endif %}
+                </td>
                 {% endif %}
-                ">{{ stock.change_percent|floatformat:2 }}%
-        </td>
-        {% if profile %}
-        <td>{% if stock in profile.watchlist.all %}
-            <form method="post" action="{% url 'watchlist_remove' symbol=stock.symbol %}"> {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.path }}">
-                <button type="submit" class="btn btn-outline-danger" style="padding: 0px 6px;"><i
-                        class="fa fa-eye-slash"></i></button>
-            </form>
-            {% else %}
-            <form method="post" action="{% url 'watchlist_add' symbol=stock.symbol %}"> {% csrf_token %}
-                <input type="hidden" name="next" value="{{ request.path }}">
-                <button type="submit" class="btn btn-outline-primary" style="padding: 0px 6px;"><i
-                        class="fa fa-eye"></i></button>
-            </form>
-            {% endif %}
-        </td>
-        {% endif %}
-
-    </tr>
-    {% endfor %}
+            </tr>
+        {% endfor %}
     {% endwith %}
 
 </table>
@@ -93,28 +80,25 @@
 <nav aria-label="Page navigation example">
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
-        <li class="page-item">
-            {% else %}
-        <li class="page-item disabled">
-            {% endif %}
-            <a class="page-link" href="?page=1&{{stocks_per_page_query}}&{{search_query}}">First</a>
-        </li>
-        {% for i in pages_indices %}
-        {% if page_obj.number != i %}
-        <li class="page-item"><a class="page-link"
-                                 href="?page={{i}}&{{stocks_per_page_query}}&{{search_query}}">{{i}}</a></li>
-        {% else %}
-        <li class="page-item disabled"><a class="page-link"
-                                          href="?page={{i}}&{{stocks_per_page_query}}&{{search_query}}" tabindex="-1">
-            {{i}}
-        </a>
-        </li>
-        {% endif %}
-        {% endfor %}
+            <li class="page-item">
+                {% else %}
+            <li class="page-item disabled">
+                {% endif %}
+                <a class="page-link" href="?page=1&{{stocks_per_page_query}}&{{search_query}}">First</a>
+            </li>
+            {% for i in pages_indices %}
+                {% if page_obj.number != i %}
+                    <li class="page-item"><a class="page-link"
+                        href="?page={{i}}&{{stocks_per_page_query}}&{{search_query}}">{{i}}</a></li>
+                {% else %}
+                    <li class="page-item disabled"><a class="page-link"
+                        href="?page={{i}}&{{stocks_per_page_query}}&{{search_query}}" tabindex="-1">{{i}}</a></li>
+                {% endif %}
+            {% endfor %}
         {% if page_obj.has_next %}
-        <li class="page-item">
+                <li class="page-item">
             {% else %}
-        <li class="page-item disabled">
+                <li class="page-item disabled">
             {% endif %}
             <a class="page-link"
                href="?page={{page_obj.paginator.num_pages}}&{{stocks_per_page_query}}&{{search_query}}">Last</a>
@@ -122,5 +106,45 @@
     </ul>
 </nav>
 
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+    function watchlistEdit(symbol, number) {
+        var icon = document.getElementById("eyeicon" + number);
+        var editButton = document.getElementById("editbutton" + number);
+
+        if (icon.className == "fa fa-eye") {
+            var operation = "wadd";
+        }
+        else {
+            var operation = "wremove";
+        }
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", `stock/${symbol}/${operation}/`, true);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                var status = xhr.status;
+                // In local files, status is 0 upon success
+                if (status === 0 || (status >= 200 && status < 400)) {
+                    if (operation == "wadd") {
+                        icon.className = "fa fa-eye-slash";
+                        editButton.className = "btn btn-outline-danger";
+                    }
+                    else {
+                        icon.className = "fa fa-eye";
+                        editButton.className = "btn btn-outline-primary";
+                    }
+                }
+            }
+        };
+        xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+        xhr.send();
+    }
+</script>
 
 {% endblock %}
