@@ -3,33 +3,35 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+
 # Create your models here.
 class Stock(models.Model):
-	symbol = models.CharField(max_length=12, primary_key=True)
-	name = models.CharField(max_length=64)
-	top_rank = models.IntegerField(null=True)
-	price = models.FloatField()
-	change = models.FloatField(null=True)
-	change_percent = models.FloatField()
-	market_cap = models.FloatField(null=True)
-	primary_exchange = models.CharField(null=True, max_length=32)
+    symbol = models.CharField(max_length=12, primary_key=True)
+    name = models.CharField(max_length=64)
+    top_rank = models.IntegerField(null=True)
+    price = models.FloatField()
+    change = models.FloatField(null=True)
+    change_percent = models.FloatField(null=True)
+    market_cap = models.FloatField(null=True)
+    primary_exchange = models.CharField(null=True, max_length=32)
 
-	@classmethod
-	def add_to_watchlist(cls, profile, stock_symbol):
-		stock = cls.objects.get(symbol=stock_symbol)
-		profile.watchlist.add(stock)
-		profile.save()
-	
-	@classmethod
-	def remove_from_watchlist(cls, profile, stock_symbol):
-		stock = cls.objects.get(symbol=stock_symbol)
-		profile.watchlist.remove(stock)
-		profile.save()
+    @classmethod
+    def add_to_watchlist(cls, profile, stock_symbol):
+        stock = cls.objects.get(symbol=stock_symbol)
+        profile.watchlist.add(stock)
+        profile.save()
+
+    @classmethod
+    def remove_from_watchlist(cls, profile, stock_symbol):
+        stock = cls.objects.get(symbol=stock_symbol)
+        profile.watchlist.remove(stock)
+        profile.save()
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     watchlist = models.ManyToManyField(Stock, blank=True)
+
     # portfolio = models.ManyToManyField(Stock)
 
     def __str__(self):
@@ -40,6 +42,7 @@ class Profile(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
+
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
