@@ -47,10 +47,10 @@
         <th>Actions</th>
         {% endif %}
     </tr>
-    {% with len=page_obj|length page_num=page_obj.number %}
+    {% with page_num=page_obj.number %}
         {% for stock in page_obj %}
             <tr class="clickable-row" data-href="/stock/{{ stock.symbol }}">
-                <td>{% cal_index forloop.counter page_num len %}</td>
+                <td>{% cal_index forloop.counter page_num stocks_per_page_query %}</td>
                 <td>{{ stock.symbol }}</td>
                 <td>{{ stock.name }}</td>
                 <td>{{ stock.price|floatformat:2 }}</td>
@@ -77,8 +77,8 @@
 </table>
 
 
-<nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
+<nav aria-label="Page navigation" style="overflow-x: scroll;">
+    <ul class="pagination" >
         {% if page_obj.has_previous %}
             <li class="page-item">
                 {% else %}
