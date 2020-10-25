@@ -3,7 +3,19 @@
 {% block content %}
 
 <div class="row">
-    <div class="offset-sm-10">
+    <div class="col-10">
+        <!--  Search form -->
+        <form class="form-inline mr-auto" method="get">
+            {% csrf_token %}
+            <div class="md-form my-0">
+                <input class="form-control" type="text" placeholder="Type Stock Name / Symbol" aria-label="Search"
+                       name="search_text">
+                <button class="btn btn-secondary btn-sm" type="submit"><i class='fa fa-search'></i></button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col">
         <div class="btn-group" style="padding-bottom: 10px;">
             <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split btn-sm"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -61,6 +73,7 @@
             </tr>
         {% endfor %}
     {% endwith %}
+
 </table>
 
 
@@ -107,7 +120,7 @@
             var operation = "wadd";
         }
         else {
-            var operation = "wremove";   
+            var operation = "wremove";
         }
 
         var xhr = new XMLHttpRequest();
@@ -121,10 +134,10 @@
                     if (operation == "wadd") {
                         icon.className = "fa fa-eye-slash";
                         editButton.className = "btn btn-outline-danger";
-                    } 
+                    }
                     else {
                         icon.className = "fa fa-eye";
-                        editButton.className = "btn btn-outline-primary";          
+                        editButton.className = "btn btn-outline-primary";
                     }
                 }
             }
