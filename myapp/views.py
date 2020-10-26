@@ -14,7 +14,9 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
+
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange
+from django.db.models import Q
 
 
 STOCKS_PER_PAGE = 10
@@ -26,11 +28,14 @@ def index(request):
         stocks_per_page_query = {}
         search_query = {}
 
-        if "search_title" in kwargs:
-            stocks = Stock.objects.filter(title__contains=kwargs['search_title']).order_by('-created_on')
-            search_query = {"search_title": kwargs['search_title']}
+        if "search_text" in kwargs:
+
+            stocks = Stock.objects.filter(
+                Q(symbol__contains=kwargs['search_text']) | Q(name__contains=kwargs['search_text'])).order_by(
+                '-top_rank')
+            search_query = {"search_text": kwargs['search_text']}
         else:
-            stocks = Stock.objects.all().order_by('top_rank')
+            stocks = Stock.objects.all().order_by('-top_rank')
 
         if "stocks_per_page" in kwargs and kwargs.get("stocks_per_page").isdecimal() \
                 and int(kwargs.get("stocks_per_page")) > 0:
