@@ -1,11 +1,13 @@
-from unittest import mock
-import unittest
-import os
+from django.test import TestCase
 from ..scheduler.stock_api_update import stock_api_update
+from ..models import Stock
 
 
-class Test_API(unittest.TestCase):
-    @mock.patch('os.urandom', side_effect=stock_api_update())
-    def test_job_api(self, urandom_function):
-        assert os.urandom(3)
-        assert urandom_function.called
+class test_api(TestCase):
+
+    def test_api_update(self):
+        stock_api_update()
+        value_1 = Stock.objects.filter(top_rank=1)[:1][0].last_modified
+        stock_api_update()
+        value_2 = Stock.objects.filter(top_rank=1)[:1][0].last_modified
+        self.assertNotEqual(value_1, value_2)

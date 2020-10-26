@@ -1,11 +1,19 @@
 from myapp.models import Stock
 from myapp import stock_api
 from django.db import transaction
+from sqlite3 import OperationalError
+from datetime import datetime
+
 
 
 @transaction.atomic
 def stock_api_update():
     top_stocks = stock_api.get_top_stocks()
+
+    # now = datetime.now()
+    #
+    # current_time = now.strftime("%H:%M:%S")
+    # print("start job ---------------------------------", current_time)
     index = 1
     try:
         for stock in top_stocks:
@@ -22,5 +30,5 @@ def stock_api_update():
             })
             stock_model.save()
             index += 1
-    except KeyError as error:
+    except KeyError as e:
         pass

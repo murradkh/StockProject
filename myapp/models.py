@@ -14,6 +14,7 @@ class Stock(models.Model):
     change_percent = models.FloatField(null=True)
     market_cap = models.FloatField(null=True)
     primary_exchange = models.CharField(null=True, max_length=32)
+    last_modified = models.DateTimeField(auto_now=True)
 
     @classmethod
     def add_to_watchlist(cls, profile, stock_symbol):

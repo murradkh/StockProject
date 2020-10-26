@@ -1,12 +1,16 @@
-from unittest import mock
-import unittest
-import os
+from django.test import TestCase
 from ..scheduler import scheduler
+import threading
 
 
-class Test_scheduler(unittest.TestCase):
-    @mock.patch('os.urandom', side_effect=scheduler.start())
-    def test_scheduler_job(self, urandom_function):
-        assert os.urandom(3)
-        assert urandom_function.called
+
+class test_scheduler(TestCase):
+
+    def test_scheduler_thread(self):
+        one = threading.active_count()
+        job = scheduler()
+        job.start()
+        self.assertNotEqual(one, threading.active_count())
+        job.stop()
+
 
