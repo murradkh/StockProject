@@ -11,7 +11,11 @@ class scheduler:
     def start(self):
         self.scheduler_job.start()
 
-    def stop(self):
+    def stop_all_jobs(self):
+        # Removes all jobs from this store.
         self.scheduler_job.remove_all_jobs()
+        # Frees any resources still bound to this job store.
+        self.scheduler_job.shutdown()
+
     def get_running_jobs(self):
         return self.scheduler_job.get_jobs()
