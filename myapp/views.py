@@ -6,7 +6,10 @@ from django.urls import reverse
 
 from myapp import stock_api
 from myapp.models import Stock, Profile
+
+from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm
 from django.http import JsonResponse, HttpResponse
+
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
@@ -100,22 +103,13 @@ def single_stock(request, symbol):
 
 
 def register(request):
-    # If post -> register the user and redirect to main page
-    if request.method == 'POST':
-        firstname = request.POST.get('firstname')
-        lastname = request.POST.get('lastname')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        newuser = User.objects.create_user(username=email, email=email, password=password)
-        newuser.first_name = firstname
-        newuser.last_name = lastname
-        newuser.save()
-        login(request, newuser)
+    form = CustomRegistrationFrom(request.POST or None)
+    if form.is_valid():
+        user = form.save()
+        login(request, user)
+        messages.info(request, 'Your account was successfully created!')
         return redirect('index')
-    else:
-        # If not post (regular request) -> render register page
-        return render(request, 'register.html', {'page_title': 'Register'})
+    return render(request, 'register.html', {'page_title': 'Register', 'form': form})
 
 
 @login_required(login_url='login')
@@ -162,7 +156,7 @@ def watchlist_remove_view(request, symbol):
 
 @login_required(login_url='login')
 def password_change_view(request):
-    form = PasswordChangeForm(request.user, request.POST or None)
+    form = CustomChangePasswordForm(request.user, request.POST or None)
     if form.is_valid():
         user = form.save()
         update_session_auth_hash(request, user)
