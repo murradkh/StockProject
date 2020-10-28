@@ -1,4 +1,5 @@
 	function getHistoric(symbol){
+
 		$.get( `/historic/${symbol}/`, function( data ) {
 			historic_data = data.data.sort(function(a, b) { return a.date - b.date; })
 
@@ -27,6 +28,14 @@
 			});
 		});
     };
+
+    function getStockSymbols(){
+    console.log("sdad")
+    		$.get( `/stock/list/`, function( data ) {
+
+});
+
+    }
 
     function watchlistEdit() {
         var editButton = document.getElementById("editbutton");
@@ -60,3 +69,8 @@
         xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
         xhr.send();
     }
+
+    function compareTwoStocks(data){
+var stockName = document.forms["myForm"]['stockSymbolToCompare']['value'];
+console.log(stockName)
+    };

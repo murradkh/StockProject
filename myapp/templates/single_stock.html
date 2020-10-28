@@ -2,22 +2,30 @@
 
 {% block content %}
 <div class="col-md-12 text-left">
-	<table>
-		<tr>
-			<td><h2>{{ data.companyName }}<small class="text-muted">({{ data.symbol }}) &emsp14;</small></h2></td>
-			{% if profile %}
-			<td>{% if stock.0 in profile.watchlist.all %}
-                <button id="editbutton" onclick="watchlistEdit()" class="btn btn-outline-danger"><i class='fa fa-eye-slash'></i> Remove from watchlist</button>
+    <table>
+        <tr>
+            <td><h2>{{ data.companyName }}<small class="text-muted">
+                ({{data.symbol }}) &emsp14;</small></h2></td>
+            {% if profile %}
+            <td>{% if stock.0 in profile.watchlist.all %}
+                <button id="editbutton" onclick="watchlistEdit()"
+                        class="btn btn-outline-danger"><i
+                        class='fa fa-eye-slash'></i> Remove from watchlist
+                </button>
                 {% else %}
-                <button id="editbutton" onclick="watchlistEdit()" class="btn btn-outline-primary"><i class='fa fa-eye'></i> Add to watchlist</button>
-				{% endif %}</td>
-			{% endif %}
-		</tr>
-	</table>
+                <button id="editbutton" onclick="watchlistEdit()"
+                        class="btn btn-outline-primary"><i
+                        class='fa fa-eye'></i> Add to watchlist
+                </button>
+                {% endif %}
+            </td>
+            {% endif %}
+        </tr>
+    </table>
 </div>
 
 <div class="col-md-12 text-left">
-		<p class="lead">{{ data.primaryExchange }}</p>
+    <p class="lead">{{ data.primaryExchange }}</p>
 </div>
 
 <div class="col-md-12 text-left">
@@ -33,27 +41,27 @@
 			</small>
 	</big>
 	</span>
-	<br>
-	<small class="text-muted">Updated time: {{ data.latestTime }}</small>
+    <br>
+    <small class="text-muted">Updated time: {{ data.latestTime }}</small>
 </div>
 <div class="row">
-	<div class="pt-4 col-sm-6 pl-5">
-		<dl class="row text-left">
-			<dt class="col-sm-6">Previous Close</dt>
-			<dd class="col-sm-6">{{ data.previousClose }}</dd>
+    <div class="pt-4 col-sm-6 pl-5">
+        <dl class="row text-left">
+            <dt class="col-sm-6">Previous Close</dt>
+            <dd class="col-sm-6">{{ data.previousClose }}</dd>
 
-			<dt class="col-sm-6">Volume</dt>
-			<dd class="col-sm-6">{{ data.volume }}
-			</dd>
+            <dt class="col-sm-6">Volume</dt>
+            <dd class="col-sm-6">{{ data.volume }}
+            </dd>
 
-			<dt class="col-sm-6">52 Weeks Low</dt>
-			<dd class="col-sm-6">{{ data.week52Low }}</dd>
+            <dt class="col-sm-6">52 Weeks Low</dt>
+            <dd class="col-sm-6">{{ data.week52Low }}</dd>
 
-			<dt class="col-sm-6">52 Weeks High</dt>
-			<dd class="col-sm-6">{{ data.week52High }}</dd>
+            <dt class="col-sm-6">52 Weeks High</dt>
+            <dd class="col-sm-6">{{ data.week52High }}</dd>
 
-			<dt class="col-sm-6">Year Change</dt>
-			<dd class="col-sm-6">{{ data.ytdChange }}</dd>
+            <dt class="col-sm-6">Year Change</dt>
+            <dd class="col-sm-6">{{ data.ytdChange }}</dd>
 
             <dt class="col-sm-6">Market Cap</dt>
             <dd class="col-sm-6">{{ data.marketCap }}</dd>
@@ -61,26 +69,18 @@
         </dl>
     </div>
     <div class="pt-4 col-sm-6">
-                <div class="col-9">
-                <label for="ex1">Compare With: </label>
-                <input list="myDatalist" id="ex1" type="text"
-                       style="max-width:15%;">
-                <datalist id="myDatalist"
-                          style="max-height:10px;overflow-y:auto;display:block !important;">
-                    <div>
-                    <option value="Internet Explorer">
-                    <option value="Firefox">
-                    <option value="Chrome">
-                    <option value="Opera">
-                    <option value="Safari">
-                    <option value="Internet Explorer">
-                    <option value="Firefox">
-                    <option value="Chrome">
-                    <option value="Opera">
-                    <option value="Safari">
-                        </div>
-                </datalist>
-                    </div>
+        <form class="row" id="myForm">
+            <label for="ex1">Compare With: </label>
+            <input list="myDatalist" id="ex1" type="text"
+                   style="max-width:30%;" name="stockSymbolToCompare">
+            <datalist id="myDatalist"
+                      style="max-height:10px;overflow-y:auto;display:block !important;">
+                <option value="Internet Explorer">
+
+            </datalist>
+            <button type="submit" class="btn btn-primary">Compare
+            </button>
+        </form>
         <canvas id="stockChart"></canvas>
         <!-- WIP TAB DESIGN
         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
@@ -104,8 +104,9 @@
           </li>
         </ul>
         -->
-
     </div>
+<div id="chartContainer" style="height: 300px; width: 100%;"></div>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 
 
 </div>
@@ -119,7 +120,15 @@
 <script>
 	window.onload = function(){
 	getHistoric("{{data.symbol}}");
+	getStockSymbols();
+	  const form = document.getElementById( "myForm" );
+  form.addEventListener( "submit", function ( event ) {
+    event.preventDefault();
+console.log(event);
+    compareTwoStocks();
+  } );
 	};
+
 
 
 </script>

@@ -17,7 +17,6 @@ from django.contrib.auth import login, logout
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
 from django.db.models import Q
 
-
 STOCKS_PER_PAGE = 10
 
 
@@ -34,7 +33,7 @@ def index(request):
                 '-top_rank')
             search_query = {"search_text": kwargs['search_text']}
         else:
-            stocks = Stock.objects.all().order_by('-top_rank')
+            stocks = Stock.objects.all().order_by('top_rank')
 
         if "stocks_per_page" in kwargs and kwargs.get("stocks_per_page").isdecimal() \
                 and int(kwargs.get("stocks_per_page")) > 0:
@@ -200,3 +199,9 @@ def single_stock_historic(request, symbol):
         response = JsonResponse(context)
         response.status_code = status_code
         return response
+
+
+def list_symbols(request):
+    symbols = Stock.objects.values_list('symbol', flat=True)
+    # this can be optimized by sending response in chunks (piece by piece), rather than at once
+    return JsonResponse({"symbols": list(symbols)})
