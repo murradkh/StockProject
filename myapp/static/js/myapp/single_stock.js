@@ -1,14 +1,9 @@
-	function getHistoric(symbol){
-
+	function getHistoric(symbol, symbol_to_compare){
 		$.get( `/historic/${symbol}/`, function( data ) {
 			historic_data = data.data.sort(function(a, b) { return a.date - b.date; })
-
-			var ctxL = document.getElementById("stockChart").getContext('2d');
-			var myLineChart = new Chart(ctxL, {
-				type: 'line',
-				data: {
-					labels: historic_data.map(d => d.label),
-					datasets: [
+            var ctxL = document.getElementById("stockChart").getContext('2d');
+            console.log(ctxL)
+            datasets =[
 						{
 							label: `${symbol}`,
 							data: historic_data.map(d => d.close),
@@ -21,11 +16,44 @@
 							borderWidth: 2
 						}
 					]
+            if (typeof(symbol_to_compare) !== 'undefined'){
+            $.get( `/historic/${symbol_to_compare}/`, function( data ) {
+			historic_data = data.data.sort(function(a, b) { return a.date - b.date; })
+            datasets.push({
+							label: `${symbol_to_compare}`,
+							data: historic_data.map(d => d.close),
+							backgroundColor: [
+								'rgba(0, 0, 255, .2)',
+							],
+							borderColor: [
+								'rgba(0,0,255, .7)',
+							],
+							borderWidth: 2,
+						})
+			var myLineChart = new Chart(ctxL, {
+				type: 'line',
+				data: {
+					labels: historic_data.map(d => d.label),
+					datasets: datasets
 				},
 				options: {
 					responsive: true
 				}
 			});
+			});
+            }else{
+			var myLineChart = new Chart(ctxL, {
+				type: 'line',
+				data: {
+					labels: historic_data.map(d => d.label),
+					datasets: datasets
+				},
+				options: {
+					responsive: true
+				}
+			});
+			}
+
 		});
     };
 
@@ -73,7 +101,8 @@
         xhr.send();
     }
 
-    function compareTwoStocks(data){
-        var stockName = document.forms["compareForm"]['stockNameToCompare']['value'];
-        console.log(stockName)
+    function compareTwoStocks(originSymbol){
+        var stockNameOption = document.forms["compareForm"]['stockNameToCompare']['value'];
+        secondarySymbol = stockNameOption.slice(0,stockNameOption.indexOf(','))
+        getHistoric(originSymbol,secondarySymbol);
     };

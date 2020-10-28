@@ -69,7 +69,7 @@
         </dl>
     </div>
     <div class="pt-4 col-sm-6">
-        <form class="row" id="compareForm">
+        <form class="row" id="compareForm" >
             <label for="ex1">Compare With: </label>
             <input list="myDatalist" id="ex1" type="text"
                    style="max-width:50%;" name="stockNameToCompare">
@@ -80,7 +80,7 @@
             <button type="submit" class="btn btn-primary">Compare
             </button>
         </form>
-        <canvas id="stockChart"></canvas>
+        <canvas id="stockChart" ></canvas>
         <!-- WIP TAB DESIGN
         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
           <li class="nav-item">
@@ -120,11 +120,11 @@
 	window.onload = function(){
 	getHistoric("{{data.symbol}}");
 	getStockNames();
-	  const form = document.getElementById( "compareForm" );
-  form.addEventListener( "submit", function ( event ) {
+	const form = document.getElementById( "compareForm" );
+    form.addEventListener( "submit", function ( event ) {
     event.preventDefault();
-    compareTwoStocks();
-  } );
+    compareTwoStocks("{{data.symbol}}");
+    });
 	};
 
 
