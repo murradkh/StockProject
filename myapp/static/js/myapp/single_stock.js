@@ -1,8 +1,8 @@
+	var myLineChart;
 	function getHistoric(symbol, symbol_to_compare){
 		$.get( `/historic/${symbol}/`, function( data ) {
 			historic_data = data.data.sort(function(a, b) { return a.date - b.date; })
             var ctxL = document.getElementById("stockChart").getContext('2d');
-            console.log(ctxL)
             datasets =[
 						{
 							label: `${symbol}`,
@@ -30,7 +30,7 @@
 							],
 							borderWidth: 2,
 						})
-			var myLineChart = new Chart(ctxL, {
+			myLineChart = new Chart(ctxL, {
 				type: 'line',
 				data: {
 					labels: historic_data.map(d => d.label),
@@ -42,7 +42,7 @@
 			});
 			});
             }else{
-			var myLineChart = new Chart(ctxL, {
+			myLineChart = new Chart(ctxL, {
 				type: 'line',
 				data: {
 					labels: historic_data.map(d => d.label),
@@ -103,6 +103,13 @@
 
     function compareTwoStocks(originSymbol){
         var stockNameOption = document.forms["compareForm"]['stockNameToCompare']['value'];
+        if (stockNameOption != ''){
+        if (typeof(myLineChart) !== 'undefined'){
+            //removing old chart
+            myLineChart.destroy();
+        }
         secondarySymbol = stockNameOption.slice(0,stockNameOption.indexOf(','))
         getHistoric(originSymbol,secondarySymbol);
+        }
+
     };
