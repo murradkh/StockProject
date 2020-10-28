@@ -69,10 +69,10 @@
         </dl>
     </div>
     <div class="pt-4 col-sm-6">
-        <form class="row" id="myForm">
+        <form class="row" id="compareForm">
             <label for="ex1">Compare With: </label>
             <input list="myDatalist" id="ex1" type="text"
-                   style="max-width:30%;" name="stockSymbolToCompare">
+                   style="max-width:50%;" name="stockNameToCompare">
             <datalist id="myDatalist"
                       style="max-height:10px;overflow-y:auto;display:block !important;">
 
@@ -119,11 +119,10 @@
 <script>
 	window.onload = function(){
 	getHistoric("{{data.symbol}}");
-	getStockSymbols();
-	  const form = document.getElementById( "myForm" );
+	getStockNames();
+	  const form = document.getElementById( "compareForm" );
   form.addEventListener( "submit", function ( event ) {
     event.preventDefault();
-console.log(event);
     compareTwoStocks();
   } );
 	};

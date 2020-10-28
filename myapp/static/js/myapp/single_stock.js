@@ -29,11 +29,11 @@
 		});
     };
 
-    function getStockSymbols(){
-    		$.get( `/stocks/list_symbols/`, function( data ) {
+    function getStockNames(){
+    		$.get( `/stocks/list_names/`, function( data ) {
     		dataList = $(myDatalist)
-    for (let i = 0; i < data.symbols.length; i++) {
-    dataList.append(`<option value=${data.symbols[i]}>`)
+    for (let i = 0; i < data.stocks_names.length; i++) {
+    dataList.append(`<option value='${data.stocks_names[i][0]}, ${data.stocks_names[i][1]}'>`)
 }
 
 });
@@ -74,6 +74,6 @@
     }
 
     function compareTwoStocks(data){
-var stockName = document.forms["myForm"]['stockSymbolToCompare']['value'];
-console.log(stockName)
+        var stockName = document.forms["compareForm"]['stockNameToCompare']['value'];
+        console.log(stockName)
     };

@@ -201,7 +201,7 @@ def single_stock_historic(request, symbol):
         return response
 
 
-def list_symbols(request):
-    symbols = Stock.objects.values_list('symbol', flat=True)
+def list_names(request):
+    stocks_names = Stock.objects.values_list('symbol', 'name')
     # this can be optimized by sending response in chunks (piece by piece), rather than at once
-    return JsonResponse({"symbols": list(symbols)})
+    return JsonResponse({"stocks_names": list(stocks_names)})
