@@ -69,18 +69,20 @@
         </dl>
     </div>
     <div class="pt-4 col-sm-6">
-        <form class="row" id="compareForm" >
-            <label for="ex1">Compare With: </label>
+
+        <canvas id="stockChart"></canvas>
+                <form class="row offset-1" id="compareForm">
             <input list="myDatalist" id="ex1" type="text"
-                   style="max-width:50%;" name="stockNameToCompare">
+                   style="max-width:40%;max-height:10%;" name="stockNameToCompare">
             <datalist id="myDatalist"
                       style="max-height:10px;overflow-y:auto;display:block !important;">
 
             </datalist>
-            <button type="submit" class="btn btn-primary">Compare
+            <button type="submit" class="btn btn-primary">
+                <i class="material-icons" style="font-size:20px;">compare_arrows</i>
+                Compare
             </button>
         </form>
-        <canvas id="stockChart" ></canvas>
         <!-- WIP TAB DESIGN
         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
           <li class="nav-item">
@@ -104,8 +106,8 @@
         </ul>
         -->
     </div>
-<div id="chartContainer" style="height: 300px; width: 100%;"></div>
-<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <div id="chartContainer" style="height: 300px; width: 100%;"></div>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 
 
 </div>
@@ -126,6 +128,7 @@
     compareTwoStocks("{{data.symbol}}");
     });
 	};
+
 
 
 
