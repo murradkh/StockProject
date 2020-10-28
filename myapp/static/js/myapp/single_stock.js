@@ -30,8 +30,11 @@
     };
 
     function getStockSymbols(){
-    console.log("sdad")
-    		$.get( `/stock/list/`, function( data ) {
+    		$.get( `/stocks/list_symbols/`, function( data ) {
+    		dataList = $(myDatalist)
+    for (let i = 0; i < data.symbols.length; i++) {
+    dataList.append(`<option value=${data.symbols[i]}>`)
+}
 
 });
 
