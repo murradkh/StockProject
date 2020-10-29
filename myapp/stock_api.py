@@ -73,7 +73,17 @@ def get_stock_historic_prices(symbol, time_range='1m'):
     if time_range not in ALLOWED_TIME_RANGES:
         raise InvalidTimeRange("Invalid time range")
     try:
-        return _request_data('/stable/stock/{symbol}/chart/{time_range}'.format(symbol=symbol, time_range=time_range))
+        if time_range == '6m':
+            chart_interval = 3
+        elif time_range.endswith('y'):
+            chart_interval = int(time_range[0])*6
+        elif time_range == 'max':
+            chart_interval = 30
+        else:
+            chart_interval = 1
+        return _request_data(
+            '/stable/stock/{symbol}/chart/{time_range}/?chartInterval={chart_interval}&includeToday=true'
+            .format(symbol=symbol, time_range=time_range, chart_interval=chart_interval))
     except ConnectionError:
         raise StockServerUnReachable("Stock server UnReachable!")
     except Exception as e:
