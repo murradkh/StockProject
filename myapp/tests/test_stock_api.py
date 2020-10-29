@@ -4,6 +4,10 @@ from myapp.exceptions.stock_service import StockServerUnReachable, StockSymbolNo
 from myapp.stock_api import get_stock_info, get_stock_historic_prices, get_top_stocks
 
 
+MAX_DAYS_PER_MONTH = 31
+MAX_DAYS_PER_YEAR = 366  # On a leap year
+
+
 class StockApiTestCase(TestCase):
 
     def setUp(self):
@@ -41,23 +45,31 @@ class StockApiTestCase(TestCase):
         for time_range in self.valid_time_ranges:
             response = get_stock_historic_prices(self.existed_symbols[0], time_range)
 
-            if time_range.endswith('d'):
-                first_day = datetime.fromisoformat(response[0].get('date')).day
-                last_day = datetime.fromisoformat(response[-1].get('date')).day
-                self.assertEquals(last_day - first_day, int(time_range[0])-1)
+            first_date = datetime.fromisoformat(response[0].get('date'))
+            final_date = datetime.fromisoformat(response[-1].get('date'))
+            days_in_range = (final_date - first_date).days
+
+            if time_range == '1d':
+                self.assertEquals(days_in_range, 0)
+
+            elif time_range == '5d':
+                self.assertLessEqual(days_in_range, 7)
 
             elif time_range.endswith('m'):
-                first_month = datetime.fromisoformat(response[0].get('date')).month
-                last_month = datetime.fromisoformat(response[-1].get('date')).month
-                self.assertEquals(last_month - first_month, int(time_range[0]))
+                self.assertLessEqual(days_in_range, 
+                                    int(time_range[0]) * MAX_DAYS_PER_MONTH)
 
             elif time_range.endswith('y'):
-                first_year = datetime.fromisoformat(response[0].get('date')).year
-                last_year = datetime.fromisoformat(response[-1].get('date')).year
-                self.assertEquals(last_year - first_year, int(time_range[0]))
+                self.assertLessEqual(days_in_range, 
+                                    int(time_range[0]) * MAX_DAYS_PER_YEAR)
+
+            today = datetime.today().day
+            days_since_last_result = (datetime.today() - final_date).days
+            self.assertLessEqual(days_since_last_result, 3)
 
         for time_range in self.invalid_time_ranges:
-            self.assertRaises(InvalidTimeRange, get_stock_historic_prices, self.existed_symbols[0], time_range)
+            self.assertRaises(InvalidTimeRange, get_stock_historic_prices,
+                              self.existed_symbols[0], time_range)
 
 
     def test_get_top_stocks(self):
