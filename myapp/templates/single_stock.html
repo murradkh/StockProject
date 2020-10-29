@@ -64,27 +64,30 @@
         <div id ="chartContainer">
             <canvas id="stockChart"></canvas>
         </div>
-        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" onclick="getHistoricData('1d')" role="tab" aria-controls="pills-home" aria-selected="true">1D</a>
+        <ul class="nav nav-pills" id="pills-tab" role="tablist">
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('1d')" role="tab" aria-controls="pills-home" aria-selected="true">1D</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" onclick="getHistoricData('5d')" role="tab" aria-controls="pills-home" aria-selected="true">5D</a>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('5d')" role="tab" aria-controls="pills-home" aria-selected="true">1W</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="pill" onclick="getHistoricData('1m')" role="tab" aria-controls="pills-profile" aria-selected="false">1M</a>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link active alert-secondary" data-toggle="pill" onclick="getHistoricData('1m')" role="tab" aria-controls="pills-profile" aria-selected="false">1M</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" onclick="getHistoricData('3m')" role="tab" aria-controls="pills-contact" aria-selected="false">3M</a>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('3m')" role="tab" aria-controls="pills-contact" aria-selected="false">3M</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" onclick="getHistoricData('6m')" role="tab" aria-controls="pills-contact" aria-selected="false">6M</a>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('6m')" role="tab" aria-controls="pills-contact" aria-selected="false">6M</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" onclick="getHistoricData('1y')" role="tab" aria-controls="pills-contact" aria-selected="false">1Y</a>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('1y')" role="tab" aria-controls="pills-contact" aria-selected="false">1Y</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="pill" onclick="getHistoricData('max')" role="tab" aria-controls="pills-contact" aria-selected="false">Max</a>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('2y')" role="tab" aria-controls="pills-contact" aria-selected="false">2Y</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('5y')" role="tab" aria-controls="pills-contact" aria-selected="false">5Y</a>
             </li>
         </ul>
 	</div>
@@ -105,6 +108,19 @@
             if (response.status == 200) {
                 historic_data = data.data.sort(function(a, b) { return a.date - b.date; })
 
+                // For some strange reason, the 'today' data point returned by API has no label
+                if (typeof historic_data[data.data.length-1].label === 'undefined') {
+                    last_label = new Date(historic_data[data.data.length-1].date).toString();
+                    if (time_range == '3m' || time_range == '6m' || time_range.endsWith('y')){
+                        historic_data[data.data.length-1].label = 
+                            last_label.substr(3, 7) + ', ' 
+                            + historic_data[data.data.length-1].date.substr(2, 2);
+                    }
+                    else{
+                        historic_data[data.data.length-1].label = last_label.substr(3, 7);
+                    }
+                }
+
                 var colors = getGraphColors(data.data[0].close, data.data[data.data.length-1].close);
                 var ctxL = document.getElementById('stockChart').getContext('2d');
 
@@ -122,9 +138,13 @@
                             }
                         ]
                     },
-                    options: {responsive: true}
-                });
-            }
+                    options: 
+                        {
+                            responsive: true,
+                            spanGaps: true,
+                        }
+                    });
+                }
         });
     }
 
