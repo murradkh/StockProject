@@ -9,4 +9,5 @@ class MyappConfig(AppConfig):
         if 'runserver' not in sys.argv:
             return True
         from .scheduler import scheduler
-        scheduler.start()
+        job = scheduler()
+        job.start()
