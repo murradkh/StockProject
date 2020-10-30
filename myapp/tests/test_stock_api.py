@@ -48,12 +48,18 @@ class StockApiTestCase(TestCase):
             first_date = datetime.fromisoformat(response[0].get('date'))
             final_date = datetime.fromisoformat(response[-1].get('date'))
             days_in_range = (final_date - first_date).days
+            
+            today = datetime.now()
+            days_since_last_result = (today - final_date).days
 
-            if time_range == '1d':
-                self.assertEquals(days_in_range, 0)
-
-            elif time_range == '5d':
-                self.assertLessEqual(days_in_range, 7)
+            if time_range.endswith('d'):
+                if time_range == '1d':
+                    self.assertEquals(days_in_range, 0)
+                elif time_range == '5d':
+                    self.assertLessEqual(days_in_range, 7)
+                
+                if today.isoweekday() in range(1, 6):
+                    self.assertLessEqual(days_since_last_result, 1)
 
             elif time_range.endswith('m'):
                 self.assertLessEqual(days_in_range, 
@@ -63,9 +69,6 @@ class StockApiTestCase(TestCase):
                 self.assertLessEqual(days_in_range, 
                                     int(time_range[0]) * MAX_DAYS_PER_YEAR)
 
-            today = datetime.today().day
-            days_since_last_result = (datetime.today() - final_date).days
-            self.assertLessEqual(days_since_last_result, 3)
 
         for time_range in self.invalid_time_ranges:
             self.assertRaises(InvalidTimeRange, get_stock_historic_prices,
