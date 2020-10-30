@@ -58,7 +58,7 @@ class StockApiTestCase(TestCase):
                 elif time_range == '5d':
                     self.assertLessEqual(days_in_range, 7)
                 
-                if today.isoweekday() in range(1, 6):
+                if today.weekday() not in [5,6]:    # not Saturday nor Sunday
                     self.assertLessEqual(days_since_last_result, 1)
 
             elif time_range.endswith('m'):
