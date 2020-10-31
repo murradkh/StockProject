@@ -33,17 +33,10 @@
         </div>
     </div>
 </div>
-<div id = "table"></div>
-{% load myapp_tags %}
-    <script>setInterval(function() {
 
-        $.ajax({
-            method: "GET",
-            url: "/",
-            success: function(data) {
-            var table = document.getElementById("table");
-            table.appendChild(
-<table class="table table-hover data-table">
+{% load myapp_tags %}
+
+<table class="table table-hover data-table" id ="stock_table" >
     <tr>
         <th>#</th>
         <th>Symbol</th>
@@ -53,16 +46,12 @@
         {% if profile %}
         <th>Actions</th>
         {% endif %}
-        <th>last update</th>
     </tr>
     {% with page_num=page_obj.number %}
         {% for stock in page_obj %}
-
-
             <tr class="clickable-row" data-href="/stock/{{ stock.symbol }}">
                 <td>{% cal_index forloop.counter page_num stocks_per_page_query %}</td>
                 <td>{{ stock.symbol }}</td>
-                <td>{{stock.last_modified}}</td>
                 <td>{{ stock.name }}</td>
                 <td>{{ stock.price|floatformat:2 }}</td>
                 <td class="
@@ -85,14 +74,7 @@
         {% endfor %}
     {% endwith %}
 
-</table>)
-},
-            error: function(data) {
-                console.log("error")
-                console.log(data)
-            }
-        })
-    }, 10000)</script>
+</table>
 
 
 <nav aria-label="Page navigation" style="overflow-x: scroll;">
@@ -164,8 +146,21 @@
         xhr.send();
     }
 
-
-
+    setInterval(function() {
+        $.ajax({
+            method: "GET",
+            url: "",
+            success: function(data) {
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(data, 'text/html');
+            var table = doc.querySelector('table');
+            document.getElementById("stock_table").innerHTML=table.innerHTML
+            },
+            error: function(data) {
+                console.log("error updating table")
+            }
+        })
+    }, 10000)
 </script>
 
 {% endblock %}
