@@ -7,9 +7,6 @@ from django.db import transaction
 def stock_api_update():
     top_stocks = stock_api.get_top_stocks()
     index = 1
-    print("-----------------------------------------")
-    print("Job Start")
-    print("-----------------------------------------")
     try:
         for stock in top_stocks:
             # This searches for a stock with the given 'symbol' (the primary key)
