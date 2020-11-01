@@ -3,36 +3,39 @@
 {% block content %}
 
 <div class="container">
-    <div class="jumbotron">
-        <form method="post">
+    <div class="col-md-12 text-left">
+        <h3>Register as a new user</h3>
+    </div>
+    <div style="background:transparent !important" class="jumbotron">
+        <form method="POST">
             {% csrf_token %}
-            <div class="form-group input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text"> <i class="fa fa-user"></i> </span>
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <div class="form-group input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"> <i class="
+                        {% if field.label == 'first_name' or field.label == 'last_name' %}
+                            fa fa-user
+                        {% elif field.label == 'username' %}
+                            fa fa-envelope
+                        {% elif field.label == 'password1' or field.label == 'password2' %}
+                            fa fa-lock
+                        {% endif %}"></i> </span>
+                    </div>
+                    {{ field }}
                 </div>
-                <input name="firstname" required class="form-control" placeholder="First name" type="text">
-            </div> <!-- form-group// -->
-            <div class="form-group input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text"> <i class="fa fa-user"></i> </span>
-                </div>
-                <input name="lastname" required class="form-control" placeholder="Last name" type="text">
-            </div> <!-- form-group// -->
-            <div class="form-group input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text"> <i class="fa fa-envelope"></i> </span>
-                </div>
-                <input name="email" required class="form-control" placeholder="Email address" type="email">
-            </div> <!-- form-group// -->
-            <div class="form-group input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text"> <i class="fa fa-lock"></i> </span>
-                </div>
-                <input name="password" required minlength="4" maxlength="32" class="form-control" placeholder="Create password" type="password">
-            </div> <!-- form-group// -->
+                <ul style="list-style-type:none;">
+                    <li class="text-primary" style="text-align: left;">{{ field.help_text | safe }}</li>
+                </ul>
+                {% if field.errors %}
+                <ul style="list-style-type:none;">
+                    <li class="text-danger" style="text-align: left;">{{ field.errors }}</li>
+                </ul>
+                {% endif %}
+            {% endfor %} <br>
             <div class="form-group">
                 <button type="submit" class="btn btn-primary btn-block"> Create Account</button>
-            </div> <!-- form-group// -->
+            </div>
             <p class="text-center">Have an account? <a href="{% url 'login' %}">Log In</a></p>
         </form>
     </div>

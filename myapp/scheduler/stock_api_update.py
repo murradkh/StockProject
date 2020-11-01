@@ -22,5 +22,5 @@ def stock_api_update():
             })
             stock_model.save()
             index += 1
-    except KeyError as error:
+    except KeyError as e:
         pass
