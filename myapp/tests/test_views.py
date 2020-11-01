@@ -55,3 +55,8 @@ class EndPointsTestCase(TestCase):
         self.assertContains(response, "data")
         response_json = response.json()['data']
         self.assertEquals(len(response_json), len(self.existed_symbols))
+        response = self.client.get(
+            "/historic/{symbols}/".format(symbols=","+self.existed_symbols[0]+","))
+        self.assertContains(response, "data")
+        response_json = response.json()['data']
+        self.assertIsInstance(response_json, list)

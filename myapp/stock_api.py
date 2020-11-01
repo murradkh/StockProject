@@ -74,7 +74,7 @@ def get_stock_historic_prices(symbols, time_range='1m'):
         response = _request_data('/stable/stock/market/batch?symbols={symbols}&types=chart&range={time_range}'.format(
             symbols=symbols, time_range=time_range))
         if len(response) == 1:
-            return response[symbols]['chart']
+            return response.popitem()[1]['chart']
         return response
     except ConnectionError:
         raise StockServerUnReachable("Stock server UnReachable!")

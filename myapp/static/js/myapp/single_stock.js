@@ -1,62 +1,54 @@
 var myLineChart;
 
-function getHistoric(symbol, symbol_to_compare) {
-    $.get(`/historic/${symbol}/`, function(data) {
-        historic_data = data.data.sort(function(a, b) {
-            return a.date - b.date;
-        })
-        var ctxL = document.getElementById("stockChart").getContext('2d');
-        datasets = [{
-            label: `${symbol}`,
-            data: historic_data.map(d => d.close),
-            backgroundColor: [
-                'rgba(105, 0, 132, .2)',
-            ],
-            borderColor: [
-                'rgba(200, 99, 132, .7)',
-            ],
-            borderWidth: 2
-        }]
-        if (typeof(symbol_to_compare) !== 'undefined') {
-            $.get(`/historic/${symbol_to_compare}/`, function(data) {
-                historic_data = data.data.sort(function(a, b) {
+function getHistoric(symbol, symbol_to_compare = '') {
+    $.get(`/historic/${symbol},${symbol_to_compare}/`, function(data) {
+            var ctxL = document.getElementById("stockChart").getContext('2d');
+            datasets = []
+            if (symbol_to_compare == '' || symbol_to_compare == symbol) {
+                historic_data_1 = data.data.sort(function(a, b) {
                     return a.date - b.date;
                 })
-                datasets.push({
-                    label: `${symbol_to_compare}`,
-                    data: historic_data.map(d => d.close),
-                    backgroundColor: [
-                        'rgba(0, 0, 255, .2)',
-                    ],
-                    borderColor: [
-                        'rgba(0,0,255, .7)',
-                    ],
-                    borderWidth: 2,
+            } else {
+                historic_data_1 = data.data[symbol]['chart'].sort(function(a, b) {
+                    return a.date - b.date;
                 })
-                myLineChart = new Chart(ctxL, {
-                    type: 'line',
-                    data: {
-                        labels: historic_data.map(d => d.label),
-                        datasets: datasets
-                    },
-                    options: {
-                        responsive: true
-                    }
-                });
-            });
-        } else {
-            myLineChart = new Chart(ctxL, {
-                type: 'line',
-                data: {
-                    labels: historic_data.map(d => d.label),
-                    datasets: datasets
-                },
-                options: {
-                    responsive: true
-                }
-            });
-        }
+                historic_data_2 = data.data[symbol_to_compare]['chart'].sort(function(a, b) {
+                    return a.date - b.date;
+                })
+            datasets.push({
+                label: `${symbol_to_compare}`,
+                data: historic_data_2.map(d => d.close),
+                backgroundColor: [
+                    'rgba(0, 0, 255, .2)',
+                ],
+                borderColor: [
+                    'rgba(0,0,255, .7)',
+                ],
+                borderWidth: 2,
+            })
+            }
 
+            datasets.push({
+                label: `${symbol}`,
+                data: historic_data_1.map(d => d.close),
+                backgroundColor: [
+                    'rgba(105, 0, 132, .2)',
+                ],
+                borderColor: [
+                    'rgba(200, 99, 132, .7)',
+                ],
+                borderWidth: 2
+            })
+            myLineChart = new Chart(ctxL, {
+            type: 'line',
+            data: {
+                labels: historic_data_1.map(d => d.label),
+                datasets: datasets
+            },
+            options: {
+                responsive: true
+            }
+        });
     });
 };
 
