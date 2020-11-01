@@ -29,6 +29,8 @@ class StockApiTestCase(TestCase):
         for symbol in self.existed_symbols:
             response = get_stock_historic_prices(symbol)
             self.assertIsInstance(response, list)
+        response = get_stock_historic_prices(",".join(self.existed_symbols + self.not_existed_symbols))
+        self.assertEquals(len(response), len(self.existed_symbols))
 
         # testing time range
         response = get_stock_historic_prices(self.existed_symbols[0], '1y')

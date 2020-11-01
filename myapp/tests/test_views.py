@@ -50,3 +50,8 @@ class EndPointsTestCase(TestCase):
         for symbol in self.not_existed_symbols:
             response = self.client.get(f"/historic/{symbol}/")
             self.assertContains(response, "error_message", status_code=404)
+        response = self.client.get(
+            "/historic/{symbols}/".format(symbols=",".join(self.existed_symbols + self.not_existed_symbols)))
+        self.assertContains(response, "data")
+        response_json = response.json()['data']
+        self.assertEquals(len(response_json), len(self.existed_symbols))

@@ -68,9 +68,14 @@ def get_stock_info(symbol):
         raise e
 
 
-def get_stock_historic_prices(symbol, time_range='1m'):
+def get_stock_historic_prices(symbols, time_range='1m'):
     try:
-        return _request_data('/stable/stock/{symbol}/chart/{time_range}'.format(symbol=symbol, time_range=time_range))
+        # return _request_data('/stable/stock/{symbol}/chart/{time_range}'.format(symbol=symbol, time_range=time_range))
+        response = _request_data('/stable/stock/market/batch?symbols={symbols}&types=chart&range={time_range}'.format(
+            symbols=symbols, time_range=time_range))
+        if len(response) == 1:
+            return response[symbols]['chart']
+        return response
     except ConnectionError:
         raise StockServerUnReachable("Stock server UnReachable!")
     except Exception as e:

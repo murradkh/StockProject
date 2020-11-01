@@ -174,11 +174,11 @@ def logout_view(request):
 # API for a stock's price over time
 # symbol is the requested stock's symbol ('AAPL' for Apple)
 # The response is JSON data of an array composed of "snapshot" objects (date + stock info + ...), usually one per day
-def single_stock_historic(request, symbol):
+def single_stock_historic(request, symbols):
     context = None
     status_code = 200
     try:
-        data = stock_api.get_stock_historic_prices(symbol, time_range='1m')
+        data = stock_api.get_stock_historic_prices(symbols)
         context = {'data': data}
     except StockSymbolNotFound as e:
         context = {"error_message": e.message}
