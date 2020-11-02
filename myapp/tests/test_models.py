@@ -13,15 +13,18 @@ class StockWatchlistTestCase(TestCase):
     def test_watchlist_add(self):
         self.client.post('/stock/APPL/wadd/') 
         self.assertIn(self.test_stock, Profile.objects.get(user=self.test_user).watchlist.all())
+        self.assertTrue(Stock.is_needed('APPL'))
 
     def test_watchlist_remove(self):
         self.client.post('/stock/APPL/wremove/')
         self.assertNotIn(self.test_stock, Profile.objects.get(user=self.test_user).watchlist.all())
+        self.assertFalse(Stock.is_needed('APPL'))
 
     def test_watchlist_add_non_existant(self):
         response = self.client.post('/stock/GE/wadd/')
         self.assertEqual(response.status_code, 404)    # 404 since stock not in db
         self.assertEqual(Profile.objects.get(user=self.test_user).watchlist.all().count(), 0)
+        self.assertFalse(Stock.is_needed('GE'))
 
     def test_watchlist_add_unauthenticated(self):
         self.client.logout()
