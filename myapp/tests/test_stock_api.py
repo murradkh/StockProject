@@ -47,3 +47,5 @@ class StockApiTestCase(TestCase):
     def test_get_top_stocks(self):
         response = get_top_stocks()
         self.assertIsInstance(response, list)
+
+# TODO: add testing on in list_stocks_names

@@ -15,6 +15,7 @@ function getHistoric(symbol, symbol_to_compare = '') {
                 historic_data_2 = data.data[symbol_to_compare]['chart'].sort(function(a, b) {
                     return a.date - b.date;
                 })
+
             datasets.push({
                 label: `${symbol_to_compare}`,
                 data: historic_data_2.map(d => d.close),
@@ -53,14 +54,27 @@ function getHistoric(symbol, symbol_to_compare = '') {
 };
 
 function getStockNames() {
-    $.get(`/stocks/list_names/`, function(data) {
-        dataList = $(myDatalist)
-        for (let i = 0; i < data.stocks_names.length; i++) {
-            dataList.append(`<option value='${data.stocks_names[i][0]}, ${data.stocks_names[i][1]}'>`)
-        }
+      search_text = document.getElementById("search_text");
+      dataList = $(myDatalist)
 
+
+
+      // sending request to fetch stock names if the input isn't empty
+      if (search_text.value != ''){
+      $.get(`/stocks/list_names/${search_text.value}`, function(data) {
+
+      // removing previous search results
+      var e = document.querySelector("datalist");
+      e.innerHTML = "";
+//      var element = document.getElementsByTagName("option");
+//      for (index = element.length - 1; index >= 0; index--) {
+//        element[index].parentNode.removeChild(element[index]);
+//      }
+      for (let i = 0; i < data.stocks_names.length; i++) {
+            dataList.append(`<option value='${data.stocks_names[i].symbol}, ${data.stocks_names[i].companyName}'>`)
+      }
     });
-
+}
 }
 
 function watchlistEdit() {
@@ -104,5 +118,4 @@ function compareTwoStocks(originSymbol) {
         secondarySymbol = stockNameOption.slice(0, stockNameOption.indexOf(','))
         getHistoric(originSymbol, secondarySymbol);
     }
-
 };

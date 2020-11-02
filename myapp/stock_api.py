@@ -70,7 +70,6 @@ def get_stock_info(symbol):
 
 def get_stock_historic_prices(symbols, time_range='1m'):
     try:
-        # return _request_data('/stable/stock/{symbol}/chart/{time_range}'.format(symbol=symbol, time_range=time_range))
         response = _request_data('/stable/stock/market/batch?symbols={symbols}&types=chart&range={time_range}'.format(
             symbols=symbols, time_range=time_range))
         if len(response) == 1:
@@ -82,4 +81,22 @@ def get_stock_historic_prices(symbols, time_range='1m'):
         for arg in e.args:
             if isinstance(arg, dict) and (b"Unknown symbol" in arg.values() or b"Not found" in arg.values()):
                 raise StockSymbolNotFound("Unknown Stock Symbol!")
+        raise e
+
+
+def list_stocks_names(search_text):
+    try:
+        response = _request_data(f'/stable/search/{search_text}')
+        symbols = ",".join([obj['symbol'] for obj in response])
+        if symbols:
+            response = _request_data(f'/stable/stock/market/batch?symbols={symbols}&types=quote&filter=symbol,'
+                                     f'companyName')
+            return [i['quote'] for i in response.values()]
+        return []
+    except ConnectionError:
+        raise StockServerUnReachable("Stock server UnReachable!")
+    except Exception as e:
+        for arg in e.args:
+            if isinstance(arg, dict) and (b"Unknown symbol" in arg.values() or b"Not found" in arg.values()):
+                raise StockSymbolNotFound("Stock symbol not found!")
         raise e

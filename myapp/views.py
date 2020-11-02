@@ -195,7 +195,6 @@ def single_stock_historic(request, symbols):
         return response
 
 
-def list_names(request):
-    stocks_names = Stock.objects.values_list('symbol', 'name')
-    # this can be optimized by sending response in chunks (piece by piece), rather than at once
-    return JsonResponse({"stocks_names": list(stocks_names)})
+def list_stocks_names_view(request, search_text):
+    stocks_names = stock_api.list_stocks_names(search_text)
+    return JsonResponse({"stocks_names": stocks_names})

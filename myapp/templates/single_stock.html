@@ -72,8 +72,8 @@
 
         <canvas id="stockChart"></canvas>
                 <form class="row offset-1" id="compareForm">
-            <input list="myDatalist" id="ex1" type="text"
-                   style="max-width:40%;max-height:10%;" name="stockNameToCompare">
+            <input list="myDatalist" id="search_text" type="text"
+                   style="max-width:40%;max-height:10%;" name="stockNameToCompare" oninput="getStockNames()">
             <datalist id="myDatalist"
                       style="max-height:10px;overflow-y:auto;display:block !important;">
 
@@ -121,7 +121,6 @@
 <script>
 	window.onload = function(){
 	getHistoric("{{data.symbol}}");
-	getStockNames();
 	const form = document.getElementById( "compareForm" );
     form.addEventListener( "submit", function ( event ) {
     event.preventDefault();
