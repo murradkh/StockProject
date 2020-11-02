@@ -30,16 +30,6 @@ class StockApiTestCase(TestCase):
             response = get_stock_historic_prices(symbol)
             self.assertIsInstance(response, list)
 
-        # testing time range
-        response = get_stock_historic_prices(self.existed_symbols[0], '1y')
-        first_year = datetime.fromisoformat(response[0].get('date')).year
-        second_year = datetime.today().year
-        self.assertEquals(second_year - first_year, 1)
-        response = get_stock_historic_prices(self.existed_symbols[0], '1m')
-        first_month = datetime.fromisoformat(response[0].get('date')).month
-        second_month = datetime.today().month
-        self.assertEquals(second_month - first_month, 1)
-
     def test_get_top_stocks(self):
         response = get_top_stocks()
         self.assertIsInstance(response, list)
