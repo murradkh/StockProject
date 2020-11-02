@@ -1,7 +1,8 @@
 from django.test import TestCase
 from datetime import datetime
 from myapp.exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
-from myapp.stock_api import get_stock_info, get_stock_historic_prices, get_top_stocks
+from myapp.stock_api import get_stock_info, get_stock_historic_prices, get_top_stocks, list_stocks_names
+from myapp.views import STOCKS_PER_PAGE
 
 
 class StockApiTestCase(TestCase):
@@ -48,4 +49,17 @@ class StockApiTestCase(TestCase):
         response = get_top_stocks()
         self.assertIsInstance(response, list)
 
-# TODO: add testing on in list_stocks_names
+    def test_list_stocks_names(self):
+        response = list_stocks_names("A")
+        self.assertIsInstance(response, list)
+        self.assertEquals(len(response), 10)
+        response = list_stocks_names("snap-mm")
+        self.assertIsInstance(response, list)
+        self.assertEquals(len(response), 1)
+        response = list_stocks_names("unknown")
+        self.assertIsInstance(response, list)
+        self.assertEquals(len(response), 0)
+        response = list_stocks_names(" ")
+        self.assertIsInstance(response, list)
+        self.assertEquals(len(response), 0)
+        self.assertRaises(Exception, list_stocks_names, "")

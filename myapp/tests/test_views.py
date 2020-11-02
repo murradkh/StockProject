@@ -61,4 +61,9 @@ class EndPointsTestCase(TestCase):
         response_json = response.json()['data']
         self.assertIsInstance(response_json, list)
 
-# TODO: add tests on list_stocks_names_view
+    def test_stocks_names_view(self):
+        response = self.client.get("/stocks/list_names/snap-mm")
+        self.assertContains(response, 'stocks_names')
+        self.assertEqual(len(response.json()['stocks_names']), 1)
+        response = self.client.get("/stocks/list_names/")
+        self.assertEquals(response.status_code, 404)
