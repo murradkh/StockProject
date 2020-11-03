@@ -121,7 +121,7 @@
                     }
                 }
 
-                var colors = getGraphColors(data.data[0].close, data.data[data.data.length-1].close);
+                var colors = getRandomRgba();
                 var ctxL = document.getElementById('stockChart').getContext('2d');
 
                 var myLineChart = new Chart(ctxL, {
@@ -148,13 +148,12 @@
         });
     }
 
-    function getGraphColors(p1, p2) {
-        if (p2 >= p1) {
-            return ['rgba(2, 144, 62, .2)', 'rgba(2, 144, 62, .5)']
-        }
-        else {
-            return ['rgba(220, 24, 24, .2)', 'rgba(220, 24, 24, .5)']
-        }
+    function getRandomRgba() {
+        var o = Math.round, r = Math.random, s = 255;
+        var color = 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s)
+        var backgroundColor = color + ',' + '0.2' + ')';
+        var borderColor = color + ',' + '0.6' + ')';
+        return [backgroundColor, borderColor];
     }
     
     function watchlistEdit() {
