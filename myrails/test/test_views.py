@@ -4,8 +4,7 @@ from django.test import TestCase
 class UnknownPagesTestCase(TestCase):
 
     def setUp(self):
-        self.not_existed_endpoints = ['/test/', "/test/test/", "/historic/", "/stock/", "/stock/AAL/test/",
-                                      "/historic/AAL/test/"]
+        self.not_existed_endpoints = ['/test/', "/test/test/", "/historic/", "/stock/", "/stock/AAL/test/"]
         self.endpoints_to_redirect = ['/test', '/test/test', '/historic', '/stock', '/stock/AAL/test', '/login']
 
     def test_page_not_found(self):

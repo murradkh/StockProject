@@ -61,64 +61,100 @@
 	</div>
 
 	<div class="pt-4 col-sm-6">
-		<canvas id="stockChart"></canvas>
-		<!-- WIP TAB DESIGN
-		<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-		  <li class="nav-item">
-			<a class="nav-link" data-toggle="pill" href="#1w" role="tab" aria-controls="pills-home" aria-selected="true">1W</a>
-		  </li>
-		  <li class="nav-item">
-			<a class="nav-link active" data-toggle="pill" href="#1m" role="tab" aria-controls="pills-profile" aria-selected="false">1M</a>
-		  </li>
-		  <li class="nav-item">
-			<a class="nav-link" data-toggle="pill" href="#3m" role="tab" aria-controls="pills-contact" aria-selected="false">3M</a>
-		  </li>
-			<li class="nav-item">
-			<a class="nav-link" data-toggle="pill" href="#6m" role="tab" aria-controls="pills-contact" aria-selected="false">6M</a>
-		  </li>
-			<li class="nav-item">
-			<a class="nav-link" data-toggle="pill" href="#1y" role="tab" aria-controls="pills-contact" aria-selected="false">1Y</a>
-		  </li>
-			<li class="nav-item">
-			<a class="nav-link" data-toggle="pill" href="#max" role="tab" aria-controls="pills-contact" aria-selected="false">Max</a>
-		  </li>
-		</ul>
-		-->
+        <div id ="chartContainer">
+            <canvas id="stockChart"></canvas>
+        </div>
+        <ul class="nav nav-pills" id="pills-tab" role="tablist">
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('1d')" role="tab" aria-controls="pills-home" aria-selected="true">1D</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('5d')" role="tab" aria-controls="pills-home" aria-selected="true">1W</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link active alert-secondary" data-toggle="pill" onclick="getHistoricData('1m')" role="tab" aria-controls="pills-profile" aria-selected="false">1M</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('3m')" role="tab" aria-controls="pills-contact" aria-selected="false">3M</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('6m')" role="tab" aria-controls="pills-contact" aria-selected="false">6M</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('1y')" role="tab" aria-controls="pills-contact" aria-selected="false">1Y</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('2y')" role="tab" aria-controls="pills-contact" aria-selected="false">2Y</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('5y')" role="tab" aria-controls="pills-contact" aria-selected="false">5Y</a>
+            </li>
+        </ul>
 	</div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-	$(document).ready(function(){
-		$.get( "/historic/{{ data.symbol }}/", function( data ) {
-			historic_data = data.data.sort(function(a, b) { return a.date - b.date; })
+    $(document).ready(getHistoricData());
 
-			var ctxL = document.getElementById("stockChart").getContext('2d');
-			var myLineChart = new Chart(ctxL, {
-				type: 'line',
-				data: {
-					labels: historic_data.map(d => d.label),
-					datasets: [
-						{
-							label: "{{ data.symbol }}",
-							data: historic_data.map(d => d.close),
-							backgroundColor: [
-								'rgba(105, 0, 132, .2)',
-							],
-							borderColor: [
-								'rgba(200, 99, 132, .7)',
-							],
-							borderWidth: 2
-						}
-					]
-				},
-				options: {
-					responsive: true
-				}
-			});
-		});
-    });
+    function getHistoricData(time_range='1m') {
+        // reset canvas to avoid conflicting hover events from other graphs
+        var chartContainer = document.getElementById('chartContainer');
+        chartContainer.innerHTML = '';
+        $('#chartContainer').append('<canvas id="stockChart"></canvas>');
+
+        $.get(`/historic/{{ data.symbol }}/${time_range}/`, function ( data, received, response ) {
+            if (response.status == 200) {
+                historic_data = data.data.sort(function(a, b) { return a.date - b.date; })
+
+                // For some strange reason, the 'today' data point returned by API has no label
+                if (typeof historic_data[data.data.length-1].label === 'undefined') {
+                    last_label = new Date(historic_data[data.data.length-1].date).toString();
+                    if (time_range == '3m' || time_range == '6m' || time_range.endsWith('y')){
+                        historic_data[data.data.length-1].label = 
+                            last_label.substr(3, 7) + ', ' 
+                            + historic_data[data.data.length-1].date.substr(2, 2);
+                    }
+                    else{
+                        historic_data[data.data.length-1].label = last_label.substr(3, 7);
+                    }
+                }
+
+                var colors = getRandomRgba();
+                var ctxL = document.getElementById('stockChart').getContext('2d');
+
+                var myLineChart = new Chart(ctxL, {
+                    type: 'line',
+                    data: {
+                        labels: historic_data.map(d => d.label),
+                        datasets: [
+                            {
+                                label: '{{ data.symbol }}',
+                                data: historic_data.map(d => d.close),
+                                backgroundColor: [colors[0]],
+                                borderColor: [colors[1]],
+                                borderWidth: 2
+                            }
+                        ]
+                    },
+                    options: 
+                        {
+                            responsive: true,
+                            spanGaps: true,
+                        }
+                    });
+                }
+        });
+    }
+
+    function getRandomRgba() {
+        var o = Math.round, r = Math.random, s = 255;
+        var color = 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s)
+        var backgroundColor = color + ',' + '0.2' + ')';
+        var borderColor = color + ',' + '0.6' + ')';
+        return [backgroundColor, borderColor];
+    }
     
     function watchlistEdit() {
         var editButton = document.getElementById("editbutton");
