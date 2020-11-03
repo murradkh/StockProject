@@ -88,4 +88,4 @@ To run the Django server:
 
 Note the additional settings argument in the runsever command.
 
-<p>To avoid manaully specifying this each time, we can tell Django to use `settings_server.py` by default by defining an [environmental varaible](https://docs.djangoproject.com/en/3.1/topics/settings/#envvar-DJANGO_SETTINGS_MODULE).</p>
+To avoid manaully specifying this each time, we can tell Django to use `settings_server.py` by default by defining an [environmental varaible](https://docs.djangoproject.com/en/3.1/topics/settings/#envvar-DJANGO_SETTINGS_MODULE)
