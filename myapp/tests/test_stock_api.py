@@ -1,7 +1,11 @@
 from django.test import TestCase
 from datetime import datetime
-from myapp.exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
+from myapp.exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange
 from myapp.stock_api import get_stock_info, get_stock_historic_prices, get_top_stocks
+
+
+MAX_DAYS_PER_MONTH = 31
+MAX_DAYS_PER_YEAR = 366  # On a leap year
 
 
 class StockApiTestCase(TestCase):
@@ -10,11 +14,16 @@ class StockApiTestCase(TestCase):
         self.existed_symbols = ['AAL', 'WFC', "DFS"]
         self.not_existed_symbols = ['kamal', 'murad', 'malak']
 
+        self.valid_time_ranges = ['1d', '5d', '1m', '3m', '6m', '1y', '5y']
+        self.invalid_time_ranges = ['1x', '42z', 'rt', 'test']
+
+
     def test_service_is_up(self):
         try:
             get_stock_info(self.existed_symbols[0])
         except StockServerUnReachable as e:
             raise AssertionError(e)
+
 
     def test_get_stock_info(self):
         for symbol in self.not_existed_symbols:
@@ -23,22 +32,48 @@ class StockApiTestCase(TestCase):
             response = get_stock_info(symbol)
             self.assertIsInstance(response, dict)
 
-    def test_get_stock_historic_prices(self):
+
+    def test_get_stock_historic_prices_symbol(self):
         for symbol in self.not_existed_symbols:
             self.assertRaises(StockSymbolNotFound, get_stock_historic_prices, symbol)
         for symbol in self.existed_symbols:
             response = get_stock_historic_prices(symbol)
             self.assertIsInstance(response, list)
 
-        # testing time range
-        response = get_stock_historic_prices(self.existed_symbols[0], '1y')
-        first_year = datetime.fromisoformat(response[0].get('date')).year
-        second_year = datetime.today().year
-        self.assertEquals(second_year - first_year, 1)
-        response = get_stock_historic_prices(self.existed_symbols[0], '1m')
-        first_month = datetime.fromisoformat(response[0].get('date')).month
-        second_month = datetime.today().month
-        self.assertEquals(second_month - first_month, 1)
+
+    def test_get_stock_historic_prices_time(self):
+        for time_range in self.valid_time_ranges:
+            response = get_stock_historic_prices(self.existed_symbols[0], time_range)
+
+            first_date = datetime.fromisoformat(response[0].get('date'))
+            final_date = datetime.fromisoformat(response[-1].get('date'))
+            days_in_range = (final_date - first_date).days
+            
+            today = datetime.now()
+            days_since_last_result = (today - final_date).days
+
+            if time_range.endswith('d'):
+                if time_range == '1d':
+                    self.assertEquals(days_in_range, 0)
+                elif time_range == '5d':
+                    self.assertLessEqual(days_in_range, 7)
+                
+                if today.weekday() not in [5,6]:    # not Saturday nor Sunday
+                    self.assertLessEqual(days_since_last_result, 1)
+
+            elif time_range.endswith('m'):
+                self.assertLessEqual(days_in_range, 
+                                    int(time_range[0]) * MAX_DAYS_PER_MONTH)
+
+            elif time_range.endswith('y'):
+                self.assertLessEqual(days_in_range, 
+                                    int(time_range[0]) * MAX_DAYS_PER_YEAR)
+
+
+        for time_range in self.invalid_time_ranges:
+            self.assertRaises(InvalidTimeRange, get_stock_historic_prices,
+                              self.existed_symbols[0], time_range)
+
 
     def test_get_top_stocks(self):
         response = get_top_stocks()
