@@ -47,32 +47,29 @@ class StockApiTestCase(TestCase):
 
             first_date = datetime.fromisoformat(response[0].get('date'))
             final_date = datetime.fromisoformat(response[-1].get('date'))
-            days_in_range = (final_date - first_date).days
+            days_returned = len(response)
             
             today = datetime.now()
             days_since_last_result = (today - final_date).days
 
             if time_range.endswith('d'):
                 if time_range == '1d':
-                    self.assertEquals(days_in_range, 0)
+                    self.assertEquals((final_date - first_date).days, 0)
                 elif time_range == '5d':
-                    self.assertLessEqual(days_in_range, 7)
+                    self.assertLessEqual(days_returned, 7)
                 
                 if today.weekday() not in [5,6]:    # not Saturday nor Sunday
                     self.assertLessEqual(days_since_last_result, 1)
 
             elif time_range.endswith('m'):
-                self.assertLessEqual(days_in_range, 
-                                    int(time_range[0]) * MAX_DAYS_PER_MONTH)
+                self.assertLessEqual(days_returned, int(time_range[0]) * MAX_DAYS_PER_MONTH)
 
             elif time_range.endswith('y'):
-                self.assertLessEqual(days_in_range, 
-                                    int(time_range[0]) * MAX_DAYS_PER_YEAR)
+                self.assertLessEqual(days_returned, int(time_range[0]) * MAX_DAYS_PER_YEAR)
 
 
         for time_range in self.invalid_time_ranges:
-            self.assertRaises(InvalidTimeRange, get_stock_historic_prices,
-                              self.existed_symbols[0], time_range)
+            self.assertRaises(InvalidTimeRange, get_stock_historic_prices, self.existed_symbols[0], time_range)
 
 
     def test_get_top_stocks(self):
