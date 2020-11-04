@@ -146,21 +146,35 @@
         xhr.send();
     }
 
+
+
     setInterval(function() {
+
         $.ajax({
-            method: "GET",
-            url: "",
-            success: function(data) {
-            var parser = new DOMParser();
-            var doc = parser.parseFromString(data, 'text/html');
-            var table = doc.querySelector('table');
-            document.getElementById("stock_table").innerHTML=table.innerHTML
-            },
-            error: function(data) {
-                console.log("error updating table")
-            }
-        })
+        method: "GET",
+        url: "",
+        success: function(data) {
+
+         $('#stock_table').replaceWith($('#stock_table',data));
+         console.log("updated ")
+
+
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+
+
+        },
+        error: function(data) {
+            console.log("error")
+        }
+    })
+
+
     }, 10000)
+
+
+
 </script>
 
 {% endblock %}
