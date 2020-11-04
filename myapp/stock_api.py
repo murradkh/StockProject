@@ -1,4 +1,4 @@
-from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
+from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange
 from requests.exceptions import ConnectionError
 import requests
 
@@ -19,6 +19,7 @@ PUBLIC_TOKEN = 'Tpk_c818732500c24764801eb121fa658bb6'
 # https://cloud.iexapis.com/stable/tops/last?token=pk_dd07f5a1aaea4a039cfe8118f3d9727a
 
 STOCKS_AMOUNT_TO_FETCH = 200
+ALLOWED_TIME_RANGES = ['max', '5y', '2y', '1y', 'ytd', '6m', '3m', '1m', '1mm', '5d', '5dm', '1d']
 
 
 def _request_data(url, filter='', additional_parameters={}):
@@ -69,8 +70,20 @@ def get_stock_info(symbol):
 
 
 def get_stock_historic_prices(symbol, time_range='1m'):
+    if time_range not in ALLOWED_TIME_RANGES:
+        raise InvalidTimeRange("Invalid time range")
     try:
-        return _request_data('/stable/stock/{symbol}/chart/{time_range}'.format(symbol=symbol, time_range=time_range))
+        if time_range == '6m':
+            chart_interval = 3
+        elif time_range.endswith('y'):
+            chart_interval = int(time_range[0])*6
+        elif time_range == 'max':
+            chart_interval = 30
+        else:
+            chart_interval = 1
+        return _request_data(
+            '/stable/stock/{symbol}/chart/{time_range}/?chartInterval={chart_interval}&includeToday=true'
+            .format(symbol=symbol, time_range=time_range, chart_interval=chart_interval))
     except ConnectionError:
         raise StockServerUnReachable("Stock server UnReachable!")
     except Exception as e:

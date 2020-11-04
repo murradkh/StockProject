@@ -17,7 +17,8 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
-from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound
+
+from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange
 from django.db.models import Q
 
 
@@ -175,15 +176,18 @@ def logout_view(request):
 # API for a stock's price over time
 # symbol is the requested stock's symbol ('AAPL' for Apple)
 # The response is JSON data of an array composed of "snapshot" objects (date + stock info + ...), usually one per day
-def single_stock_historic(request, symbol):
+def single_stock_historic(request, symbol, time_range='1m'):
     context = None
     status_code = 200
     try:
-        data = stock_api.get_stock_historic_prices(symbol, time_range='1m')
+        data = stock_api.get_stock_historic_prices(symbol, time_range=time_range)
         context = {'data': data}
     except StockSymbolNotFound as e:
         context = {"error_message": e.message}
         status_code = 404
+    except InvalidTimeRange as e:
+        context = {"error_message": e.message}
+        status_code = 400
     except StockServerUnReachable as e:
         context = {"error_message": e.message}
         status_code = 503
