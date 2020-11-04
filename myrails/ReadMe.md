@@ -1,5 +1,10 @@
 # MySQL Database Setup
 
+## Project Requirements
+This pull request adds `mysqlclient==2.0.1` to the `requirments.txt` file. You will need to rerun the command:
+    
+        pip install -r requirements.txt
+
 ## SQLite Data Migration (Optional)
 If you would like to move over the data stored in the SQLite db, you will first need to [dump your existing data into a .json file](https://www.shubhamdipt.com/blog/django-transfer-data-from-sqlite-to-another-database/)
 
@@ -43,7 +48,7 @@ amongst us, set up the local server with these parameters:
                 'PASSWORD': 'project1234',
             },
             'OPTIONS': {
-                'timeout': 20,
+                'connect_timeout': 20,
             }
         }
 
@@ -75,7 +80,7 @@ The production server uses the `settings_server.py` file instead, which has a di
                 'PORT': '3306',
             },
             'OPTIONS': {
-                'timeout': 20,
+                'connect_timeout': 20,
             }
         }
 
