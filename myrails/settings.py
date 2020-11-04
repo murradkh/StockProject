@@ -84,7 +84,7 @@ DATABASES = {
         'PASSWORD': 'project1234',
     },
     'OPTIONS': {
-        'timeout': 20,
+        'connect_timeout': 20,
     }
 }
 
