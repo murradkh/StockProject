@@ -32,6 +32,6 @@ jobs:
         with:
           mysql version: 8.0
           mysql database: project_db
-          mysql root assword: project1234
+          mysql root password: project1234
       - name: Run Tests
         run: python manage.py test -v 2
