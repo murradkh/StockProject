@@ -2,30 +2,22 @@
 
 {% block content %}
 <div class="col-md-12 text-left">
-    <table>
-        <tr>
-            <td><h2>{{ data.companyName }}<small class="text-muted">
-                ({{data.symbol }}) &emsp14;</small></h2></td>
-            {% if profile %}
-            <td>{% if stock.0 in profile.watchlist.all %}
-                <button id="editbutton" onclick="watchlistEdit()"
-                        class="btn btn-outline-danger"><i
-                        class='fa fa-eye-slash'></i> Remove from watchlist
-                </button>
+	<table>
+		<tr>
+			<td><h2>{{ data.companyName }}<small class="text-muted">({{ data.symbol }}) &emsp14;</small></h2></td>
+			{% if profile %}
+			<td>{% if stock.0 in profile.watchlist.all %}
+                <button id="editbutton" onclick="watchlistEdit()" class="btn btn-outline-danger"><i class='fa fa-eye-slash'></i> Remove from watchlist</button>
                 {% else %}
-                <button id="editbutton" onclick="watchlistEdit()"
-                        class="btn btn-outline-primary"><i
-                        class='fa fa-eye'></i> Add to watchlist
-                </button>
-                {% endif %}
-            </td>
-            {% endif %}
-        </tr>
-    </table>
+                <button id="editbutton" onclick="watchlistEdit()" class="btn btn-outline-primary"><i class='fa fa-eye'></i> Add to watchlist</button>
+				{% endif %}</td>
+			{% endif %}
+		</tr>
+	</table>
 </div>
 
 <div class="col-md-12 text-left">
-    <p class="lead">{{ data.primaryExchange }}</p>
+		<p class="lead">{{ data.primaryExchange }}</p>
 </div>
 
 <div class="col-md-12 text-left">
@@ -41,36 +33,72 @@
 			</small>
 	</big>
 	</span>
-    <br>
-    <small class="text-muted">Updated time: {{ data.latestTime }}</small>
+	<br>
+	<small class="text-muted">Updated time: {{ data.latestTime }}</small>
 </div>
 <div class="row">
-    <div class="pt-4 col-sm-6 pl-5">
-        <dl class="row text-left">
-            <dt class="col-sm-6">Previous Close</dt>
-            <dd class="col-sm-6">{{ data.previousClose }}</dd>
+	<div class="pt-4 col-sm-6 pl-5">
+		<dl class="row text-left">
+			<dt class="col-sm-6">Previous Close</dt>
+			<dd class="col-sm-6">{{ data.previousClose }}</dd>
 
-            <dt class="col-sm-6">Volume</dt>
-            <dd class="col-sm-6">{{ data.volume }}
-            </dd>
+			<dt class="col-sm-6">Volume</dt>
+			<dd class="col-sm-6">{{ data.volume }}
+			</dd>
 
-            <dt class="col-sm-6">52 Weeks Low</dt>
-            <dd class="col-sm-6">{{ data.week52Low }}</dd>
+			<dt class="col-sm-6">52 Weeks Low</dt>
+			<dd class="col-sm-6">{{ data.week52Low }}</dd>
 
-            <dt class="col-sm-6">52 Weeks High</dt>
-            <dd class="col-sm-6">{{ data.week52High }}</dd>
+			<dt class="col-sm-6">52 Weeks High</dt>
+			<dd class="col-sm-6">{{ data.week52High }}</dd>
 
-            <dt class="col-sm-6">Year Change</dt>
-            <dd class="col-sm-6">{{ data.ytdChange }}</dd>
+			<dt class="col-sm-6">Year Change</dt>
+			<dd class="col-sm-6">{{ data.ytdChange }}</dd>
 
-            <dt class="col-sm-6">Market Cap</dt>
-            <dd class="col-sm-6">{{ data.marketCap }}</dd>
+			<dt class="col-sm-6">Market Cap</dt>
+			<dd class="col-sm-6">{{ data.marketCap }}</dd>
+		</dl>
+	</div>
 
-        </dl>
-    </div>
-    <div class="pt-4 col-sm-6">
-
-        <canvas id="stockChart"></canvas>
+	<div class="pt-4 col-sm-6">
+        <div id ="chartContainer">
+            <canvas id="stockChart"></canvas>
+        </div>
+        <ul class="nav nav-pills" id="pills-tab" role="tablist">
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill"
+                   onclick="getHistoricData('{{data.symbol}}','1d')" role="tab" aria-controls="pills-home" aria-selected="true">1D</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','5d')" role="tab"
+                   aria-controls="pills-home" aria-selected="true">1W</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link active alert-secondary" data-toggle="pill"
+                   onclick="getHistoricData('{{data.symbol}}','1m')" role="tab" aria-controls="pills-profile" aria-selected="false">1M</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','3m')" role="tab"
+                   aria-controls="pills-contact" aria-selected="false">3M</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','6m')" role="tab"
+                   aria-controls="pills-contact" aria-selected="false">6M</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','1y')" role="tab"
+                   aria-controls="pills-contact" aria-selected="false">1Y</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','2y')" role="tab"
+                   aria-controls="pills-contact" aria-selected="false">2Y</a>
+            </li>
+            <li class="nav-item" style="padding-left: 4px">
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','5y')" role="tab"
+                   aria-controls="pills-contact" aria-selected="false">5Y</a>
+            </li>
+        </ul>
+        <br>
                 <form class="row offset-1" id="compareForm">
             <input list="myDatalist" id="search_text" type="text"
                    style="max-width:40%;max-height:10%;" name="stockNameToCompare" oninput="getStockNames()">
@@ -83,35 +111,9 @@
                 Compare
             </button>
         </form>
-        <!-- WIP TAB DESIGN
-        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#1w" role="tab" aria-controls="pills-home" aria-selected="true">1W</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" data-toggle="pill" href="#1m" role="tab" aria-controls="pills-profile" aria-selected="false">1M</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#3m" role="tab" aria-controls="pills-contact" aria-selected="false">3M</a>
-          </li>
-            <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#6m" role="tab" aria-controls="pills-contact" aria-selected="false">6M</a>
-          </li>
-            <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#1y" role="tab" aria-controls="pills-contact" aria-selected="false">1Y</a>
-          </li>
-            <li class="nav-item">
-            <a class="nav-link" data-toggle="pill" href="#max" role="tab" aria-controls="pills-contact" aria-selected="false">Max</a>
-          </li>
-        </ul>
-        -->
-    </div>
-    <div id="chartContainer" style="height: 300px; width: 100%;"></div>
-    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
-
 
 </div>
-
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -120,7 +122,7 @@
         src="{% static 'js/myapp/single_stock.js' %}"></script>
 <script>
 	window.onload = function(){
-	getHistoric("{{data.symbol}}");
+	getHistoricData("{{data.symbol}}");
 	const form = document.getElementById( "compareForm" );
     form.addEventListener( "submit", function ( event ) {
     event.preventDefault();
