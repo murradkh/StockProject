@@ -11,6 +11,14 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from myrails.configuration.config import Configurator
+
+
+# Build and parse configuration files
+config = Configurator()
+config.set_test_config()
+config.parse_machine_config()
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,7 +31,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '!sq5o3kstxfaxw&%nq9*t63^q!cr_-4l7#b-nb*5@zv2b$9eut'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config.get_debug_val()
 
 ALLOWED_HOSTS = ['3.229.69.117', 'localhost', '127.0.0.1']
 
@@ -75,17 +83,8 @@ WSGI_APPLICATION = 'myrails.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'project_db',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'USER': 'root',
-        'PASSWORD': 'project1234',
-    },
-    'OPTIONS': {
-        'connect_timeout': 20,
-    }
+    'default': config.get_db_params(),
+    'OPTIONS': config.get_db_options(),
 }
 
 
