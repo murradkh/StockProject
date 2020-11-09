@@ -16,7 +16,6 @@ from myrails.configuration.config import Configurator
 
 # Build and parse configuration files
 config = Configurator()
-config.set_test_config()
 config.parse_machine_config()
 
 
