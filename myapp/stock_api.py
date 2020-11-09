@@ -96,14 +96,14 @@ def get_stock_historic_prices(symbols, time_range='1m'):
         raise e
 
 
-def list_stocks_names(search_text, filter=""):
+def list_stocks_names(search_text, filter=()):
     try:
         if search_text:
             response = _request_data(f'/stable/search/{search_text}')
             symbols = ",".join([obj['symbol'] for obj in response])
             if symbols:
                 response = _request_data(f'/stable/stock/market/batch?symbols={symbols}&types=quote&'
-                                         f'{filter if not filter else ("filter="+(",".join(filter)))}',
+                                         f'{"" if not filter else ("filter="+(",".join(filter)))}',
                                          additional_parameters={'displayPercent': 'true'})
                 return [i['quote'] for i in response.values()]
         return []
