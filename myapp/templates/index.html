@@ -36,6 +36,18 @@
 
 {% load myapp_tags %}
 
+<div class=" row  row-m-t ">
+    <div class="col-6 text-left custom-control custom-switch">
+  <input type="checkbox" class="custom-control-input" id="customSwitch1"
+         onclick='handleClick();' >
+  <label class="custom-control-label" for="customSwitch1">Auto Update</label>
+        </div>
+    <div class="col-6 float-right text-right">
+          <p  >Last Update <span id="timer"></span></p>
+
+    </div>
+</div>
+
 <table class="table table-hover data-table" id ="stock_table" >
     <tr>
         <th>#</th>
@@ -112,6 +124,12 @@
 {% block scripts %}
 
 <script>
+
+
+    function handleClick() {
+         var checkbox = document.getElementById('customSwitch1');
+         localStorage.setItem('customSwitch1', checkbox.checked);
+    }
     function watchlistEdit(symbol, number) {
         var icon = document.getElementById("eyeicon" + number);
         var editButton = document.getElementById("editbutton" + number);
@@ -147,31 +165,28 @@
     }
 
 
-
     setInterval(function() {
+    if ($('#customSwitch1').is(":checked")){
 
         $.ajax({
         method: "GET",
         url: "",
         success: function(data) {
-
-         $('#stock_table').replaceWith($('#stock_table',data));
-         console.log("updated ")
-
-
-    $(".clickable-row").click(function() {
-        window.location = $(this).data("href");
-    });
-
-
+        console.log( "{{ Interval }}")
+            $('#stock_table').replaceWith($('#stock_table',data));
+             console.log("updated ")
+            $(".clickable-row").click(function() {
+                window.location = $(this).data("href");
+            });
+            document.getElementById("timer").innerHTML =new Date().toLocaleString();
+             $("#timer").fadeTo(100, 0.1).fadeTo(200, 1.0);
         },
         error: function(data) {
             console.log("error")
         }
     })
-
-
-    }, 10000)
+    }
+    }, "{{ Interval }}")
 
 
 

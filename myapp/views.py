@@ -1,5 +1,5 @@
 from urllib.parse import urlencode
-
+from myrails.settings import THREAD_INTERVAL
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -63,7 +63,8 @@ def index(request):
             "search_query": urlencode(search_query),
             "stocks_per_page_query": urlencode(stocks_per_page_query),
             'page_title': 'Main',
-            'profile': profile
+            'profile': profile,
+            'Interval': (THREAD_INTERVAL*1000)
         }
 
         return render(request, 'index.html', context)
