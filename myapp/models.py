@@ -28,6 +28,17 @@ class Stock(models.Model):
         profile.watchlist.remove(stock)
         profile.save()
 
+    @classmethod
+    def is_needed(cls, stock_symbol):
+        stock = cls.objects.filter(symbol=stock_symbol)[:1]
+        if not stock.exists():
+            return False
+        else:
+            for profile in Profile.objects.all():
+                if stock[0] in profile.watchlist.all():
+                    return True
+            return False
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

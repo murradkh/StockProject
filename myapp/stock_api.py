@@ -69,21 +69,24 @@ def get_stock_info(symbol):
         raise e
 
 
-def get_stock_historic_prices(symbol, time_range='1m'):
+def get_stock_historic_prices(symbols, time_range='1m'):
     if time_range not in ALLOWED_TIME_RANGES:
         raise InvalidTimeRange("Invalid time range")
     try:
         if time_range == '6m':
             chart_interval = 3
         elif time_range.endswith('y'):
-            chart_interval = int(time_range[0])*6
+            chart_interval = int(time_range[0]) * 6
         elif time_range == 'max':
             chart_interval = 30
         else:
             chart_interval = 1
-        return _request_data(
-            '/stable/stock/{symbol}/chart/{time_range}/?chartInterval={chart_interval}&includeToday=true'
-            .format(symbol=symbol, time_range=time_range, chart_interval=chart_interval))
+        response = _request_data(
+            '/stable/stock/market/batch?symbols={symbols}&types=chart&range={time_range}&chartInterval={chart_interval}&includeToday=true'.format(
+                symbols=symbols, time_range=time_range, chart_interval=chart_interval))
+        if len(response) == 1:
+            return response.popitem()[1]['chart']
+        return response
     except ConnectionError:
         raise StockServerUnReachable("Stock server UnReachable!")
     except Exception as e:
@@ -91,3 +94,16 @@ def get_stock_historic_prices(symbol, time_range='1m'):
             if isinstance(arg, dict) and (b"Unknown symbol" in arg.values() or b"Not found" in arg.values()):
                 raise StockSymbolNotFound("Unknown Stock Symbol!")
         raise e
+
+
+def list_stocks_names(search_text):
+    try:
+        response = _request_data(f'/stable/search/{search_text}')
+        symbols = ",".join([obj['symbol'] for obj in response])
+        if symbols:
+            response = _request_data(f'/stable/stock/market/batch?symbols={symbols}&types=quote&filter=symbol,'
+                                     f'companyName')
+            return [i['quote'] for i in response.values()]
+        return []
+    except ConnectionError:
+        raise StockServerUnReachable("Stock server UnReachable!")
