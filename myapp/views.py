@@ -21,7 +21,6 @@ from django.contrib.auth import login, logout
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange
 from django.db.models import Q
 
-
 STOCKS_PER_PAGE = 10
 
 
@@ -176,11 +175,11 @@ def logout_view(request):
 # API for a stock's price over time
 # symbol is the requested stock's symbol ('AAPL' for Apple)
 # The response is JSON data of an array composed of "snapshot" objects (date + stock info + ...), usually one per day
-def single_stock_historic(request, symbols,time_range='1m'):
+def single_stock_historic(request, symbols, time_range='1m'):
     context = None
     status_code = 200
     try:
-        data = stock_api.get_stock_historic_prices(symbols,time_range=time_range)
+        data = stock_api.get_stock_historic_prices(symbols, time_range=time_range)
         context = {'data': data}
     except StockSymbolNotFound as e:
         context = {"error_message": e.message}
@@ -201,5 +200,18 @@ def single_stock_historic(request, symbols,time_range='1m'):
 
 
 def list_stocks_names_view(request, search_text):
-    stocks_names = stock_api.list_stocks_names(search_text)
-    return JsonResponse({"stocks_names": stocks_names})
+    context = None
+    status_code = 200
+    try:
+        stocks_names = stock_api.list_stocks_names(search_text)
+        context = {"stocks_names": stocks_names}
+    except StockServerUnReachable as e:
+        context = {"error_message": e.message}
+        status_code = 503
+    except Exception as e:
+        context = {"error_message": "Unknown Error occurred: {}".format(", ".join(e.args))}
+        status_code = 520
+    finally:
+        response = JsonResponse(context)
+        response.status_code = status_code
+        return response

@@ -83,7 +83,7 @@ class StockApiTestCase(TestCase):
     def test_list_stocks_names(self):
         response = list_stocks_names("A")
         self.assertIsInstance(response, list)
-        self.assertEquals(len(response), 10)
+        self.assertGreater(len(response), 1)
         response = list_stocks_names("snap-mm")
         self.assertIsInstance(response, list)
         self.assertEquals(len(response), 1)

@@ -107,8 +107,3 @@ def list_stocks_names(search_text):
         return []
     except ConnectionError:
         raise StockServerUnReachable("Stock server UnReachable!")
-    except Exception as e:
-        for arg in e.args:
-            if isinstance(arg, dict) and (b"Unknown symbol" in arg.values() or b"Not found" in arg.values()):
-                raise StockSymbolNotFound("Stock symbol not found!")
-        raise e
