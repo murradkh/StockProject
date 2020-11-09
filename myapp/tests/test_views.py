@@ -50,3 +50,20 @@ class EndPointsTestCase(TestCase):
         for symbol in self.not_existed_symbols:
             response = self.client.get(f"/historic/{symbol}/")
             self.assertContains(response, "error_message", status_code=404)
+        response = self.client.get(
+            "/historic/{symbols}/".format(symbols=",".join(self.existed_symbols + self.not_existed_symbols)))
+        self.assertContains(response, "data")
+        response_json = response.json()['data']
+        self.assertEquals(len(response_json), len(self.existed_symbols))
+        response = self.client.get(
+            "/historic/{symbols}/".format(symbols="," + self.existed_symbols[0] + ","))
+        self.assertContains(response, "data")
+        response_json = response.json()['data']
+        self.assertIsInstance(response_json, list)
+
+    def test_list_stocks_names_view(self):
+        response = self.client.get("/stocks/list_names/snap-mm")
+        self.assertContains(response, 'stocks_names')
+        self.assertEqual(len(response.json()['stocks_names']), 1)
+        response = self.client.get("/stocks/list_names/")
+        self.assertEquals(response.status_code, 404)
