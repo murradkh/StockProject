@@ -1,7 +1,7 @@
 from django.test import TestCase
 from datetime import datetime
 from myapp.exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange
-from myapp.stock_api import get_stock_info, get_stock_historic_prices, get_top_stocks
+from myapp.stock_api import get_stock_info, get_stock_historic_prices, get_top_stocks,list_stocks_names
 
 
 MAX_DAYS_PER_MONTH = 31
@@ -39,6 +39,10 @@ class StockApiTestCase(TestCase):
         for symbol in self.existed_symbols:
             response = get_stock_historic_prices(symbol)
             self.assertIsInstance(response, list)
+        response = get_stock_historic_prices(",".join(self.existed_symbols + self.not_existed_symbols))
+        self.assertEquals(len(response), len(self.existed_symbols))
+        response = get_stock_historic_prices("," + self.existed_symbols[0] + ",")
+        self.assertIsInstance(response, list)
 
 
     def test_get_stock_historic_prices_time(self):
@@ -48,7 +52,7 @@ class StockApiTestCase(TestCase):
             first_date = datetime.fromisoformat(response[0].get('date'))
             final_date = datetime.fromisoformat(response[-1].get('date'))
             days_returned = len(response)
-            
+
             today = datetime.now()
             days_since_last_result = (today - final_date).days
 
@@ -57,8 +61,8 @@ class StockApiTestCase(TestCase):
                     self.assertEquals((final_date - first_date).days, 0)
                 elif time_range == '5d':
                     self.assertLessEqual(days_returned, 7)
-                
-                if today.weekday() not in [5,6]:    # not Saturday nor Sunday
+
+                if today.weekday() in list(range(1, 6)):    # if between Tuesday and Saturday
                     self.assertLessEqual(days_since_last_result, 1)
 
             elif time_range.endswith('m'):
@@ -75,3 +79,18 @@ class StockApiTestCase(TestCase):
     def test_get_top_stocks(self):
         response = get_top_stocks()
         self.assertIsInstance(response, list)
+
+    def test_list_stocks_names(self):
+        response = list_stocks_names("A")
+        self.assertIsInstance(response, list)
+        self.assertGreater(len(response), 1)
+        response = list_stocks_names("snap-mm")
+        self.assertIsInstance(response, list)
+        self.assertEquals(len(response), 1)
+        response = list_stocks_names("unknown")
+        self.assertIsInstance(response, list)
+        self.assertEquals(len(response), 0)
+        response = list_stocks_names(" ")
+        self.assertIsInstance(response, list)
+        self.assertEquals(len(response), 0)
+        self.assertRaises(Exception, list_stocks_names, "")
