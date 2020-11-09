@@ -68,3 +68,4 @@ class EndPointsTestCase(TestCase):
         response = self.client.get("/stocks/list_names/")
         self.assertEquals(response.status_code, 404)
         #TODO: test filter
+        #TODO: test empty seach text

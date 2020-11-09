@@ -43,12 +43,8 @@ function getStockNames() {
       // removing previous search results
       var e = document.querySelector("datalist");
       e.innerHTML = "";
-//      var element = document.getElementsByTagName("option");
-//      for (index = element.length - 1; index >= 0; index--) {
-//        element[index].parentNode.removeChild(element[index]);
-//      }
       for (let i = 0; i < data.stocks_names.length; i++) {
-            dataList.append(`<option value='${data.stocks_names[i].symbol}, ${data.stocks_names[i].companyName}'>`)
+            dataList.append(`<option value='${data.stocks_names[i].companyName}'>`)
       }
     });
 }
