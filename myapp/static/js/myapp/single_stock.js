@@ -114,14 +114,14 @@ function getRandomRgba() {
         xhr.send();
     }
     function getStockNames() {
-      search_text = document.getElementById("search_text");
+      searchText = document.getElementById("searchText");
       dataList = $(myDatalist)
 
 
 
       // sending request to fetch stock names if the input isn't empty
-      if (search_text.value != ''){
-      $.get(`/stocks/list_names/${search_text.value}`, function(data) {
+      if (searchText.value != ''){
+      $.get(`/stocks/list_names/${searchText.value}`, function(data) {
 
       // removing previous search results
       var e = document.querySelector("datalist");

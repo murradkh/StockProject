@@ -28,14 +28,18 @@ def index(request):
         stocks_per_page_query = {}
         search_query = {}
 
-        if "search_text" in kwargs:
-
-            stocks = Stock.objects.filter(
-                Q(symbol__contains=kwargs['search_text']) | Q(name__contains=kwargs['search_text'])).order_by(
-                'top_rank')
-            if len(stocks):
-                pass
-            search_query = {"search_text": kwargs['search_text']}
+        if "searchText" in kwargs:
+            search_query = {"searchText": kwargs['searchText']}
+            response = stock_api.list_stocks_names(kwargs['searchText'])
+            stocks = []
+            for stock in response:
+                stocks.append(Stock(symbol=stock['symbol'],
+                                    name=stock['companyName'],
+                                    price=stock['latestPrice'],
+                                    change=stock['change'],
+                                    change_percent=stock['changePercent'],
+                                    market_cap=stock['marketCap'],
+                                    primary_exchange=stock['primaryExchange']))
         else:
             stocks = Stock.objects.all().order_by('top_rank')
 
