@@ -32,7 +32,9 @@ def index(request):
 
             stocks = Stock.objects.filter(
                 Q(symbol__contains=kwargs['search_text']) | Q(name__contains=kwargs['search_text'])).order_by(
-                '-top_rank')
+                'top_rank')
+            if len(stocks):
+                pass
             search_query = {"search_text": kwargs['search_text']}
         else:
             stocks = Stock.objects.all().order_by('top_rank')
@@ -197,11 +199,12 @@ def single_stock_historic(request, symbols, time_range='1m'):
         return response
 
 
+@require_http_methods(['GET'])
 def list_stocks_names_view(request, search_text):
     context = None
     status_code = 200
     try:
-        stocks_names = stock_api.list_stocks_names(search_text)
+        stocks_names = stock_api.list_stocks_names(search_text, filter=("symbol", "companyName"))
         context = {"stocks_names": stocks_names}
     except StockServerUnReachable as e:
         context = {"error_message": e.message}
