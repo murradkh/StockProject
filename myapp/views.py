@@ -131,30 +131,44 @@ def watchlist_view(request):
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def watchlist_add_view(request, symbol):
+    status_code = 200
     profile, created = Profile.objects.get_or_create(user=request.user)
-    stock = Stock.objects.filter(symbol=symbol)[:1]
-    if not stock.exists():
-        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
-        response = render(request, 'exception.html', context)
-        response.status_code = 404
-    else:
+    stock_in_db = Stock.objects.filter(symbol=symbol)[:1]
+    if stock_in_db.exists():
         Stock.add_to_watchlist(profile, symbol)
         response = HttpResponse('OK')
+    else:
+        try:
+            data = stock_api.get_stock_info(symbol)
+            Stock.add_to_db(data)
+            Stock.add_to_watchlist(profile, symbol)
+            response = HttpResponse('OK')
+        except StockSymbolNotFound as e:
+            status_code = 404
+            response = HttpResponse('Symbol Not Found')
+        except StockServerUnReachable as e:
+            status_code = 503
+            response = HttpResponse('Service Unavailable')
+        except Exception as e:
+            status_code = 520
+            response = HttpResponse('Unknown Error')
+    response.status_code = status_code
     return response
 
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def watchlist_remove_view(request, symbol):
+    status_code = 200
     profile, created = Profile.objects.get_or_create(user=request.user)
-    stock = Stock.objects.filter(symbol=symbol)[:1]
-    if not stock.exists():
-        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
-        response = render(request, 'exception.html', context)
-        response.status_code = 404
-    else:
+    stock_in_db = Stock.objects.filter(symbol=symbol)[:1]
+    if stock_in_db.exists():
         Stock.remove_from_watchlist(profile, symbol)
         response = HttpResponse('OK')
+    else:
+        status_code = 404
+        response = HttpResponse('Symbol Not in DB')
+    response.status_code = status_code
     return response
 
 
