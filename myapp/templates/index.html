@@ -172,9 +172,7 @@
         method: "GET",
         url: "",
         success: function(data) {
-        console.log( "{{ Interval }}")
             $('#stock_table').replaceWith($('#stock_table',data));
-             console.log("updated ")
             $(".clickable-row").click(function() {
                 window.location = $(this).data("href");
             });
