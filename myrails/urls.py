@@ -24,7 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # checking if the request url path doesn't trailing with / character
     # if not then redirecting to the same url with / trailer
-    re_path(r"^(?P<endpoint>(([\w|/])*\w)(?!/))$", RedirectView.as_view(url="/%(endpoint)s/")),
+    re_path(r"^(?P<endpoint>(([\w|/|-])*\w)(?!/))$", RedirectView.as_view(url="/%(endpoint)s/")),
     re_path(r"", views.page_not_found, name='page_not_found'),
 
 ]
