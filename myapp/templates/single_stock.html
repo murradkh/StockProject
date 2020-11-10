@@ -72,57 +72,57 @@
         <ul class="nav nav-pills" id="pills-tab" role="tablist">
             <li class="nav-item" style="padding-left: 4px">
                 <a class="nav-link alert-secondary" data-toggle="pill"
-                   onclick="getHistoricData('{{data.symbol}}','1d')" role="tab" aria-controls="pills-home"
+                   onclick="getHistoricData('1d')" role="tab" aria-controls="pills-home"
                    aria-selected="true">1D</a>
             </li>
             <li class="nav-item" style="padding-left: 4px">
-                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','5d')"
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('5d')"
                    role="tab"
                    aria-controls="pills-home" aria-selected="true">1W</a>
             </li>
             <li class="nav-item" style="padding-left: 4px">
                 <a class="nav-link active alert-secondary" data-toggle="pill"
-                   onclick="getHistoricData('{{data.symbol}}','1m')" role="tab" aria-controls="pills-profile"
+                   onclick="getHistoricData('1m')" role="tab" aria-controls="pills-profile"
                    aria-selected="false">1M</a>
             </li>
             <li class="nav-item" style="padding-left: 4px">
-                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','3m')"
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('3m')"
                    role="tab"
                    aria-controls="pills-contact" aria-selected="false">3M</a>
             </li>
             <li class="nav-item" style="padding-left: 4px">
-                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','6m')"
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('6m')"
                    role="tab"
                    aria-controls="pills-contact" aria-selected="false">6M</a>
             </li>
             <li class="nav-item" style="padding-left: 4px">
-                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','1y')"
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('1y')"
                    role="tab"
                    aria-controls="pills-contact" aria-selected="false">1Y</a>
             </li>
             <li class="nav-item" style="padding-left: 4px">
-                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','2y')"
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('2y')"
                    role="tab"
                    aria-controls="pills-contact" aria-selected="false">2Y</a>
             </li>
             <li class="nav-item" style="padding-left: 4px">
-                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('{{data.symbol}}','5y')"
+                <a class="nav-link alert-secondary" data-toggle="pill" onclick="getHistoricData('5y')"
                    role="tab"
                    aria-controls="pills-contact" aria-selected="false">5Y</a>
             </li>
         </ul>
-        <form class="row form-inline p-1 ml-1" id="compareForm">
+        <form class="form-inline p-1 ml-1" id="compareForm">
             <input list="myDatalist" id="search_text" type="text" class="form-control mr-1"
                    style="max-width:40%;max-height:10%;" name="stockNameToCompare" oninput="getStockNames()">
             <datalist id="myDatalist"
                       style="max-height:10px;overflow-y:auto;display:block !important;">
 
             </datalist>
-            <button type="submit" class="btn btn-primary">
+            <button type="button" class="btn btn-primary" onclick="compareTwoStocks()">
                 <i class="fa fa-compress" aria-hidden="true"></i>
                 Compare
             </button>
-            <button class="btn btn-danger ml-1">
+            <button type="button" class="btn btn-danger ml-1" onclick="clearGraph()">
                 <i class="fa fa-eraser" aria-hidden="true"></i>
             </button>
         </form>
@@ -137,18 +137,9 @@
         src="{% static 'js/myapp/single_stock.js' %}"></script>
 <script>
 	window.onload = function(){
-	getHistoricData("{{data.symbol}}");
-	const form = document.getElementById( "compareForm" );
-    form.addEventListener( "submit", function ( event ) {
-    event.preventDefault();
-    compareTwoStocks("{{data.symbol}}");
-    });
+	setOriginSymbol("{{data.symbol}}");
+	getHistoricData();
 	};
-
-
-
-
-
 
 </script>
 {% endblock %}

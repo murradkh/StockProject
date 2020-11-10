@@ -1,13 +1,14 @@
 var recent_time_range_chose;
 var recent_symbol_to_compare;
 var myLineChart;
+var originSymbol;
 
-function getHistoricData(symbol,time_range='1m', symbol_to_compare = '') {
+function getHistoricData(time_range='1m', symbol_to_compare = '') {
     recent_time_range_chose = time_range;
     if(typeof(recent_symbol_to_compare) !== 'undefined' && symbol_to_compare == ''){
     symbol_to_compare = recent_symbol_to_compare;
     }
-    $.get(`/historic/${symbol},${symbol_to_compare}/${time_range}/`, function(data,received, response) {
+    $.get(`/historic/${originSymbol},${symbol_to_compare}/${time_range}/`, function(data,received, response) {
         if (response.status == 200) {
             if (typeof(myLineChart) !== 'undefined') {
             //removing old chart
@@ -16,12 +17,12 @@ function getHistoricData(symbol,time_range='1m', symbol_to_compare = '') {
             var ctxL = document.getElementById("stockChart").getContext('2d');
             datasets = []
 
-            if (symbol_to_compare == '' || symbol_to_compare == symbol) {
+            if (symbol_to_compare == '' || symbol_to_compare == originSymbol) {
                 historic_data_1 = data.data.sort(function(a, b) {
                     return a.date - b.date;
                 })
             } else {
-                historic_data_1 = data.data[symbol]['chart'].sort(function(a, b) {
+                historic_data_1 = data.data[originSymbol]['chart'].sort(function(a, b) {
                     return a.date - b.date;
                 })
                 historic_data_2 = data.data[symbol_to_compare]['chart'].sort(function(a, b) {
@@ -40,7 +41,7 @@ function getHistoricData(symbol,time_range='1m', symbol_to_compare = '') {
             }
             var colors = getRandomRgba();
             datasets.push({
-                label: `${symbol}`,
+                label: `${originSymbol}`,
                 data: historic_data_1.map(d => d.close),
                                 backgroundColor: [colors[0]],
                                 borderColor: [colors[1]],
@@ -137,11 +138,20 @@ function getRandomRgba() {
 }
 }
 
-function compareTwoStocks(originSymbol) {
+function compareTwoStocks() {
     var stockNameOption = document.forms["compareForm"]['stockNameToCompare']['value'];
     if (stockNameOption != '') {
         secondarySymbol = stockNameOption.slice(0, stockNameOption.indexOf(','))
-        getHistoricData(originSymbol,recent_time_range_chose ,secondarySymbol);
+        getHistoricData(recent_time_range_chose ,secondarySymbol);
         recent_symbol_to_compare = secondarySymbol;
     }
+}
+
+function clearGraph(){
+recent_symbol_to_compare = undefined;
+getHistoricData(recent_time_range_chose)
+
+}
+function setOriginSymbol(symbol_name){
+    originSymbol = symbol_name;
 }
