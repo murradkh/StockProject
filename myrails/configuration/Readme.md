@@ -19,14 +19,16 @@ Next, ensure the MySQL server is running, on Unix-based systems:
 In Windows, go to Administrative tools > Services and check that the MySQL service is listed and running. 
 
 ## STEP 3 - Update Configuration File        
-Afterwards, update the `dev.cfg` file found in the `stockproject/myrails/configuration` directory to match the MySQL server properties (hostname, user, password, etc...).
+Afterwards, create a file `dev.cfg` (similar to `dev-example.cfg`) in the directory `stockproject/myrails/configuration` to match the MySQL server properties (hostname, user, password, etc...).
 
 ## STEP 4 - Add a New Environmental Variable
-By default, the `settings.py` file uses the SQLite db, as configured in `test.cfg`. 
+By default, the `settings.py` file uses the SQLite db.
 
 To use the localhost MySQL server instead, add a new environmental variable `STOCK_PROJECT_MACHINE_TYPE` and set its value to `dev`. The `settings.py` file will now use `dev.cfg` instead.
 
-_On the production server, the value of `STOCK_PROJECT_MACHINE_TYPE` should be set to `prod`._ 
+_On the production server, the value of `STOCK_PROJECT_MACHINE_TYPE` should be set to `prod` so that `settings.py` could use the `prod.cfg` file._ 
+
+_The `dev.cfg` and `prod.cfg` files were added to `.gitignore` so that any changes in these two files would not commited to any of the repository branches_
 
 __You may need to restart your machine after defining a new environmental variable!__
 
