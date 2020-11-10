@@ -35,8 +35,8 @@ class StockWatchlistTestCase(TestCase):
 
     def test_watchlist_add_not_in_db(self):
         response = self.client.post('/stock/GE/wadd/')
-        test_stock_2 = Stock.objects.get(symbol='GE')
         self.assertEqual(response.status_code, 200)    # data fetched and stock added to db
+        test_stock_2 = Stock.objects.get(symbol='GE')
         self.assertIn(test_stock_2, Profile.objects.get(user=self.test_user_1).watchlist.all())
         self.assertTrue(Stock.is_needed('GE'))
 
