@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from myapp import stock_api
 
 
 # Create your models here.
@@ -27,6 +28,17 @@ class Stock(models.Model):
         stock = cls.objects.get(symbol=stock_symbol)
         profile.watchlist.remove(stock)
         profile.save()
+    
+    @classmethod
+    def add_to_db(cls, data):
+        stock = cls.objects.create(symbol=data['symbol'], 
+                                    name=data['companyName'],
+                                    # top_rank=None,
+                                    price=data['latestPrice'],
+                                    change=data['change'],
+                                    change_percent=data['changePercent'],
+                                    market_cap=data['marketCap'],
+                                    primary_exchange=data['primaryExchange'])
 
     @classmethod
     def is_needed(cls, stock_symbol):
