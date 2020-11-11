@@ -44,7 +44,7 @@ function getStockNames() {
       var e = document.querySelector("datalist");
       e.innerHTML = "";
       for (let i = 0; i < data.stocks_names.length; i++) {
-            dataList.append(`<option value='${data.stocks_names[i].companyName}'>`)
+            dataList.append(`<option value='${data.stocks_names[i].symbol}, ${data.stocks_names[i].companyName}'>`)
       }
     });
 }
