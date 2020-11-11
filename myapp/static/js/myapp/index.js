@@ -49,3 +49,38 @@ function getStockNames() {
     });
 }
 }
+function startInterval(time, path){
+ setInterval(function() {
+    if ($('#customSwitch1').is(":checked")){
+
+        $.ajax({
+        method: "GET",
+        url: path,
+        success: function(data) {
+            $('#stock_table').replaceWith($('#stock_table',data));
+            $(".clickable-row").click(function() {
+                window.location = $(this).data("href");
+            });
+            document.getElementById("timer").innerHTML =new Date().toLocaleString();
+             $("#timer").fadeTo(100, 0.1).fadeTo(200, 1.0);
+        },
+        error: function(data) {
+            console.log("error")
+        }
+    })
+    }
+    }, time)
+    }
+
+ $(document).ready(function(){
+                $('.clickable-row').click(function(){
+                    window.location = $(this).data('href');
+                });
+                 var checked = JSON.parse(localStorage.getItem('customSwitch1'));
+                 document.getElementById("customSwitch1").checked = checked;
+                 document.getElementById("timer").innerHTML =new Date().toLocaleString();
+            });
+  function handleClick() {
+         var checkbox = document.getElementById('customSwitch1');
+         localStorage.setItem('customSwitch1', checkbox.checked);
+    }

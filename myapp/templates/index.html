@@ -33,8 +33,19 @@
 </div>
 
 {% load myapp_tags %}
+<div class=" row  row-m-t ">
+    <div class="col-6 text-left custom-control custom-switch">
+  <input type="checkbox" class="custom-control-input" id="customSwitch1"
+         onclick='handleClick();' >
+  <label class="custom-control-label" for="customSwitch1">Auto Update</label>
+        </div>
+    <div class="col-6 float-right text-right">
+          <p  >Last Update <span id="timer"></span></p>
 
-<table class="table table-hover data-table">
+    </div>
+</div>
+
+<table class="table table-hover data-table" id ="stock_table">
     <tr>
         <th>#</th>
         <th>Symbol</th>
@@ -117,4 +128,9 @@
 {% load static %}
 <script type="text/javascript"
         src="{% static 'js/myapp/index.js' %}"></script>
+<script>
+        console.log("hi from index")
+    startInterval("{{ Interval }}" ,"{{ request.path }}")
+</script>
+
 {% endblock %}

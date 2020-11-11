@@ -38,3 +38,8 @@ body {
 .clickable-row {
     cursor: pointer;
 }
+.row-m-t{
+   margin-top: 30px;
+  margin-bottom: 30px;
+  margin-left:10px
+}
