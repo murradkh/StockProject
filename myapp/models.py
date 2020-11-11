@@ -43,12 +43,10 @@ class Stock(models.Model):
     @classmethod
     def is_needed(cls, stock_symbol):
         stock = cls.objects.filter(symbol=stock_symbol)[:1]
-        if not stock.exists():
-            return False
+        profiles_using_stock = Profile.objects.filter(watchlist__in=stock).distinct()
+        if profiles_using_stock.exists():
+            return True
         else:
-            for profile in Profile.objects.all():
-                if stock[0] in profile.watchlist.all():
-                    return True
             return False
 
 
