@@ -20,6 +20,7 @@ def stock_api_update():
                 'market_cap': stock['marketCap'],
                 'primary_exchange': stock['primaryExchange'],
             })
+            stock_model.save()
             index += 1
     except KeyError as e:
         pass
