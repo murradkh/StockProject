@@ -55,12 +55,13 @@ class Stock(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     watchlist = models.ManyToManyField(Stock, blank=True)
-
     # portfolio = models.ManyToManyField(Stock)
 
     def __str__(self):
         return f'{self.user.username}'
 
+    def get_notifications(self):
+        return Notification.objects.filter(user__pk=self.pk)
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -71,5 +72,13 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+class Notification(models.Model):
+    title = models.CharField(max_length=120)
+    description = models.TextField(blank=True, null=True)
+    time = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+
 
 # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
