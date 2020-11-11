@@ -63,6 +63,7 @@ class Profile(models.Model):
     def get_notifications(self):
         return Notification.objects.filter(user__pk=self.pk)
 
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
