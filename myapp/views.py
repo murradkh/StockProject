@@ -12,8 +12,6 @@ from django.http import JsonResponse, HttpResponse
 
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import PasswordChangeForm
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
@@ -30,12 +28,18 @@ def index(request):
         stocks_per_page_query = {}
         search_query = {}
 
-        if "search_text" in kwargs:
-
-            stocks = Stock.objects.filter(
-                Q(symbol__contains=kwargs['search_text']) | Q(name__contains=kwargs['search_text'])).order_by(
-                '-top_rank')
-            search_query = {"search_text": kwargs['search_text']}
+        if "searchText" in kwargs:
+            search_query = {"searchText": kwargs['searchText']}
+            response = stock_api.list_stocks_names(kwargs['searchText'])
+            stocks = []
+            for stock in response:
+                stocks.append(Stock(symbol=stock['symbol'],
+                                    name=stock['companyName'],
+                                    price=stock['latestPrice'],
+                                    change=stock['change'],
+                                    change_percent=stock['changePercent'],
+                                    market_cap=stock['marketCap'],
+                                    primary_exchange=stock['primaryExchange']))
         else:
             stocks = Stock.objects.all().order_by('top_rank')
 
@@ -213,11 +217,12 @@ def single_stock_historic(request, symbols, time_range='1m'):
         return response
 
 
+@require_http_methods(['GET'])
 def list_stocks_names_view(request, search_text):
     context = None
     status_code = 200
     try:
-        stocks_names = stock_api.list_stocks_names(search_text)
+        stocks_names = stock_api.list_stocks_names(search_text, filter=("symbol", "companyName"))
         context = {"stocks_names": stocks_names}
     except StockServerUnReachable as e:
         context = {"error_message": e.message}
