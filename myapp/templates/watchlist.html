@@ -7,6 +7,8 @@
 </div>
 </div>
     {% if profile.watchlist.all %}
+{% include "subtemplate/Auto_update_control.html" %}
+
         <table id="stockstable" class="table table-hover data-table">
             <tr>
                 <th>#</th>
@@ -46,7 +48,6 @@
 <script type="text/javascript"
         src="{% static 'js/myapp/watch_list.js' %}"></script>
 <script>
-        console.log("hi from watchlist ")
     startInterval("{{ Interval }}" ,"{{ request.path }}")
 </script>
 {% endblock %}

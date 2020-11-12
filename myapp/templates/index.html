@@ -2,8 +2,8 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col-10">
+<div class="row row-m-t">
+    <div class="col-6 ">
         <form class="form-inline mr-auto" id="SearchForm" method="get">
             <input list="myDatalist" id="searchText" type="text" placeholder="Type Stock Name / Symbol"
                    aria-label="Search"
@@ -13,7 +13,7 @@
         </form>
     </div>
 
-    <div class="col">
+    <div class="col-6 float-right text-right">
         <div class="btn-group" style="padding-bottom: 10px;">
             <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split btn-sm"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -33,18 +33,7 @@
 </div>
 
 {% load myapp_tags %}
-<div class=" row  row-m-t ">
-    <div class="col-6 text-left custom-control custom-switch">
-  <input type="checkbox" class="custom-control-input" id="customSwitch1"
-         onclick='handleClick();' >
-  <label class="custom-control-label" for="customSwitch1">Auto Update</label>
-        </div>
-    <div class="col-6 float-right text-right">
-          <p  >Last Update <span id="timer"></span></p>
-
-    </div>
-</div>
-
+{% include "subtemplate/Auto_update_control.html" %}
 <table class="table table-hover data-table" id ="stock_table">
     <tr>
         <th>#</th>
@@ -129,8 +118,7 @@
 <script type="text/javascript"
         src="{% static 'js/myapp/index.js' %}"></script>
 <script>
-        console.log("hi from index")
-    startInterval("{{ Interval }}" ,"{{ request.path }}")
+    startInterval("{{ Interval }}"  ,"{{ request.get_full_path  }}")
 </script>
 
 {% endblock %}

@@ -1,0 +1,15 @@
+<div class=" row  row-m-t ">
+    <div class="col text-left custom-control custom-switch"  style=" margin-left:19px">
+  <input type="checkbox" class="custom-control-input" id="customSwitch1"
+         onclick='handleClick();' >
+
+  <label class="custom-control-label" for="customSwitch1">Auto Update</label>
+        </div>
+    <div class="col float-right text-right">
+          <p  >Last Update <span id="timer"></span></p>
+
+    </div>
+</div>
+{% load static %}
+<script type="text/javascript"
+        src="{% static 'js/myapp/Auto_update_control.js' %}"></script>

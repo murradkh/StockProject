@@ -49,6 +49,8 @@ function getStockNames() {
     });
 }
 }
+
+
 function startInterval(time, path){
  setInterval(function() {
     if ($('#customSwitch1').is(":checked")){
@@ -76,11 +78,11 @@ function startInterval(time, path){
                 $('.clickable-row').click(function(){
                     window.location = $(this).data('href');
                 });
-                 var checked = JSON.parse(localStorage.getItem('customSwitch1'));
-                 document.getElementById("customSwitch1").checked = checked;
-                 document.getElementById("timer").innerHTML =new Date().toLocaleString();
+
+
+
+
+
             });
-  function handleClick() {
-         var checkbox = document.getElementById('customSwitch1');
-         localStorage.setItem('customSwitch1', checkbox.checked);
-    }
+
+
