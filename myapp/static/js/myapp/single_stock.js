@@ -158,3 +158,27 @@ getHistoricData(recent_time_range_chose)
 function setOriginSymbol(symbol_name){
     originSymbol = symbol_name;
 }
+
+function startInterval(time, path){
+ setInterval(function() {
+
+        $.ajax({
+        method: "GET",
+        url: path,
+        success: function(data) {
+            $('#stock_data').replaceWith($('#stock_data',data));
+            $('#text').replaceWith($('#text',data));
+            if(recent_time_range_chose == '1d'){
+                getHistoricData('1d')
+            }
+
+
+            console.log("updated")
+        },
+        error: function(data) {
+            console.log("error")
+        }
+    })
+
+    }, time)
+    }
