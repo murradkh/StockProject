@@ -28,17 +28,17 @@ class Stock(models.Model):
         stock = cls.objects.get(symbol=stock_symbol)
         profile.watchlist.remove(stock)
         profile.save()
-    
+
     @classmethod
     def add_to_db(cls, data):
-        stock = cls.objects.create(symbol=data['symbol'], 
-                                    name=data['companyName'],
-                                    # top_rank=None,
-                                    price=data['latestPrice'],
-                                    change=data['change'],
-                                    change_percent=data['changePercent'],
-                                    market_cap=data['marketCap'],
-                                    primary_exchange=data['primaryExchange'])
+        stock = cls.objects.create(symbol=data['symbol'],
+                                   name=data['companyName'],
+                                   # top_rank=None,
+                                   price=data['latestPrice'],
+                                   change=data['change'],
+                                   change_percent=data['changePercent'],
+                                   market_cap=data['marketCap'],
+                                   primary_exchange=data['primaryExchange'])
 
     @classmethod
     def is_needed(cls, stock_symbol):
@@ -55,6 +55,7 @@ class Stock(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     watchlist = models.ManyToManyField(Stock, blank=True)
+
     # portfolio = models.ManyToManyField(Stock)
 
     def __str__(self):
@@ -79,7 +80,6 @@ class Notification(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
     time = models.DateTimeField(auto_now=True)
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
-
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='notifications')
 
 # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
