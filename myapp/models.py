@@ -70,7 +70,15 @@ class Profile(models.Model):
         Notification.objects.filter(pk=pk, user=profile).delete()
 
     def get_notifications(self):
-        return Notification.objects.filter(user__pk=self.pk)
+        notifications_list = Notification.objects.filter(user__pk=self.pk)
+        notifications_dict = {}
+        i = 0
+        for notification in notifications_list:
+            notifications_dict [i] = {'pk': notification.pk,
+                                    'title': notification.title,
+                                    'description': notification.description}
+            i += 1
+        return notifications_dict
 
 
 @receiver(post_save, sender=User)
