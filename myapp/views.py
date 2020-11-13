@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from myrails.settings import THREAD_INTERVAL
 
 from myapp import stock_api
 from myapp.models import Stock, Profile
@@ -67,7 +68,8 @@ def index(request):
             "search_query": urlencode(search_query),
             "stocks_per_page_query": urlencode(stocks_per_page_query),
             'page_title': 'Main',
-            'profile': profile
+            'profile': profile,
+            'Interval': (THREAD_INTERVAL*1000)
         }
 
         return render(request, 'index.html', context)
@@ -125,7 +127,8 @@ def profile_view(request):
 @login_required(login_url='login')
 def watchlist_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-    return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile})
+
+    return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile ,'Interval': (THREAD_INTERVAL * 1000)})
 
 
 @require_http_methods(['POST'])

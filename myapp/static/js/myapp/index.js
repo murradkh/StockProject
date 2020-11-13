@@ -49,3 +49,40 @@ function getStockNames() {
     });
 }
 }
+
+
+function startInterval(time, path){
+ setInterval(function() {
+    if ($('#customSwitch1').is(":checked")){
+
+        $.ajax({
+        method: "GET",
+        url: path,
+        success: function(data) {
+            $('#stock_table').replaceWith($('#stock_table',data));
+            $(".clickable-row").click(function() {
+                window.location = $(this).data("href");
+            });
+            document.getElementById("timer").innerHTML =new Date().toLocaleString();
+             $("#timer").fadeTo(100, 0.1).fadeTo(200, 1.0);
+        },
+        error: function(data) {
+            console.log("error")
+        }
+    })
+    }
+    }, time)
+    }
+
+ $(document).ready(function(){
+                $('.clickable-row').click(function(){
+                    window.location = $(this).data('href');
+                });
+
+
+
+
+
+            });
+
+
