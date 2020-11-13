@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from myapp import stock_api
-from myapp.models import Stock, Profile
+from myapp.models import Stock, Profile, Notification
 
 from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm
 from django.http import JsonResponse, HttpResponse
@@ -234,3 +234,17 @@ def list_stocks_names_view(request, search_text):
         response = JsonResponse(context)
         response.status_code = status_code
         return response
+
+
+@login_required(login_url='login')
+def list_notifications_view(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    return JsonResponse(profile.get_notifications())
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def notification_remove_view(request, pk):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    Profile.remove_notification(profile, pk)
+    return HttpResponse('OK')
