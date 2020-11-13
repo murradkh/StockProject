@@ -31,14 +31,13 @@ class Stock(models.Model):
     
     @classmethod
     def add_to_db(cls, data):
-        stock = cls.objects.create(symbol=data['symbol'], 
-                                    name=data['companyName'],
-                                    # top_rank=None,
-                                    price=data['latestPrice'],
-                                    change=data['change'],
-                                    change_percent=data['changePercent'],
-                                    market_cap=data['marketCap'],
-                                    primary_exchange=data['primaryExchange'])
+        cls.objects.create(symbol=data['symbol'], 
+                            name=data['companyName'],
+                            price=data['latestPrice'],
+                            change=data['change'],
+                            change_percent=data['changePercent'],
+                            market_cap=data['marketCap'],
+                            primary_exchange=data['primaryExchange'])
 
     @classmethod
     def is_needed(cls, stock_symbol):
@@ -59,6 +58,16 @@ class Profile(models.Model):
 
     def __str__(self):
         return f'{self.user.username}'
+
+    @staticmethod
+    def add_notification(profile, content):
+        Notification.objects.create(title=content['title'],
+                                    description=content['description'],
+                                    user=profile)
+
+    @staticmethod
+    def remove_notification(profile, pk):
+        Notification.objects.filter(pk=pk, user=profile).delete()
 
     def get_notifications(self):
         return Notification.objects.filter(user__pk=self.pk)
