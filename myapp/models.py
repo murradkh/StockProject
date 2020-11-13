@@ -45,10 +45,11 @@ class Stock(models.Model):
         if not stock.exists():
             return False
         else:
-            for profile in Profile.objects.all():
-                if stock[0] in profile.watchlist.all():
-                    return True
-            return False
+            profiles_using_stock = stock[0].profile_set.all()
+            if profiles_using_stock.exists():
+                return True
+            else:
+                return False
 
 
 class Profile(models.Model):
