@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -81,7 +82,8 @@ class Profile(models.Model):
             notifications_dict [i] = {'pk': notification.pk,
                                     'title': notification.title,
                                     'description': notification.description,
-                                    'time': notification.time}
+                                    'time': notification.time,
+                                    'link': reverse('index')}   # placeholder for notification.link
             i += 1
         return notifications_dict
 
