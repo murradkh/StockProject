@@ -51,13 +51,6 @@ class Stock(models.Model):
             return False
 
 
-class Rules(models.Model):
-    change_status = models.OneToOneField(ChangeStatus, on_delete=models.CASCADE)
-    change_threshold = models.OneToOneField(ChangeThreshold, on_delete=models.CASCADE)
-    price_threshold = models.OneToOneField(PriceThreshold, on_delete=models.CASCADE)
-    activity = models.OneToOneField(Activity, on_delete=models.CASCADE)
-
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     watchlist = models.ManyToManyField(Stock, blank=True)
