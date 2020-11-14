@@ -36,28 +36,18 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
             <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
-                <li class="nav-item dropdown">
+                <li class="nav-item dropdown" id="notificationsDropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-1" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-bell"></i> Notifications </a>
                     <div class="dropdown-menu dropdown-menu-right dropdown-info"
                          aria-labelledby="navbarDropdownMenuLink-1"
-                         style="width: 320px !important;"
-                         onclick="">
-                         <a href="{% url 'profile' %}">
-                            <div class="alert alert-secondary">
-                                <strong class="default">
-                                    <button type="button" class="close"
-                                    data-dismiss="alert" aria-hidden="true">×</button>
-                                    <i class="fa fa-inbox"></i> Test </strong>
-                                    <small class="text-muted"> 14 Oct </small><br>
-                                This is a test notification
-                            </div>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item disabled" href="#">
+                         style="width: 360px !important;"> 
+                            <div id="notificationsContainer" style="padding: 8px 16px 0px 16px; overflow-y: auto;"></div>
+                        <div class="dropdown-divider"></div> 
+                        <button class="dropdown-item" onclick="deleteNotifications()">
                             <i class="fa fa-window-close"></i>&ensp; Clear all
-                        </a>
+                        </button>
                         <a class="dropdown-item disabled" href="#">
                             <i class="fa fa-cog"></i>&ensp; Set rules
                         </a>
@@ -119,29 +109,13 @@
         crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/addons/datatables.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/modules/chart.js' %}"></script>
-<script>
-            $(document).ready(function(){
-                $('.clickable-row').click(function(){
-                    window.location = $(this).data('href');
-                });
-            });
-
-            function getCookie(cname) {
-                var name = cname + "=";
-                var decodedCookie = decodeURIComponent(document.cookie);
-                var ca = decodedCookie.split(';');
-                for(var i = 0; i <ca.length; i++) {
-                    var c = ca[i];
-                    while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                    }
-                    if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                    }
-                }
-                return "";
-            }
-        </script>
+<script type="text/javascript" src="{% static 'js/myapp/base.js' %}">
+    $(document).ready(function(){
+        $('.clickable-row').click(function(){
+            window.location = $(this).data('href');
+        });
+    });
+</script>
     {% block scripts %}
     {% endblock scripts %}
 </body>
