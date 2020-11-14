@@ -80,6 +80,7 @@ class Notification(models.Model):
     description = models.TextField(blank=True, null=True)
     time = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    link = models.URLField(max_length = 300, null=True)
 
 
 # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
