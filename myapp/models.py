@@ -67,8 +67,11 @@ class Profile(models.Model):
                                     user=profile)
 
     @staticmethod
-    def remove_notification(profile, pk):
-        Notification.objects.filter(pk=pk, user=profile).delete()
+    def remove_notification(profile, pk=""):
+        if pk:
+            Notification.objects.filter(pk=pk, user=profile).delete()
+        else:
+            Notification.objects.filter(user=profile).delete()
 
     def get_notifications(self):
         notifications_list = Notification.objects.filter(user__pk=self.pk)
@@ -77,7 +80,8 @@ class Profile(models.Model):
         for notification in notifications_list:
             notifications_dict [i] = {'pk': notification.pk,
                                     'title': notification.title,
-                                    'description': notification.description}
+                                    'description': notification.description,
+                                    'time': notification.time}
             i += 1
         return notifications_dict
 
