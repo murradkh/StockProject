@@ -39,11 +39,15 @@ $("#notificationsDropdown").on("show.bs.dropdown", function(event){
                     for (var key in responseDict) {
                         if (responseDict.hasOwnProperty(key)) {
                             var link = document.createElement("a");
+                            link.href = responseDict[key]['link'];
+                            link.style.textDecoration = "none";
+
                             var div = document.createElement("div");
                             div.className = "alert alert-secondary";
                             div.innerHTML = `<button type="button" class="close" 
                                             onclick="deleteNotifications(${responseDict[key]['pk']})" 
                                             data-dismiss="alert">×</button>`;
+                                            
                             var header = document.createElement("strong");
                             var title = document.createTextNode(responseDict[key]['title']);
                             var time = document.createElement("small");
