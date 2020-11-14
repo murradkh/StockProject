@@ -250,7 +250,7 @@ def list_notifications_view(request):
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
-def notification_remove_view(request, pk):
+def notification_remove_view(request, pk=""):
     profile, created = Profile.objects.get_or_create(user=request.user)
     Profile.remove_notification(profile, pk)
     return HttpResponse('OK')
