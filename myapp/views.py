@@ -30,8 +30,11 @@ def index(request):
         search_query = {}
 
         if "searchText" in kwargs:
-            search_query = {"searchText": kwargs['searchText']}
-            response = stock_api.list_stocks_names(kwargs['searchText'])
+            text = kwargs['searchText']
+            if "," in text:
+                text = text[:text.index(',')]
+            search_query = {"searchText": text}
+            response = stock_api.list_stocks_names(text)
             stocks = []
             for stock in response:
                 stocks.append(Stock(symbol=stock['symbol'],
