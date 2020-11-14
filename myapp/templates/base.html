@@ -34,9 +34,32 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
             <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link dropdown-toggle disabled" href="#">
-                        <i class="fa fa-bell"></i> Notifications</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-1" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-bell"></i> Notifications </a>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-info"
+                         aria-labelledby="navbarDropdownMenuLink-1"
+                         style="width: 320px !important;"
+                         onclick="">
+                         <a href="{% url 'profile' %}">
+                            <div class="alert alert-secondary">
+                                <strong class="default">
+                                    <button type="button" class="close"
+                                    data-dismiss="alert" aria-hidden="true">×</button>
+                                    <i class="fa fa-inbox"></i> Test </strong>
+                                    <small class="text-muted"> 14 Oct </small><br>
+                                This is a test notification
+                            </div>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item disabled" href="#">
+                            <i class="fa fa-window-close"></i>&ensp; Clear all
+                        </a>
+                        <a class="dropdown-item disabled" href="#">
+                            <i class="fa fa-cog"></i>&ensp; Set rules
+                        </a>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link disabled" href="#">
