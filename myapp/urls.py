@@ -18,5 +18,6 @@ urlpatterns = [
     path('accounts/password/', views.password_change_view, name='password_change'),
     path('accounts/register/', views.register, name='register'),
     path('notifications/', views.list_notifications_view, name='list_notifications'),
-    path('notifications/<int:pk>/nremove/', views.notification_remove_view, name='notification_remove'),
+    path('notifications/nremove/', views.notification_remove_view, name='clear_notifications'),
+    path('notifications/<int:pk>/nremove/', views.notification_remove_view, name='single_notification_remove'),
 ]
