@@ -2,10 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from myapp import stock_api
+from myapp.sub_models.notification_rules import *
 
 
-# Create your models here.
 class Stock(models.Model):
     symbol = models.CharField(max_length=12, primary_key=True)
     name = models.CharField(max_length=64)
@@ -52,17 +51,22 @@ class Stock(models.Model):
             return False
 
 
+class Rules(models.Model):
+    change_status = models.OneToOneField(ChangeStatus, on_delete=models.CASCADE)
+    change_threshold = models.OneToOneField(ChangeThreshold, on_delete=models.CASCADE)
+    price_threshold = models.OneToOneField(PriceThreshold, on_delete=models.CASCADE)
+    activity = models.OneToOneField(Activity, on_delete=models.CASCADE)
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     watchlist = models.ManyToManyField(Stock, blank=True)
+    notification_rules = models.OneToOneField(Rules, on_delete=models.CASCADE, related_name='profile', null=True)
 
     # portfolio = models.ManyToManyField(Stock)
 
     def __str__(self):
         return f'{self.user.username}'
-
-    def get_notifications(self):
-        return Notification.objects.filter(user__pk=self.pk)
 
 
 @receiver(post_save, sender=User)
