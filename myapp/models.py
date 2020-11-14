@@ -83,7 +83,7 @@ class Profile(models.Model):
                                     'title': notification.title,
                                     'description': notification.description,
                                     'time': notification.time,
-                                    'link': reverse('index')}   # placeholder for notification.link
+                                    'link': notification.link}
             i += 1
         return notifications_dict
 
