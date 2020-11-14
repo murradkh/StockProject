@@ -34,7 +34,7 @@
 
 {% load myapp_tags %}
 {% include "subtemplate/Auto_update_control.html" %}
-<table class="table table-hover data-table" id ="stock_table">
+<table class="table table-hover data-table" id="stock_table">
     <tr>
         <th>#</th>
         <th>Symbol</th>
@@ -80,28 +80,68 @@
 </table>
 
 
-<nav aria-label="Page navigation" >
+<nav aria-label="Page navigation">
+            <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
         <li class="page-item">
             <a class="page-link"
-               href="?page={{page_obj.previous_page_number}}&{{stocks_per_page_query}}&{{search_query}}">Previous</a>
-            {% else %}
-        <li class="page-item disabled">
-            <a class="page-link">Previous</a>
-            {% endif %}
+               href="?page=1&{{stocks_per_page_query}}&{{search_query}}">First</a>
         </li>
-        <li class="page-item disabled"><a class="page-link">{{page_obj.number}}</a></li>
-        {% if page_obj.has_next %}
         <li class="page-item">
             <a class="page-link"
-               href="?page={{page_obj.next_page_number }}&{{stocks_per_page_query}}&{{search_query}}">Next</a>
-            {% else %}
-        <li class="page-item disabled">
-            <a class="page-link">Next</a>
-            {% endif %}
-
+               href="?page={{page_obj.previous_page_number}}&{{stocks_per_page_query}}&{{search_query}}"> <span
+                    aria-hidden="true">&laquo;</span>
+            </a>
         </li>
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{page_obj.previous_page_number}}&{{stocks_per_page_query}}&{{search_query}}"> <span
+                    aria-hidden="true">{{page_obj.previous_page_number}}</span>
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link">First</a>
+        </li>
+        <li class="page-item disabled">
+            <a class="page-link"> <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {% endif %}
+
+
+        <li class="page-item disabled"><a class="page-link">{{page_obj.number}}</a></li>
+        {% if page_obj.has_next %}
+
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{page_obj.next_page_number}}&{{stocks_per_page_query}}&{{search_query}}"> <span
+                    aria-hidden="true">{{page_obj.next_page_number}}</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{page_obj.next_page_number}}&{{stocks_per_page_query}}&{{search_query}}"> <span
+                    aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link"
+               href="?page={{page_obj.paginator.num_pages}}&{{stocks_per_page_query}}&{{search_query}}">Last
+            </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link"><span
+                    aria-hidden="true">&raquo;</span></a>
+        </li>
+        <li class="page-item disabled">
+            <a class="page-link">Last</a>
+        </li>
+        {% endif %}
     </ul>
 </nav>
 
@@ -114,6 +154,12 @@
         src="{% static 'js/myapp/index.js' %}"></script>
 <script>
     startInterval("{{ Interval }}"  ,"{{ request.get_full_path  }}")
+
+
+
+
+
+
 </script>
 
 {% endblock %}
