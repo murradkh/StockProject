@@ -2,8 +2,8 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col-10">
+<div class="row row-m-t">
+    <div class="col-6 ">
         <form class="form-inline mr-auto" id="SearchForm" method="get">
             <input list="myDatalist" id="searchText" type="text" placeholder="Type Stock Name / Symbol"
                    aria-label="Search"
@@ -13,7 +13,7 @@
         </form>
     </div>
 
-    <div class="col">
+    <div class="col-6 float-right text-right">
         <div class="btn-group" style="padding-bottom: 10px;">
             <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split btn-sm"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -33,8 +33,8 @@
 </div>
 
 {% load myapp_tags %}
-
-<table class="table table-hover data-table">
+{% include "subtemplate/Auto_update_control.html" %}
+<table class="table table-hover data-table" id ="stock_table">
     <tr>
         <th>#</th>
         <th>Symbol</th>
@@ -112,4 +112,8 @@
 {% load static %}
 <script type="text/javascript"
         src="{% static 'js/myapp/index.js' %}"></script>
+<script>
+    startInterval("{{ Interval }}"  ,"{{ request.get_full_path  }}")
+</script>
+
 {% endblock %}
