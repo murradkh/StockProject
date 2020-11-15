@@ -93,5 +93,6 @@ class StockApiTestCase(TestCase):
         self.assertIsInstance(response, list)
         self.assertGreater(len(response[0]), 1)
         response = list_stocks_names("A", filter=('symbol',))
+        self.assertIsInstance(response, list)
         self.assertEquals(len(response[0]), 1)
 
