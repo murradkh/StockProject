@@ -61,19 +61,6 @@ class Profile(models.Model):
     def __str__(self):
         return f'{self.user.username}'
 
-    @staticmethod
-    def add_notification(profile, content):
-        Notification.objects.create(title=content['title'],
-                                    description=content['description'],
-                                    user=profile)
-
-    @staticmethod
-    def remove_notification(profile, pk=""):
-        if pk:
-            Notification.objects.filter(pk=pk, user=profile).delete()
-        else:
-            Notification.objects.filter(user=profile).delete()
-
     def get_notifications(self):
         notifications_list = Notification.objects.filter(user__pk=self.pk)
         notifications_dict = {}
@@ -102,9 +89,6 @@ def save_user_profile(sender, instance, **kwargs):
 class Notification(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
-    time = models.DateTimeField(auto_now=True)
+    time = models.DateTimeField(auto_now=True)   
+    link = models.URLField(max_length=300, null=True)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='notifications')
-    link = models.URLField(max_length = 300, null=True)
-
-
-# https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
