@@ -45,7 +45,7 @@ class Stock(models.Model):
         if not stock.exists():
             return False
         else:
-            if stock[0].watchstock_set.all().count():
+            if stock[0].watchedstock_set.all().count():
                 return True
             else:
                 return False
@@ -57,20 +57,19 @@ class WatchList:
         self.profile = profile
 
     def all(self):
-        return list(map(lambda obj: obj.stock, WatchStock.objects.filter(profile=self.profile)))
+        return list(map(lambda obj: obj.stock, WatchedStock.objects.filter(profile=self.profile)))
 
     def add(self, stock):
-        WatchStock.objects.create(profile=self.profile, stock=stock)
+        WatchedStock.objects.create(profile=self.profile, stock=stock)
 
     def remove(self, stock):
-        objects = WatchStock.objects.filter(profile=self.profile, stock=stock)
+        objects = WatchedStock.objects.filter(profile=self.profile, stock=stock)
         for obj in objects:
             obj.delete()
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    notification_rules = models.OneToOneField(Rules, on_delete=models.CASCADE, related_name='profile', null=True)
 
     # portfolio = models.ManyToManyField(Stock)
 
@@ -82,9 +81,11 @@ class Profile(models.Model):
         return f'{self.user.username}'
 
 
-class WatchStock(models.Model):
+class WatchedStock(models.Model):
     profile = models.ForeignKey("Profile", on_delete=models.CASCADE)
     stock = models.ForeignKey('Stock', on_delete=models.CASCADE)
+    watched_stock_rule = models.OneToOneField(WatchedStockRule, on_delete=models.CASCADE,
+                                              related_name='watched_stock',null=True)
 
 
 @receiver(post_save, sender=User)
@@ -103,7 +104,6 @@ class Notification(models.Model):
     description = models.TextField(blank=True, null=True)
     time = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='notifications')
-    link = models.URLField(max_length = 300, null=True)
-
+    link = models.URLField(max_length=300, null=True)
 
 # https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/

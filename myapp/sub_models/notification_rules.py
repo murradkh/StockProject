@@ -1,22 +1,28 @@
 from django.db import models
 
 
-class Rules(models.Model):
-    pass
+class WatchedStockRule(models.Model):
+    change_status = models.OneToOneField("ChangeStatus", on_delete=models.CASCADE,
+                                         related_name='watched_stock_rule')
+    change_threshold = models.OneToOneField("ChangeThreshold", on_delete=models.CASCADE,
+                                            related_name='watched_stock_rule')
+    price_threshold = models.OneToOneField("PriceThreshold", on_delete=models.CASCADE,
+                                           related_name='watched_stock_rule')
+    activity = models.OneToOneField("Activity", on_delete=models.CASCADE,
+                                    related_name='watched_stock_rule')
 
 
 class ChangeStatus(models.Model):
-    rules = models.ForeignKey(Rules, on_delete=models.CASCADE, related_name='change_statuses', null=True)
-    # positive_change = models.
+    pass
 
 
 class ChangeThreshold(models.Model):
-    rules = models.ForeignKey(Rules, on_delete=models.CASCADE, related_name='change_thresholds', null=True)
+    pass
 
 
 class PriceThreshold(models.Model):
-    rules = models.ForeignKey(Rules, on_delete=models.CASCADE, related_name='price_thresholds', null=True)
+    pass
 
 
 class Activity(models.Model):
-    rules = models.ForeignKey(Rules, on_delete=models.CASCADE, related_name='activity', null=True)
+    pass
