@@ -39,17 +39,6 @@ class Stock(models.Model):
                                    market_cap=data['marketCap'],
                                    primary_exchange=data['primaryExchange'])
 
-    @classmethod
-    def is_needed(cls, stock_symbol):
-        stock = cls.objects.filter(symbol=stock_symbol)[:1]
-        if not stock.exists():
-            return False
-        else:
-            if stock[0].watchedstock_set.all().count():
-                return True
-            else:
-                return False
-
 
 class WatchList:
 
