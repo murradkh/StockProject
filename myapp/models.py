@@ -40,31 +40,28 @@ class Stock(models.Model):
                                    primary_exchange=data['primaryExchange'])
 
 
-class WatchList:
-
-    def __init__(self, profile):
-        self.profile = profile
-
-    def all(self):
-        return list(map(lambda obj: obj.stock, WatchedStock.objects.filter(profile=self.profile)))
-
-    def add(self, stock):
-        WatchedStock.objects.create(profile=self.profile, stock=stock)
-
-    def remove(self, stock):
-        objects = WatchedStock.objects.filter(profile=self.profile, stock=stock)
-        for obj in objects:
-            obj.delete()
-
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
-    # portfolio = models.ManyToManyField(Stock)
+    class WatchList:
+
+        def __init__(self, profile):
+            self.profile = profile
+
+        def all(self):
+            return list(map(lambda obj: obj.stock, WatchedStock.objects.filter(profile=self.profile)))
+
+        def add(self, stock):
+            WatchedStock.objects.create(profile=self.profile, stock=stock)
+
+        def remove(self, stock):
+            objects = WatchedStock.objects.filter(profile=self.profile, stock=stock)
+            for obj in objects:
+                obj.delete()
 
     def __init__(self, *args, **kwargs):
         super(Profile, self).__init__(*args, **kwargs)
-        self.watchlist = WatchList(self)
+        self.watchlist = Profile.WatchList(self)
 
     def __str__(self):
         return f'{self.user.username}'
@@ -74,7 +71,7 @@ class WatchedStock(models.Model):
     profile = models.ForeignKey("Profile", on_delete=models.CASCADE)
     stock = models.ForeignKey('Stock', on_delete=models.CASCADE)
     watched_stock_rule = models.OneToOneField(WatchedStockRule, on_delete=models.CASCADE,
-                                              related_name='watched_stock',null=True)
+                                              related_name='watched_stock', null=True)
 
 
 @receiver(post_save, sender=User)
