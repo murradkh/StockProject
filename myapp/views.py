@@ -252,5 +252,8 @@ def list_notifications_view(request):
 @login_required(login_url='login')
 def notification_remove_view(request, pk=""):
     profile, created = Profile.objects.get_or_create(user=request.user)
-    Profile.remove_notification(profile, pk)
+    if pk:
+        Notification.objects.filter(pk=pk, user=profile).delete()
+    else:
+        Notification.objects.filter(user=profile).delete()
     return HttpResponse('OK')
