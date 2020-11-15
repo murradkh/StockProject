@@ -17,7 +17,7 @@ function getCookie(cname) {
 // view notifications
 $("#notificationsDropdown").on("show.bs.dropdown", function(event){
     var xhr = new XMLHttpRequest();
-    var url = '../../../../notifications/';
+    var url = myapp.URLS.notifications;
     xhr.open("GET", url, true);
 
     dropdown = document.getElementById('notificationsContainer');

@@ -113,6 +113,13 @@
         crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/addons/datatables.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/modules/chart.js' %}"></script>
+<script>
+var myapp = {
+    URLS: {
+      notifications: "{% url 'list_notifications' %}",
+    }
+  }
+</script>
 <script type="text/javascript" src="{% static 'js/myapp/base.js' %}">
     $(document).ready(function(){
         $('.clickable-row').click(function(){
