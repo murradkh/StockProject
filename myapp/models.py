@@ -103,7 +103,6 @@ class Notification(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
     time = models.DateTimeField(auto_now=True)
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='notifications')
     link = models.URLField(max_length=300, null=True)
-
-# https://docs.djangoproject.com/en/3.1/topics/db/examples/many_to_many/
+    is_read = models.BooleanField(default=False)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='notifications')
