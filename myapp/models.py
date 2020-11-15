@@ -70,8 +70,6 @@ class Profile(models.Model):
 class WatchedStock(models.Model):
     profile = models.ForeignKey("Profile", on_delete=models.CASCADE)
     stock = models.ForeignKey('Stock', on_delete=models.CASCADE)
-    watched_stock_rule = models.OneToOneField(WatchedStockRule, on_delete=models.CASCADE,
-                                              related_name='watched_stock', null=True)
 
 
 @receiver(post_save, sender=User)
