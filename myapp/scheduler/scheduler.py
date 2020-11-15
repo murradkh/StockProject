@@ -1,12 +1,14 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from .stock_api_update import stock_api_update
-
+from django.conf import settings
+from myrails.settings import THREAD_INTERVAL
 
 class scheduler:
     def __init__(self):
         self.scheduler_job = BackgroundScheduler()
         self.scheduler_job.add_job(stock_api_update)
-        self.scheduler_job.add_job(stock_api_update, 'interval', seconds=10)
+        self.scheduler_job.add_job(stock_api_update, 'interval',
+                                   seconds=THREAD_INTERVAL)
 
     def start(self):
         self.scheduler_job.start()

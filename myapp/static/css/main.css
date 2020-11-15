@@ -31,10 +31,15 @@ body {
 }
 
 .container {
-    margin: 0;
+
     padding: 10px;
 }
 
 .clickable-row {
     cursor: pointer;
+}
+.row-m-t{
+   margin-top: 16px;
+  margin-bottom: 16px;
+  margin-left:10px
 }
