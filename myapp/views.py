@@ -64,16 +64,7 @@ def index(request):
         if request.user.is_authenticated:
             profile, created = Profile.objects.get_or_create(user=request.user)
 
-        context = {
-            'page_obj': page_obj,
-            "pages_indices": range(1, paginator.num_pages + 1),
-            # "search_form": SearchForm,
-            "search_query": urlencode(search_query),
-            "stocks_per_page_query": urlencode(stocks_per_page_query),
-            'page_title': 'Main',
-            'profile': profile,
-            'Interval': (THREAD_INTERVAL*1000)
-        }
+
 
         return render(request, 'index.html', context)
     return redirect(reverse("index"))
