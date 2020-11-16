@@ -24,3 +24,8 @@ def stock_api_update():
             index += 1
     except KeyError as e:
         pass
+
+def update_existing_stocks():
+
+#def get_stock_info(symbol):
+# 'symbol,companyName,marketcap,totalCash,primaryExchange,latestPrice,latestSource,change,changePercent'
