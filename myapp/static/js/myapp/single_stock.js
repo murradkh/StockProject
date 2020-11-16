@@ -1,13 +1,12 @@
 var recent_time_range_chose;
-var recent_symbol_to_compare;
+var recent_symbols_to_compare=[];
 var myLineChart;
+var originSymbol;
 
-function getHistoricData(symbol,time_range='1m', symbol_to_compare = '') {
+function getHistoricData(time_range='1m') {
     recent_time_range_chose = time_range;
-    if(typeof(recent_symbol_to_compare) !== 'undefined' && symbol_to_compare == ''){
-    symbol_to_compare = recent_symbol_to_compare;
-    }
-    $.get(`/historic/${symbol},${symbol_to_compare}/${time_range}/`, function(data,received, response) {
+    $.get(`/historic/${originSymbol},${recent_symbols_to_compare.toString()}/${time_range}/`, function(data,received,
+    response) {
         if (response.status == 200) {
             if (typeof(myLineChart) !== 'undefined') {
             //removing old chart
@@ -16,36 +15,41 @@ function getHistoricData(symbol,time_range='1m', symbol_to_compare = '') {
             var ctxL = document.getElementById("stockChart").getContext('2d');
             datasets = []
 
-            if (symbol_to_compare == '' || symbol_to_compare == symbol) {
+            if (recent_symbols_to_compare.length == 0) {
                 historic_data_1 = data.data.sort(function(a, b) {
                     return a.date - b.date;
                 })
             } else {
-                historic_data_1 = data.data[symbol]['chart'].sort(function(a, b) {
+                historic_data_1 = data.data[originSymbol]['chart'].sort(function(a, b) {
                     return a.date - b.date;
                 })
-                historic_data_2 = data.data[symbol_to_compare]['chart'].sort(function(a, b) {
-                    return a.date - b.date;
-                })
-
-
-            var colors = getRandomRgba();
-            datasets.push({
-                label: `${symbol_to_compare}`,
-                data: historic_data_2.map(d => d.close),
-                                backgroundColor: [colors[0]],
-                                borderColor: [colors[1]],
-                                borderWidth: 2
-            })
             }
-            var colors = getRandomRgba();
+                for (let i = 0; i < recent_symbols_to_compare.length; i++) {
+                if(data.data[recent_symbols_to_compare[i]] !== undefined){
+                  historic_data = data.data[recent_symbols_to_compare[i]]['chart'].sort(function(a, b) {
+                    return a.date - b.date;
+                })
+
+                colors = getRandomRgba();
+                datasets.push({
+                    label: `${recent_symbols_to_compare[i]}`,
+                    data: historic_data.map(d => d.close),
+                                    backgroundColor: [colors[0]],
+                                    borderColor: [colors[1]],
+                                    borderWidth: 2
+                })
+            }
+            }
+
+            colors = getRandomRgba();
             datasets.push({
-                label: `${symbol}`,
+                label: `${originSymbol}`,
                 data: historic_data_1.map(d => d.close),
                                 backgroundColor: [colors[0]],
                                 borderColor: [colors[1]],
                                 borderWidth: 2
             })
+
 //            console.log(historic_data_1)
             // For some strange reason, the 'today' data point returned by API has no label
             if (typeof historic_data_1[historic_data_1.length - 1].label === 'undefined') {
@@ -114,14 +118,14 @@ function getRandomRgba() {
         xhr.send();
     }
     function getStockNames() {
-      search_text = document.getElementById("search_text");
+      searchText = document.getElementById("searchText");
       dataList = $(myDatalist)
 
 
 
       // sending request to fetch stock names if the input isn't empty
-      if (search_text.value != ''){
-      $.get(`/stocks/list_names/${search_text.value}`, function(data) {
+      if (searchText.value != ''){
+      $.get(`/stocks/list_names/${searchText.value}`, function(data) {
 
       // removing previous search results
       var e = document.querySelector("datalist");
@@ -137,11 +141,20 @@ function getRandomRgba() {
 }
 }
 
-function compareTwoStocks(originSymbol) {
+function addStockToCompare() {
     var stockNameOption = document.forms["compareForm"]['stockNameToCompare']['value'];
-    if (stockNameOption != '') {
-        secondarySymbol = stockNameOption.slice(0, stockNameOption.indexOf(','))
-        getHistoricData(originSymbol,recent_time_range_chose ,secondarySymbol);
-        recent_symbol_to_compare = secondarySymbol;
+    secondarySymbol = stockNameOption.slice(0, stockNameOption.indexOf(','))
+    if (stockNameOption != '' && secondarySymbol != originSymbol && !recent_symbols_to_compare.some(value => secondarySymbol == value)) {
+        recent_symbols_to_compare.push(secondarySymbol);
+        getHistoricData(recent_time_range_chose);
     }
+}
+
+function clearGraph(){
+recent_symbols_to_compare = [];
+getHistoricData(recent_time_range_chose)
+
+}
+function setOriginSymbol(symbol_name){
+    originSymbol = symbol_name;
 }

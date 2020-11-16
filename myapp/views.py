@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from myrails.settings import THREAD_INTERVAL
 
 from myapp import stock_api
 from myapp.models import Stock, Profile
@@ -12,8 +13,6 @@ from django.http import JsonResponse, HttpResponse
 
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import PasswordChangeForm
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
@@ -30,12 +29,21 @@ def index(request):
         stocks_per_page_query = {}
         search_query = {}
 
-        if "search_text" in kwargs:
-
-            stocks = Stock.objects.filter(
-                Q(symbol__contains=kwargs['search_text']) | Q(name__contains=kwargs['search_text'])).order_by(
-                '-top_rank')
-            search_query = {"search_text": kwargs['search_text']}
+        if "searchText" in kwargs:
+            text = kwargs['searchText']
+            if "," in text:
+                text = text[:text.index(',')]
+            search_query = {"searchText": text}
+            response = stock_api.list_stocks_names(text)
+            stocks = []
+            for stock in response:
+                stocks.append(Stock(symbol=stock['symbol'],
+                                    name=stock['companyName'],
+                                    price=stock['latestPrice'],
+                                    change=stock['change'],
+                                    change_percent=stock['changePercent'],
+                                    market_cap=stock['marketCap'],
+                                    primary_exchange=stock['primaryExchange']))
         else:
             stocks = Stock.objects.all().order_by('top_rank')
 
@@ -63,7 +71,8 @@ def index(request):
             "search_query": urlencode(search_query),
             "stocks_per_page_query": urlencode(stocks_per_page_query),
             'page_title': 'Main',
-            'profile': profile
+            'profile': profile,
+            'Interval': (THREAD_INTERVAL*1000)
         }
 
         return render(request, 'index.html', context)
@@ -121,36 +130,51 @@ def profile_view(request):
 @login_required(login_url='login')
 def watchlist_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-    return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile})
+
+    return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile ,'Interval': (THREAD_INTERVAL * 1000)})
 
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def watchlist_add_view(request, symbol):
+    status_code = 200
     profile, created = Profile.objects.get_or_create(user=request.user)
-    stock = Stock.objects.filter(symbol=symbol)[:1]
-    if not stock.exists():
-        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
-        response = render(request, 'exception.html', context)
-        response.status_code = 404
-    else:
+    stock_in_db = Stock.objects.filter(symbol=symbol)[:1]
+    if stock_in_db.exists():
         Stock.add_to_watchlist(profile, symbol)
         response = HttpResponse('OK')
+    else:
+        try:
+            data = stock_api.get_stock_info(symbol)
+            Stock.add_to_db(data)
+            Stock.add_to_watchlist(profile, symbol)
+            response = HttpResponse('OK')
+        except StockSymbolNotFound as e:
+            status_code = 404
+            response = HttpResponse('Symbol Not Found')
+        except StockServerUnReachable as e:
+            status_code = 503
+            response = HttpResponse('Service Unavailable')
+        except Exception as e:
+            status_code = 520
+            response = HttpResponse('Unknown Error')
+    response.status_code = status_code
     return response
 
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def watchlist_remove_view(request, symbol):
+    status_code = 200
     profile, created = Profile.objects.get_or_create(user=request.user)
-    stock = Stock.objects.filter(symbol=symbol)[:1]
-    if not stock.exists():
-        context = {'error_message': 'Stock symbol not found', 'status_code': 404}
-        response = render(request, 'exception.html', context)
-        response.status_code = 404
-    else:
+    stock_in_db = Stock.objects.filter(symbol=symbol)[:1]
+    if stock_in_db.exists():
         Stock.remove_from_watchlist(profile, symbol)
         response = HttpResponse('OK')
+    else:
+        status_code = 404
+        response = HttpResponse('Symbol Not in DB')
+    response.status_code = status_code
     return response
 
 
@@ -199,11 +223,12 @@ def single_stock_historic(request, symbols, time_range='1m'):
         return response
 
 
+@require_http_methods(['GET'])
 def list_stocks_names_view(request, search_text):
     context = None
     status_code = 200
     try:
-        stocks_names = stock_api.list_stocks_names(search_text)
+        stocks_names = stock_api.list_stocks_names(search_text, filter=("symbol", "companyName"))
         context = {"stocks_names": stocks_names}
     except StockServerUnReachable as e:
         context = {"error_message": e.message}
