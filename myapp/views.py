@@ -248,6 +248,12 @@ def list_notifications_view(request):
     return JsonResponse(profile.get_notifications())
 
 
+@login_required(login_url='login')
+def notification_unread_count_view(request, pk=""):
+    profile, created = Profile.objects.get_or_create(user=request.user)   
+    return JsonResponse({'unread_count': Notification.objects.filter(is_read=False, user=profile).count()})
+
+
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def notification_remove_view(request, pk=""):
@@ -256,4 +262,15 @@ def notification_remove_view(request, pk=""):
         Notification.objects.filter(pk=pk, user=profile).delete()
     else:
         Notification.objects.filter(user=profile).delete()
+    return HttpResponse('OK')
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def notifications_mark_read_view(request, pk=""):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if pk:
+        Notification.objects.filter(pk=pk, user=profile).update(is_read=True)
+    else:
+        Notification.objects.filter(user=profile).update(is_read=True)
     return HttpResponse('OK')
