@@ -45,17 +45,21 @@
                     <div class="dropdown-menu dropdown-menu-right dropdown-info"
                          aria-labelledby="navbarDropdownMenuLink-1"
                          style="width: 360px !important;"> 
-                            <div class="overflow-auto" id="notificationsContainer" style="padding: 8px 16px 0px 16px;"></div>
+                        <div class="overflow-auto" id="notificationsContainer"
+                            style="padding: 8px 16px 0px 16px;">
+                        </div>
                         <div class="dropdown-divider"></div>
-                        <button class="dropdown-item disabled">
-                            <i class="fa fa-check-circle"></i>&ensp; Mark all as read
-                        </button>
-                        <button class="dropdown-item" onclick="deleteNotifications()">
-                            <i class="fa fa-window-close"></i>&ensp; Clear all
-                        </button>
-                        <button class="dropdown-item disabled">
-                            <i class="fa fa-cogs"></i>&ensp; Change rules
-                        </button>
+                        <div id="actionsContainer">
+                            <button class="dropdown-item" onclick="markAsRead()">
+                                <i class="fa fa-check-circle"></i>&ensp; Mark all as read
+                            </button>
+                            <button class="dropdown-item" onclick="deleteNotifications()" data-toggle="dropdown">
+                                <i class="fa fa-window-close"></i>&ensp; Clear all
+                            </button>
+                            <button class="dropdown-item">
+                                <i class="fa fa-cogs"></i>&ensp; Change rules
+                            </button>
+                        </div>
                     </div>
                 </li>
                 <li class="nav-item">
@@ -116,7 +120,9 @@
 <script>
 var myapp = {
     URLS: {
-      notifications: "{% url 'list_notifications' %}",
+      listNotifications: "{% url 'list_notifications' %}",
+      notificationsUnreadCount: "{% url 'notification_unread_count' %}",
+      notificationsAllRead: "{% url 'notifications_all_read' %}",
     }
   }
 </script>
@@ -128,25 +134,7 @@ var myapp = {
     });
 </script>
 <script>
-    // get notification count
-    badge = document.getElementById('badgeCounter');
-    var xhr = new XMLHttpRequest();
-    var url = '../../../../notifications/';
-    xhr.open("GET", url, true);
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            var status = xhr.status;
-            if (status === 0 || (status >= 200 && status < 400)) {
-                var responseDict = JSON.parse(xhr.responseText);
-                var numNotifications = Object.keys(responseDict).length;
-                console.log(numNotifications);
-                if (numNotifications > 0){      
-                    badge.appendChild(document.createTextNode(numNotifications));
-                }
-            }
-        }
-    };
-    xhr.send();
+    $(document).ready(getUnreadCount());
 </script>
     {% block scripts %}
     {% endblock scripts %}
