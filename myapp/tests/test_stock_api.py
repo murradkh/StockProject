@@ -96,3 +96,9 @@ class StockApiTestCase(TestCase):
         self.assertIsInstance(response, list)
         self.assertEquals(len(response[0]), 1)
 
+    def test_get_stock_recommnedations(self):
+        for symbol in self.not_existed_symbols:
+            self.assertRaises(StockSymbolNotFound, get_stock_info, symbol)
+        for symbol in self.existed_symbols:
+            response = get_stock_info(symbol)
+            self.assertIsInstance(response, dict)
