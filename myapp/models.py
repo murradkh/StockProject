@@ -28,17 +28,17 @@ class Stock(models.Model):
         stock = cls.objects.get(symbol=stock_symbol)
         profile.watchlist.remove(stock)
         profile.save()
-    
+
     @classmethod
     def add_to_db(cls, data):
-        stock = cls.objects.create(symbol=data['symbol'], 
-                                    name=data['companyName'],
-                                    # top_rank=None,
-                                    price=data['latestPrice'],
-                                    change=data['change'],
-                                    change_percent=data['changePercent'],
-                                    market_cap=data['marketCap'],
-                                    primary_exchange=data['primaryExchange'])
+        stock = cls.objects.create(symbol=data['symbol'],
+                                   name=data['companyName'],
+                                   # top_rank=None,
+                                   price=data['latestPrice'],
+                                   change=data['change'],
+                                   change_percent=data['changePercent'],
+                                   market_cap=data['marketCap'],
+                                   primary_exchange=data['primaryExchange'])
 
     @classmethod
     def is_needed(cls, stock_symbol):
@@ -46,20 +46,44 @@ class Stock(models.Model):
         if not stock.exists():
             return False
         else:
-            profiles_using_stock = stock[0].profile_set.all()
-            if profiles_using_stock.exists():
+            if stock[0].watchstock_set.all().count():
                 return True
             else:
                 return False
 
 
+class WatchList:
+
+    def __init__(self, profile):
+        self.profile = profile
+
+    def all(self):
+        return list(map(lambda obj: obj.stock, WatchStock.objects.filter(profile=self.profile)))
+
+    def add(self, stock):
+        WatchStock.objects.create(profile=self.profile, stock=stock)
+
+    def remove(self, stock):
+        objects = WatchStock.objects.filter(profile=self.profile, stock=stock)
+        for obj in objects:
+            obj.delete()
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    watchlist = models.ManyToManyField(Stock, blank=True)
     # portfolio = models.ManyToManyField(Stock)
+
+    def __init__(self, *args, **kwargs):
+        super(Profile, self).__init__(*args, **kwargs)
+        self.watchlist = WatchList(self)
 
     def __str__(self):
         return f'{self.user.username}'
+
+
+class WatchStock(models.Model):
+    profile = models.ForeignKey("Profile", on_delete=models.CASCADE)
+    stock = models.ForeignKey('Stock', on_delete=models.CASCADE)
 
 
 @receiver(post_save, sender=User)
