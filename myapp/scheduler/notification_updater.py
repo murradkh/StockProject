@@ -109,6 +109,3 @@ def price_threshold_rule():
                                                 link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
                     rule.fired = True
                     rule.save()
-
-# TODO: add testing
-# TODO: add script for migrating previous watched-stocks properly

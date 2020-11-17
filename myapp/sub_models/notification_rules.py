@@ -43,11 +43,6 @@ class PriceThresholdRule(models.Model):
         return PriceThresholdRule.objects.all()
 
 
-class ActivityPeriodRule(models.Model):
-    """ activity rule is about notifying when a period of days the stock was in top_ranks/mostActive stocks"""
-    watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE, related_name='activity_period_rules')
-
-
 class RecommendationAnalystRule(models.Model):
     """ Recommendation-Analyst rule is about notifying when the stock recommended to
     Buy/Over-Weight/Hold/Under-Weight/Sell"""
