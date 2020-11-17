@@ -9,6 +9,7 @@ class ChangeStatusRule(models.Model):
     watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE, related_name='change_status_rules')
     status = models.CharField(max_length=10, choices=[('N', 'Negative'), ('P', 'Positive')], default='P')
     num_of_days = models.PositiveIntegerField(default=30, validators=[MaxValueValidator(360), MinValueValidator(2)])
+    fired = models.BooleanField(default=False)
 
     @classmethod
     def get_rules(cls) -> QuerySet:
@@ -17,11 +18,13 @@ class ChangeStatusRule(models.Model):
 
 class ChangeThresholdRule(models.Model):
     """ change value rule is about notifying when the change of stock reaching a specific change value percentage """
-    watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE, related_name='change_value_rules')
+    watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE, related_name='change_threshold_rules')
     when = models.CharField(max_length=20, choices=[('B', 'Below threshold'), ('A', 'Above threshold'),
                                                     ('O', 'On threshold')], default='A')
     percentage_threshold = models.FloatField(default=0, validators=[MaxValueValidator(100), MinValueValidator(
         -100)])
+    fired = models.BooleanField(default=False)
+
 
     @classmethod
     def get_rules(cls) -> QuerySet:
