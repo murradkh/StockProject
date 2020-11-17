@@ -131,7 +131,8 @@ def profile_view(request):
 def watchlist_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
 
-    return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile ,'Interval': (THREAD_INTERVAL * 1000)})
+    return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile, 'Interval': (
+            THREAD_INTERVAL * 1000)})
 
 
 @require_http_methods(['POST'])
