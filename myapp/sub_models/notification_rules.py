@@ -16,8 +16,16 @@ class ChangeStatusRule(models.Model):
 
 
 class ChangeThresholdRule(models.Model):
-    """ change threshold rule is about notifying when the change of stock reaching a specific threshold percentage """
-    watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE, related_name='change_threshold_rules')
+    """ change value rule is about notifying when the change of stock reaching a specific change value percentage """
+    watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE, related_name='change_value_rules')
+    when = models.CharField(max_length=20, choices=[('B', 'Below threshold'), ('A', 'Above threshold'),
+                                                    ('O', 'On threshold')], default='A')
+    percentage_threshold = models.FloatField(default=0, validators=[MaxValueValidator(100), MinValueValidator(
+        -100)])
+
+    @classmethod
+    def get_rules(cls) -> QuerySet:
+        return ChangeThresholdRule.objects.all()
 
 
 class PriceThresholdRule(models.Model):

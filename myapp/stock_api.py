@@ -55,10 +55,10 @@ def get_top_stocks():
         raise e
 
 
-def get_stock_info(symbol):
+def get_stock_info(symbol, filter=()):
     # 'symbol,companyName,marketcap,totalCash,primaryExchange,latestPrice,latestSource,change,changePercent'
     try:
-        return _request_data('/stable/stock/{symbol}/quote'.format(symbol=symbol),
+        return _request_data(f"/stable/stock/{symbol}/quote?{'' if not filter else ('filter=' + (','.join(filter)))}",
                              additional_parameters={'displayPercent': 'true'})
     except ConnectionError:
         raise StockServerUnReachable("Stock server UnReachable!")

@@ -1,6 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from .notification_updater import change_status_rule, CHANGE_STATUS_RULE_THREAD_INTERVAL
+from .notification_updater import change_status_rule, CHANGE_STATUS_RULE_THREAD_INT, CHANGE_THRESHOLD_RULE_THREAD_INT, \
+    change_threshold_rule
 from .stock_api_update import stock_api_update
 from myrails.settings import THREAD_INTERVAL
 
@@ -11,7 +12,9 @@ class scheduler:
         self.scheduler_job.add_job(stock_api_update)
         self.scheduler_job.add_job(stock_api_update, 'interval',
                                    seconds=THREAD_INTERVAL)
-        self.scheduler_job.add_job(change_status_rule, 'interval', seconds=CHANGE_STATUS_RULE_THREAD_INTERVAL)
+        self.scheduler_job.add_job(change_status_rule, 'interval', days=CHANGE_STATUS_RULE_THREAD_INT)
+        #TODO
+        self.scheduler_job.add_job(change_threshold_rule, 'interval', minutes=CHANGE_THRESHOLD_RULE_THREAD_INT)
 
     def start(self):
         self.scheduler_job.start()

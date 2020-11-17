@@ -1,8 +1,9 @@
-from myapp.models import Stock, ChangeStatusRule, Notification
+from myapp.models import Stock, ChangeStatusRule, Notification, ChangeThresholdRule
 from myapp import stock_api
 from django.db import transaction
 
-CHANGE_STATUS_RULE_THREAD_INTERVAL = 1 * 60 * 60 * 24  # one day interval
+CHANGE_STATUS_RULE_THREAD_INT = 1  # one day interval
+CHANGE_THRESHOLD_RULE_THREAD_INT = 1  # one minute interval
 
 
 def change_status_rule():
@@ -37,3 +38,30 @@ def change_status_rule():
                 title = f"Sequential {'Positive' if rule.status == 'P' else 'Negative'} Change"
                 description = f"sequential positive change in the past {num_of_days} days for {rule.watched_stock.stock.name}"
                 Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description)
+
+
+def change_threshold_rule():
+    rules = ChangeThresholdRule.get_rules()
+    for rule in rules:
+        data = stock_api.get_stock_info(symbol=rule.watched_stock.stock.symbol, filter=("changePercent",))
+        if "changePercent" in data:
+            if rule.when == "B" and rule.percentage_threshold > data['changePercent']:
+                title = f"Blow Threshold value Reached for {rule.watched_stock.stock.name}"
+                description = f"the change value percentage {data['changePercent']} reached below than the threshold" \
+                              f" {rule.percentage_threshold}"
+                Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description)
+            elif rule.when == 'A' and rule.percentage_threshold < data['changePercent']:
+                title = f"Above Threshold value Reached for {rule.watched_stock.stock.name}"
+                description = f"the change value percentage {data['changePercent']} reached above than the threshold" \
+                              f" {rule.percentage_threshold}"
+                Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description)
+            elif rule.when == 'O' and rule.percentage_threshold == data['changePercent']:
+                title = f"Threshold value Reached for {rule.watched_stock.stock.name}"
+                description = f"the change value percentage reached the threshold" \
+                              f" {rule.percentage_threshold}"
+                Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description)
+
+
+# TODO: add fired field to models
+# TODO: add testing
+# TODO: add script for migrating previous watched-stocks properly
