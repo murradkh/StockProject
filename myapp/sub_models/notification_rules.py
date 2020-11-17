@@ -33,6 +33,14 @@ class ChangeThresholdRule(models.Model):
 class PriceThresholdRule(models.Model):
     """ price threshold rule is about notifying when the price of stock reaching a specific threshold value """
     watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE, related_name='price_threshold_rules')
+    when = models.CharField(max_length=20, choices=[('B', 'Below threshold'), ('A', 'Above threshold'),
+                                                    ('O', 'On threshold')], default='A')
+    price_threshold = models.FloatField(default=0, validators=[MaxValueValidator(100), MinValueValidator(-100)])
+    fired = models.BooleanField(default=False)
+
+    @classmethod
+    def get_rules(cls) -> QuerySet:
+        return PriceThresholdRule.objects.all()
 
 
 class ActivityPeriodRule(models.Model):
