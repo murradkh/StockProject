@@ -55,24 +55,24 @@ def change_threshold_rule():
             if "changePercent" in data:
                 if rule.when == "B" and rule.percentage_threshold > data['changePercent']:
                     title = f"Blow Threshold value Reached for {rule.watched_stock.stock.name}"
-                    description = f"the change value percentage {data['changePercent']} reached below the threshold" \
-                                  f" {rule.percentage_threshold}"
+                    description = f"the change value percentage " \
+                                  f"{data['changePercent']}% reached below the threshold {rule.percentage_threshold}%"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
                                                 link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
                     rule.fired = True
                     rule.save()
                 elif rule.when == 'A' and rule.percentage_threshold < data['changePercent']:
                     title = f"Above Threshold value Reached for {rule.watched_stock.stock.name}"
-                    description = f"the change value percentage {data['changePercent']} reached above the threshold" \
-                                  f" {rule.percentage_threshold}"
+                    description = f"the change value percentage " \
+                                  f"{data['changePercent']}% reached above the threshold {rule.percentage_threshold}%"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
                                                 link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
                     rule.fired = True
                     rule.save()
                 elif rule.when == 'O' and rule.percentage_threshold == data['changePercent']:
-                    title = f"Threshold value Reached for {rule.watched_stock.stock.name}"
+                    title = f"On Threshold value Reached for {rule.watched_stock.stock.name}"
                     description = f"the change value percentage reached the threshold" \
-                                  f" {rule.percentage_threshold}"
+                                  f" {rule.percentage_threshold}%"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
                                                 link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
                     rule.fired = True
