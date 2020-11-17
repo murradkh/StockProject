@@ -24,3 +24,5 @@ class JbsTestCase(TestCase):
         value_2 = Stock.objects.filter(top_rank=1)[0].last_modified
         self.assertNotEqual(value_1, value_2)
 
+
+#TODO: test the jobs here
