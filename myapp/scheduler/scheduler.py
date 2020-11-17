@@ -12,8 +12,8 @@ class scheduler:
         self.scheduler_job.add_job(stock_api_update)
         self.scheduler_job.add_job(stock_api_update, 'interval',
                                    seconds=THREAD_INTERVAL)
-        self.scheduler_job.add_job(change_status_rule, 'interval', days=CHANGE_STATUS_RULE_THREAD_INT)
-        # TODO
+        self.scheduler_job.add_job(change_status_rule, 'interval', minutes=CHANGE_STATUS_RULE_THREAD_INT,
+                                   max_instances=1)
         self.scheduler_job.add_job(change_threshold_rule, 'interval', minutes=CHANGE_THRESHOLD_RULE_THREAD_INT,
                                    max_instances=1)
 

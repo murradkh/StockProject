@@ -25,7 +25,6 @@ class ChangeThresholdRule(models.Model):
         -100)])
     fired = models.BooleanField(default=False)
 
-
     @classmethod
     def get_rules(cls) -> QuerySet:
         return ChangeThresholdRule.objects.all()

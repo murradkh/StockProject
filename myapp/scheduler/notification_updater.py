@@ -2,7 +2,7 @@ from myapp.models import Stock, ChangeStatusRule, Notification, ChangeThresholdR
 from myapp import stock_api
 from django.db import transaction
 
-CHANGE_STATUS_RULE_THREAD_INT = 1  # one day interval
+CHANGE_STATUS_RULE_THREAD_INT = 1  # one minute interval
 CHANGE_THRESHOLD_RULE_THREAD_INT = 1  # one minute interval
 
 
@@ -37,7 +37,8 @@ def change_status_rule():
                     # indicating there is sequential change through <num_of_days> days,
                     # here we need to insert a notification to user in DB
                     title = f"Sequential {'Positive' if rule.status == 'P' else 'Negative'} Change"
-                    description = f"sequential positive change in the past {num_of_days} days for {rule.watched_stock.stock.name}"
+                    description = f"sequential {'Positive' if rule.status == 'P' else 'Negative'} change" \
+                                  f" in the past {num_of_days} days for {rule.watched_stock.stock.name}"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description)
                     rule.fired = True
                     rule.save()
@@ -71,6 +72,5 @@ def change_threshold_rule():
                     rule.fired = True
                     rule.save()
 
-# TODO: add fired field to models
 # TODO: add testing
 # TODO: add script for migrating previous watched-stocks properly
