@@ -70,7 +70,8 @@ class Profile(models.Model):
                                     'title': notification.title,
                                     'description': notification.description,
                                     'time': notification.time,
-                                    'link': notification.link}
+                                    'link': notification.link,
+                                    'is_read': notification.is_read}
             i += 1
         return notifications_dict
 
