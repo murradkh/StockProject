@@ -1,11 +1,13 @@
 from myapp.models import Stock, WatchStock
 from myapp import stock_api
 from django.db import transaction
+import time
 from django.db import connection
 
 @transaction.atomic
 def stock_api_update():
-    update_existing_stocks()
+    start = time.time()
+    #update_existing_stocks()
     top_stocks = stock_api.get_top_stocks()
     index = 1
     try:
@@ -25,6 +27,7 @@ def stock_api_update():
             index += 1
     except KeyError as e:
         pass
+    print("time cost --------------------", start-time.time())
 
 
 def update_existing_stocks():
@@ -37,10 +40,13 @@ def update_existing_stocks():
     #     for stock in w.watchlist.all():
     #             stocks.add(stock.symbol)
     # print(stocks)
-    s = WatchStock.objects.all()
+    s = WatchStock.objects.all().values("stock_id").distinct()
+    obj=[]
 
     for w in s:
-        print(w.stock.symbol,w.stock.last_modified)
+
+        stock = Stock.objects.all().filter(symbol=w.get('stock_id'))
+        #print(stock)
 
 
 
