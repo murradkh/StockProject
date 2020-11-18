@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import Client, TestCase
-from myapp.models import Profile, Stock, WatchedStock, ChangeStatusRule, ChangeThresholdRule, PriceThresholdRule
+from myapp.models import Profile, Stock, WatchedStock, ChangeStatusRule, ChangeThresholdRule, PriceThresholdRule, \
+    RecommendationAnalystRule
 
 
 class NotificationModelsRulesTestCase(TestCase):
@@ -54,3 +55,13 @@ class NotificationModelsRulesTestCase(TestCase):
         PriceThresholdRule(watched_stock=watched_stock, when="O", price_threshold=50).full_clean()
         self.assertRaises(ValidationError, PriceThresholdRule(watched_stock=watched_stock, when="D",
                                                               price_threshold=50).full_clean)
+
+    def test_recommendation_analyst_rule(self):
+        watched_stock = WatchedStock.objects.get(pk=1)
+        RecommendationAnalystRule(watched_stock=watched_stock, category="B").full_clean()
+        RecommendationAnalystRule(watched_stock=watched_stock, category="MB").full_clean()
+        RecommendationAnalystRule(watched_stock=watched_stock, category="MS").full_clean()
+        RecommendationAnalystRule(watched_stock=watched_stock, category="H").full_clean()
+        RecommendationAnalystRule(watched_stock=watched_stock, category="S").full_clean()
+        self.assertRaises(ValidationError, RecommendationAnalystRule(watched_stock=watched_stock, category="D",
+                                                                     ).full_clean)
