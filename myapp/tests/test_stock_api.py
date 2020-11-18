@@ -1,7 +1,7 @@
 from django.test import TestCase
 from datetime import datetime
 from myapp.exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange
-from myapp.stock_api import get_stock_info, get_stock_historic_prices, get_top_stocks, list_stocks_names
+from myapp.stock_api import get_stock_info, get_stock_historic_prices, get_top_stocks, list_stocks_names, get_analyst_recommendations
 
 MAX_DAYS_PER_MONTH = 31
 MAX_DAYS_PER_YEAR = 366  # On a leap year
@@ -93,5 +93,12 @@ class StockApiTestCase(TestCase):
         self.assertIsInstance(response, list)
         self.assertGreater(len(response[0]), 1)
         response = list_stocks_names("A", filter=('symbol',))
+        self.assertIsInstance(response, list)
         self.assertEquals(len(response[0]), 1)
 
+    def test_get_stock_recommendations(self):
+        for symbol in self.not_existed_symbols:
+            self.assertRaises(StockSymbolNotFound, get_analyst_recommendations, symbol)
+        for symbol in self.existed_symbols:
+            response = get_analyst_recommendations(symbol)
+            self.assertIsInstance(response, dict)

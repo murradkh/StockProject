@@ -43,7 +43,7 @@ class StockWatchlistTestCase(TestCase):
     def test_watchlist_add_not_found(self):
         response = self.client.post('/stock/Malak/wadd/')
         self.assertEqual(response.status_code, 404)    # 404 since stock symbol not found
-        self.assertEqual(Profile.objects.get(user=self.test_user_1).watchlist.all().count(), 0)
+        self.assertEqual(Profile.objects.get(user=self.test_user_1).watchstock_set.all().count(), 0)
         self.assertFalse(Stock.is_needed('Malak'))
 
     def test_watchlist_add_unauthenticated(self):
@@ -63,5 +63,5 @@ class StockWatchlistTestCase(TestCase):
         self.client.post('/accounts/login/', {'username': 'tester1', 'password': 'randomexample'})
         self.client.post('/stock/APPL/wadd/')
         self.test_stock_1.delete()                    # Deleted stock also removed from watchlist
-        self.assertEqual(Profile.objects.get(user=self.test_user_1).watchlist.all().count(), 0)
+        self.assertEqual(Profile.objects.get(user=self.test_user_1).watchstock_set.all().count(), 0)
         self.assertFalse(Stock.is_needed('APPL'))
