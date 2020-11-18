@@ -1,10 +1,12 @@
-from myapp.models import Stock, ChangeStatusRule, Notification, ChangeThresholdRule, PriceThresholdRule
+from myapp.models import Stock, ChangeStatusRule, Notification, ChangeThresholdRule, PriceThresholdRule, \
+    RecommendationAnalystRule
 from myapp import stock_api
 from django.urls import reverse
 
 CHANGE_STATUS_RULE_THREAD_INT = 1  # one minute interval
 CHANGE_THRESHOLD_RULE_THREAD_INT = 1  # one minute interval
 PRICE_THRESHOLD_RULE_THREAD_INT = 1  # one minute interval
+RECOMMENDATION_ANALYST_RULE_THREAD_INT = 1  # one minute interval
 
 
 def change_status_rule():
@@ -110,3 +112,55 @@ def price_threshold_rule():
                                                 link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
                     rule.fired = True
                     rule.save()
+
+
+def recommendation_analyst_rule():
+    rules = RecommendationAnalystRule.get_rules()
+    for rule in rules:
+        if not rule.fired:
+            data = stock_api.get_analyst_recommendations(symbol=rule.watched_stock.stock.symbol)
+            if rule.category == "B" and data['ratingBuy'] > max(data['ratingHold'], data['ratingUnderweight'],
+                                                                data['ratingSell']):
+                title = f"Buy Recommendation for {rule.watched_stock.stock.name}"
+                description = f"Stock in {rule.watched_stock.stock.name} strongly recommended to buy according to " \
+                              f"analysis"
+                Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
+                                            link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                rule.fired = True
+                rule.save()
+            elif rule.category == "MB" and data['ratingOverweight'] > max(data['ratingSell'], data['ratingHold'],
+                                                                          data['ratingUnderweight']):
+                title = f"Moderate Buy Recommendation for {rule.watched_stock.stock.name}"
+                description = f"Stock in {rule.watched_stock.stock.name} moderately recommended to buy according to " \
+                              f"analysis"
+                Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
+                                            link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                rule.fired = True
+                rule.save()
+            elif rule.category == "H" and data['ratingHold'] > max(data['ratingBuy'], data['ratingOverweight'],
+                                                                   data['ratingUnderweight'], data['ratingSell']):
+                title = f"Hold Recommendation for {rule.watched_stock.stock.name}"
+                description = f"Stock in {rule.watched_stock.stock.name} recommended to hold according to " \
+                              f"analysis"
+                Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
+                                            link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                rule.fired = True
+                rule.save()
+            elif rule.category == "MS" and data['ratingUnderweight'] > max(data['ratingHold'],
+                                                                           data['ratingOverweight'], data['ratingBuy']):
+                title = f"Moderate Sell Recommendation for {rule.watched_stock.stock.name}"
+                description = f"Stock in {rule.watched_stock.stock.name} moderately recommended to sell according to " \
+                              f"analysis"
+                Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
+                                            link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                rule.fired = True
+                rule.save()
+            elif rule.category == "S" and data['ratingSell'] > max(data['ratingHold'],
+                                                                   data['ratingOverweight'], data['ratingBuy']):
+                title = f"Sell Recommendation for {rule.watched_stock.stock.name}"
+                description = f"Stock in {rule.watched_stock.stock.name} strongly recommended to sell according to " \
+                              f"analysis"
+                Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
+                                            link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                rule.fired = True
+                rule.save()
