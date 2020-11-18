@@ -1,4 +1,3 @@
-from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -93,7 +92,7 @@ class Notification(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
     time = models.DateTimeField(auto_now=True)
-    link = models.URLField(max_length=300, null=True)
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, null=True)
     is_read = models.BooleanField(default=False)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='notifications')
 
