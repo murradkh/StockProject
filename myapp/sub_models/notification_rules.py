@@ -41,7 +41,7 @@ class PriceThresholdRule(models.Model):
     watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE, related_name='price_threshold_rules')
     when = models.CharField(max_length=20, choices=[('B', 'Below threshold'), ('A', 'Above threshold'),
                                                     ('O', 'On threshold')], default='A')
-    price_threshold = models.FloatField(default=0, validators=[MaxValueValidator(100), MinValueValidator(-100)])
+    price_threshold = models.FloatField(default=0)
     fired = models.BooleanField(default=False)
 
     def __str__(self):
@@ -60,6 +60,8 @@ class RecommendationAnalystRule(models.Model):
     category = models.CharField(max_length=20, choices=[('B', 'Buy'), ('MB', 'Moderate Buy'),
                                                         ('H', 'Hold'), ("MS", "Moderate Sell"), ("S", "Sell")],
                                 default='B')
+    threshold_recommenders_percentage = models.FloatField(default=0, validators=[MaxValueValidator(100),
+                                                                                 MinValueValidator(1)])
     fired = models.BooleanField(default=False)
 
     def __str__(self):
@@ -68,4 +70,3 @@ class RecommendationAnalystRule(models.Model):
     @classmethod
     def get_rules(cls) -> QuerySet:
         return RecommendationAnalystRule.objects.all()
-
