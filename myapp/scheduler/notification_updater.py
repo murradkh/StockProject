@@ -45,7 +45,8 @@ def change_status_rule():
                                   f" in the past {num_of_days} days for {rule.watched_stock.stock.name}"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title,
                                                 description=description,
-                                                link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                                stock=rule.watched_stock.stock)
+
                     rule.fired = True
                     rule.save()
 
@@ -57,12 +58,12 @@ def change_threshold_rule():
             data = stock_api.get_stock_info(symbol=rule.watched_stock.stock.symbol, filter=("changePercent",))
             if "changePercent" in data:
                 if rule.when == "B" and rule.percentage_threshold > data['changePercent']:
-                    title = f"Blow Threshold value Reached for {rule.watched_stock.stock.name}"
+                    title = f"Blow Threshold value Reached for {rule.watched_stock.stock}"
                     description = f"the change value percentage " \
                                   f"{round(data['changePercent'])}% reached below the threshold" \
                                   f" {rule.percentage_threshold}%"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                                link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                                stock=rule.watched_stock.stock)
                     rule.fired = True
                     rule.save()
                 elif rule.when == 'A' and rule.percentage_threshold < data['changePercent']:
@@ -71,7 +72,7 @@ def change_threshold_rule():
                                   f"{round(data['changePercent'])}% reached above the threshold" \
                                   f" {rule.percentage_threshold}%"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                                link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                                stock=rule.watched_stock.stock)
                     rule.fired = True
                     rule.save()
                 elif rule.when == 'O' and rule.percentage_threshold == data['changePercent']:
@@ -79,7 +80,7 @@ def change_threshold_rule():
                     description = f"the change value percentage reached the threshold" \
                                   f" {round(rule.percentage_threshold)}%"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                                link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                                stock=rule.watched_stock.stock)
                     rule.fired = True
                     rule.save()
 
@@ -95,7 +96,7 @@ def price_threshold_rule():
                     description = f"the price value {data['latestPrice']} reached below the threshold" \
                                   f" {rule.price_threshold}"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                                link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                                stock=rule.watched_stock.stock)
                     rule.fired = True
                     rule.save()
                 elif rule.when == 'A' and rule.price_threshold < data['latestPrice']:
@@ -103,7 +104,7 @@ def price_threshold_rule():
                     description = f"the price value {data['latestPrice']} reached above the threshold" \
                                   f" {rule.price_threshold}"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                                link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                                stock=rule.watched_stock.stock)
                     rule.fired = True
                     rule.save()
                 elif rule.when == 'O' and rule.price_threshold == data['latestPrice']:
@@ -111,7 +112,7 @@ def price_threshold_rule():
                     description = f"the price value reached the threshold" \
                                   f" {rule.price_threshold}"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                                link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                                stock=rule.watched_stock.stock)
                     rule.fired = True
                     rule.save()
 
@@ -129,7 +130,7 @@ def recommendation_analyst_rule():
                 description = f"Stock in {rule.watched_stock.stock.name} strongly recommended to buy by " \
                               f"{round((data['ratingBuy'] / recommenders_num) * 100)}% of recommenders"
                 Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                            link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                            stock=rule.watched_stock.stock)
                 rule.fired = True
                 rule.save()
             elif rule.category == "MB" and (
@@ -138,7 +139,7 @@ def recommendation_analyst_rule():
                 description = f"Stock in {rule.watched_stock.stock.name} moderately recommended to buy by " \
                               f"{round((data['ratingOverweight'] / recommenders_num) * 100)}% of recommenders"
                 Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                            link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                            stock=rule.watched_stock.stock)
                 rule.fired = True
                 rule.save()
             elif rule.category == "H" and (
@@ -147,7 +148,7 @@ def recommendation_analyst_rule():
                 description = f"Stock in {rule.watched_stock.stock.name} recommended to hold by " \
                               f"{round((data['ratingHold'] / recommenders_num) * 100)}% of recommenders"
                 Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                            link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                            stock=rule.watched_stock.stock)
                 rule.fired = True
                 rule.save()
             elif rule.category == "MS" and (
@@ -156,7 +157,7 @@ def recommendation_analyst_rule():
                 description = f"Stock in {rule.watched_stock.stock.name} moderately recommended to sell by " \
                               f"{round((data['ratingUnderweight'] / recommenders_num) * 100)}% of recommenders"
                 Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                            link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                            stock=rule.watched_stock.stock)
                 rule.fired = True
                 rule.save()
             elif rule.category == "S" and (
@@ -165,6 +166,6 @@ def recommendation_analyst_rule():
                 description = f"Stock in {rule.watched_stock.stock.name} strongly recommended to sell by " \
                               f"{(round(data['ratingSell'] / recommenders_num) * 100)}% of recommenders"
                 Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                            link=reverse("single_stock", args=(rule.watched_stock.stock.symbol,)))
+                                            stock=rule.watched_stock.stock)
                 rule.fired = True
                 rule.save()
