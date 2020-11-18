@@ -1,7 +1,8 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from .notification_updater import change_status_rule, CHANGE_STATUS_RULE_THREAD_INT, \
-    CHANGE_THRESHOLD_RULE_THREAD_INT, change_threshold_rule, price_threshold_rule, PRICE_THRESHOLD_RULE_THREAD_INT
+    CHANGE_THRESHOLD_RULE_THREAD_INT, change_threshold_rule, price_threshold_rule, recommendation_analyst_rule, \
+    PRICE_THRESHOLD_RULE_THREAD_INT, RECOMMENDATION_ANALYST_RULE_THREAD_INT
 from .stock_api_update import stock_api_update
 from myrails.settings import THREAD_INTERVAL
 
@@ -18,6 +19,8 @@ class scheduler:
                                    max_instances=1)
         self.scheduler_job.add_job(price_threshold_rule, 'interval', minutes=PRICE_THRESHOLD_RULE_THREAD_INT,
                                    max_instances=1)
+        self.scheduler_job.add_job(recommendation_analyst_rule, 'interval',
+                                   minutes=RECOMMENDATION_ANALYST_RULE_THREAD_INT, max_instances=1)
 
     def start(self):
         self.scheduler_job.start()
