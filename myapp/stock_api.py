@@ -109,3 +109,16 @@ def list_stocks_names(search_text, filter=()):
         return []
     except ConnectionError:
         raise StockServerUnReachable("Stock server UnReachable!")
+
+
+def get_analyst_recommendations(symbol):
+    # 'ratingBuy, ratingOverweight, ratingHold, ratingUnderweight, ratingSell, ratingNone, ratingScaleMark'
+    try:
+        return _request_data(f'/stable/stock/{symbol}/recommendation-trends/')[0]
+    except ConnectionError:
+        raise StockServerUnReachable("Stock server UnReachable!")
+    except Exception as e:
+        for arg in e.args:
+            if isinstance(arg, dict) and (b"Unknown symbol" in arg.values() or b"Not found" in arg.values()):
+                raise StockSymbolNotFound("Stock symbol not found!")
+        raise e
