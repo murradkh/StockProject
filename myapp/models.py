@@ -20,6 +20,9 @@ class Stock(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+    def get_path(self):
+        return reverse('single_stock', kwargs={ 'symbol': self.symbol})
+
     @classmethod
     def add_to_watchlist(cls, profile, stock_symbol):
         stock = cls.objects.get(symbol=stock_symbol)
@@ -78,7 +81,7 @@ class Profile(models.Model):
                                     'title': notification.title,
                                     'description': notification.description,
                                     'time': notification.time,
-                                    'link': notification.link,
+                                    'path': notification.stock.get_path(),
                                     'is_read': notification.is_read}
             i += 1
         return notifications_dict
