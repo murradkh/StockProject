@@ -61,7 +61,6 @@ $("#notificationsDropdown").on("show.bs.dropdown", function getNotifications(){
                     for (var key in responseDict) {
                         if (responseDict.hasOwnProperty(key)) {
                             var link = document.createElement("a");
-                            //link.attr("onclick",  markAsRead(responseDict[key]['pk']));
                             link.href = responseDict[key]['link'];
                             link.style.textDecoration = "none";
 
@@ -72,7 +71,7 @@ $("#notificationsDropdown").on("show.bs.dropdown", function getNotifications(){
                             else {
                                 div.className = "alert alert-primary";
                             }
-                                
+                            
                             div.innerHTML = `<button type="button" class="close" 
                                             onclick="deleteNotifications(${responseDict[key]['pk']})" 
                                             data-dismiss="alert">×</button>`;
@@ -82,7 +81,7 @@ $("#notificationsDropdown").on("show.bs.dropdown", function getNotifications(){
                             var time = document.createElement("small");
                             var timestamp = document.createTextNode(parseDateTime(responseDict[key]['time']));
                             var description = document.createTextNode(responseDict[key]['description']);
-                            
+
                             link.appendChild(div);
                             div.appendChild(header);
                             header.appendChild(title);
@@ -92,6 +91,7 @@ $("#notificationsDropdown").on("show.bs.dropdown", function getNotifications(){
                             div.appendChild(time);
                             time.appendChild(timestamp);
                             nContainer.prepend(link);
+                            div.onclick = function() { markAsRead(responseDict[key]['pk']); };
                         }
                     }
                 }
@@ -99,7 +99,6 @@ $("#notificationsDropdown").on("show.bs.dropdown", function getNotifications(){
         }
     };
     xhr.send();
-    getUnreadCount();
 });
 
 
@@ -126,6 +125,7 @@ function markAsRead(pk=""){
     getUnreadCount();
     getNotifications();
 }
+
 
 function deleteNotifications(pk=""){
     var xhr = new XMLHttpRequest();
