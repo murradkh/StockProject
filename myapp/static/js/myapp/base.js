@@ -61,7 +61,7 @@ $("#notificationsDropdown").on("show.bs.dropdown", function getNotifications(){
                     for (var key in responseDict) {
                         if (responseDict.hasOwnProperty(key)) {
                             var link = document.createElement("a");
-                            link.href = responseDict[key]['link'];
+                            link.href = getAbsoluteURL(responseDict[key]['path']);
                             link.style.textDecoration = "none";
 
                             var div = document.createElement("div");
@@ -91,7 +91,7 @@ $("#notificationsDropdown").on("show.bs.dropdown", function getNotifications(){
                             div.appendChild(time);
                             time.appendChild(timestamp);
                             nContainer.prepend(link);
-                            div.onclick = function() { markAsRead(responseDict[key]['pk']); };
+                            link.onclick = function() {markAsRead(responseDict[key]['pk']);};
                         }
                     }
                 }
@@ -108,7 +108,7 @@ function markAsRead(pk=""){
         var url = myapp.URLS.notificationsAllRead; 
     }
     else {
-        var url = `../../../../notifications/${pk}/nread/`
+        var url = getAbsoluteURL(`/notifications/${pk}/nread/`);
     }
     xhr.open("POST", url, true);
 
@@ -123,19 +123,17 @@ function markAsRead(pk=""){
     xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
     xhr.send();
     getUnreadCount();
-    getNotifications();
 }
-
 
 function deleteNotifications(pk=""){
     var xhr = new XMLHttpRequest();
     if (pk === "") {
-        var url = `../../../../notifications/nremove/`;
+        var url = myapp.URLS.notificationsAllClear;
     }
     else {
-        var url = `../../../../notifications/${pk}/nremove/`;
+        var url = getAbsoluteURL(`/notifications/${pk}/nremove/`);
     }
-    
+
     xhr.open("POST", url, true);
 
     xhr.onreadystatechange = function () {
@@ -149,7 +147,6 @@ function deleteNotifications(pk=""){
     xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
     xhr.send();
     getUnreadCount();
-    getNotifications();
 }
 
 
@@ -157,3 +154,21 @@ function parseDateTime(isoFormat) {
     date = new Date(isoFormat);
     return date.toDateString() + " at " + date.toLocaleTimeString().substr(0, 5);
 }
+
+
+function getAbsoluteURL(path){
+    return window.location.protocol + "//" +window.location.host + path;
+}
+
+
+$('.dropdown').on('show.bs.dropdown', function() {
+    $(this).find('.dropdown-menu').first().stop(true, true).slideDown(100);
+});
+
+
+$('.dropdown').on('hide.bs.dropdown', function() {
+    $(this).find('.dropdown-menu').first().stop(true, true).slideUp(100);
+});
+
+
+window.setInterval(getUnreadCount, 30000);
