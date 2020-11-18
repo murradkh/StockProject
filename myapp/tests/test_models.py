@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
+from django.test import  TestCase
 from myapp.models import Profile, Stock
 
 
@@ -18,7 +18,6 @@ class StockWatchlistTestCase(TestCase):
         self.test_user_2 = User.objects.create_user(username='tester2',
                                                     password='secondpass468')
         
-        self.client = Client()
         self.client.post('/accounts/login/', {'username': 'tester1', 'password': 'randomexample'})
 
     def test_watchlist_add(self):
