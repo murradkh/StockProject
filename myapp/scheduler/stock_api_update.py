@@ -1,4 +1,4 @@
-from myapp.models import Stock, Profile
+from myapp.models import Stock, WatchStock
 from myapp import stock_api
 from django.db import transaction
 from django.db import connection
@@ -29,14 +29,20 @@ def stock_api_update():
 
 def update_existing_stocks():
     # each profile
-    p = Profile.objects.all()#[0].watchlist.all()
-    # for stock in p:
-    #     print(stock.symbol)
-    stocks = set()
-    for w in p:
-        for stock in w.watchlist.all():
-                stocks.add(stock.symbol)
-    print(stocks)
+    # p = Profile.objects.all()#[0].watchlist.all()
+    # # for stock in p:
+    # #     print(stock.symbol)
+    # stocks = set()
+    # for w in p:
+    #     for stock in w.watchlist.all():
+    #             stocks.add(stock.symbol)
+    # print(stocks)
+    s = WatchStock.objects.all()
+
+    for w in s:
+        print(w.stock.symbol,w.stock.last_modified)
+
+
 
     # objs = [
     #     Entry.objects.create(headline='Entry 1'),
