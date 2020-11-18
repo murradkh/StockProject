@@ -57,6 +57,15 @@ class RecommendationAnalystRule(models.Model):
     Buy/Over-Weight/Hold/Under-Weight/Sell"""
     watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE,
                                       related_name='recommendation_analyst_rules')
+    category = models.CharField(max_length=20, choices=[('B', 'Buy'), ('MB', 'Moderate Buy'),
+                                                        ('H', 'Hold'), ("MS", "Moderate Sell"), ("S", "Sell")],
+                                default='B')
+    fired = models.BooleanField(default=False)
 
     def __str__(self):
-        return f''
+        return f'{self.watched_stock.stock.name}'
+
+    @classmethod
+    def get_rules(cls) -> QuerySet:
+        return RecommendationAnalystRule.objects.all()
+
