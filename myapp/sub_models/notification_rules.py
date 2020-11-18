@@ -11,6 +11,9 @@ class ChangeStatusRule(models.Model):
     num_of_days = models.PositiveIntegerField(default=30, validators=[MaxValueValidator(360), MinValueValidator(2)])
     fired = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f'{self.num_of_days} sequential days'
+
     @classmethod
     def get_rules(cls) -> QuerySet:
         return ChangeStatusRule.objects.all()
@@ -25,6 +28,9 @@ class ChangeThresholdRule(models.Model):
         -100)])
     fired = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f'{self.percentage_threshold} percentage threshold'
+
     @classmethod
     def get_rules(cls) -> QuerySet:
         return ChangeThresholdRule.objects.all()
@@ -38,6 +44,9 @@ class PriceThresholdRule(models.Model):
     price_threshold = models.FloatField(default=0, validators=[MaxValueValidator(100), MinValueValidator(-100)])
     fired = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f'{self.price_threshold} price threshold'
+
     @classmethod
     def get_rules(cls) -> QuerySet:
         return PriceThresholdRule.objects.all()
@@ -48,3 +57,6 @@ class RecommendationAnalystRule(models.Model):
     Buy/Over-Weight/Hold/Under-Weight/Sell"""
     watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE,
                                       related_name='recommendation_analyst_rules')
+
+    def __str__(self):
+        return f''

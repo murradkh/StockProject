@@ -37,7 +37,8 @@ def change_status_rule():
                 else:
                     # indicating there is sequential change through <num_of_days> days,
                     # here we need to insert a notification to user in DB
-                    title = f"Sequential {'Positive' if rule.status == 'P' else 'Negative'} Change"
+                    title = f"Sequential {'Positive' if rule.status == 'P' else 'Negative'} Change for" \
+                            f" {rule.watched_stock.stock.name}"
                     description = f"sequential {'Positive' if rule.status == 'P' else 'Negative'} change" \
                                   f" in the past {num_of_days} days for {rule.watched_stock.stock.name}"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title,

@@ -16,6 +16,9 @@ class Stock(models.Model):
     primary_exchange = models.CharField(null=True, max_length=32)
     last_modified = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f'{self.name}'
+
     @classmethod
     def add_to_watchlist(cls, profile, stock_symbol):
         stock = cls.objects.get(symbol=stock_symbol)
@@ -71,6 +74,9 @@ class WatchedStock(models.Model):
     profile = models.ForeignKey("Profile", on_delete=models.CASCADE)
     stock = models.ForeignKey('Stock', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.stock.name}'
+
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -90,3 +96,6 @@ class Notification(models.Model):
     link = models.URLField(max_length=300, null=True)
     is_read = models.BooleanField(default=False)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='notifications')
+
+    def __str__(self):
+        return f'{self.title}'
