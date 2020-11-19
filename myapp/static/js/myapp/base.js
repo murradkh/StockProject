@@ -163,13 +163,13 @@ function parseDateTime(isoFormat) {
 
 
 function getAbsoluteURL(path){
-    return window.location.protocol + "//" +window.location.host + path;
+    return window.location.protocol + "//" + window.location.host + path;
 }
 
 
 const makeSentenceCase = (s) => {
     if (typeof s !== 'string') return ''
-    return s.charAt(0).toUpperCase() + s.slice(1)
+    return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 
