@@ -124,7 +124,7 @@ def recommendation_analyst_rule():
             data = stock_api.get_analyst_recommendations(symbol=rule.watched_stock.stock.symbol)
             recommenders_num = data['ratingBuy'] + data['ratingOverweight'] + data['ratingUnderweight'] + \
                                data['ratingSell'] + data['ratingHold']
-            if rule.category == "B" and (
+            if rule.category in ("B", "MB") and (
                     data['ratingBuy'] / recommenders_num) * 100 > rule.threshold_recommenders_percentage:
                 title = f"Buy Recommendation for {rule.watched_stock.stock.name}"
                 description = f"Stock in {rule.watched_stock.stock.name} strongly recommended to buy by " \
@@ -151,20 +151,20 @@ def recommendation_analyst_rule():
                                             stock=rule.watched_stock.stock)
                 rule.fired = True
                 rule.save()
+            elif rule.category in ("S", "MS") and (
+                    data['ratingSell'] / recommenders_num) * 100 > rule.threshold_recommenders_percentage:
+                title = f"Sell Recommendation for {rule.watched_stock.stock.name}"
+                description = f"Stock in {rule.watched_stock.stock.name} strongly recommended to sell by " \
+                              f"{round((data['ratingSell'] / recommenders_num) * 100)}% of recommenders"
+                Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
+                                            stock=rule.watched_stock.stock)
+                rule.fired = True
+                rule.save()
             elif rule.category == "MS" and (
                     data['ratingUnderweight'] / recommenders_num) * 100 > rule.threshold_recommenders_percentage:
                 title = f"Moderate Sell Recommendation for {rule.watched_stock.stock.name}"
                 description = f"Stock in {rule.watched_stock.stock.name} moderately recommended to sell by " \
                               f"{round((data['ratingUnderweight'] / recommenders_num) * 100)}% of recommenders"
-                Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
-                                            stock=rule.watched_stock.stock)
-                rule.fired = True
-                rule.save()
-            elif rule.category == "S" and (
-                    data['ratingSell'] / recommenders_num) * 100 > rule.threshold_recommenders_percentage:
-                title = f"Sell Recommendation for {rule.watched_stock.stock.name}"
-                description = f"Stock in {rule.watched_stock.stock.name} strongly recommended to sell by " \
-                              f"{(round(data['ratingSell'] / recommenders_num) * 100)}% of recommenders"
                 Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
                                             stock=rule.watched_stock.stock)
                 rule.fired = True

@@ -34,6 +34,9 @@
                 $('#stockstable').replaceWith($('#stockstable',data));
                 document.getElementById("timer").innerHTML =new Date().toLocaleString();
                 $("#timer").fadeTo(100, 0.1).fadeTo(200, 1.0);
+                 $(".clickable-row").click(function() {
+                window.location = $(this).data("href");
+            });
             },
             error: function(data) {
                 console.log("error")

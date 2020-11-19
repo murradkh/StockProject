@@ -60,7 +60,7 @@ class RecommendationAnalystRule(models.Model):
     category = models.CharField(max_length=20, choices=[('B', 'Buy'), ('MB', 'Moderate Buy'),
                                                         ('H', 'Hold'), ("MS", "Moderate Sell"), ("S", "Sell")],
                                 default='B')
-    threshold_recommenders_percentage = models.FloatField(default=0, validators=[MaxValueValidator(100),
+    threshold_recommenders_percentage = models.FloatField(default=1, validators=[MaxValueValidator(100),
                                                                                  MinValueValidator(1)])
     fired = models.BooleanField(default=False)
 
