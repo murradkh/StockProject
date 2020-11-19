@@ -73,7 +73,7 @@ function getNotifications(){
                             }
                             
                             div.innerHTML = `<button type="button" class="close" 
-                                            onclick="deleteNotifications(${responseDict[key]['pk']})" 
+                                            onclick="deleteNotifications(${String(key)})" 
                                             data-dismiss="alert">×</button>`;
                                             
                             var header = document.createElement("strong");
@@ -96,7 +96,7 @@ function getNotifications(){
                             footer.appendChild(time);
 
                             nContainer.appendChild(link);
-                            link.onclick = function() {markAsRead(responseDict[key]['pk']);};
+                            link.onclick = function() {markAsRead(String(key));};
                         }
                     }
                 }
