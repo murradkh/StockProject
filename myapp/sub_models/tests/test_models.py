@@ -58,10 +58,15 @@ class NotificationModelsRulesTestCase(TestCase):
 
     def test_recommendation_analyst_rule(self):
         watched_stock = WatchedStock.objects.get(pk=1)
-        RecommendationAnalystRule(watched_stock=watched_stock, category="B").full_clean()
-        RecommendationAnalystRule(watched_stock=watched_stock, category="MB").full_clean()
+        RecommendationAnalystRule(watched_stock=watched_stock, category="B",
+                                  threshold_recommenders_percentage=1).full_clean()
+        RecommendationAnalystRule(watched_stock=watched_stock, category="MB",
+                                  threshold_recommenders_percentage=100).full_clean()
         RecommendationAnalystRule(watched_stock=watched_stock, category="MS").full_clean()
         RecommendationAnalystRule(watched_stock=watched_stock, category="H").full_clean()
         RecommendationAnalystRule(watched_stock=watched_stock, category="S").full_clean()
         self.assertRaises(ValidationError, RecommendationAnalystRule(watched_stock=watched_stock, category="D",
+                                                                     ).full_clean)
+        self.assertRaises(ValidationError, RecommendationAnalystRule(watched_stock=watched_stock, category="S",
+                                                                     threshold_recommenders_percentage=-1
                                                                      ).full_clean)
