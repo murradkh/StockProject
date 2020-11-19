@@ -37,7 +37,7 @@ function getUnreadCount(){
 }
 
 
-$("#notificationsDropdown").on("show.bs.dropdown", function getNotifications(){
+function getNotifications(){
     var xhr = new XMLHttpRequest();
     var url = myapp.URLS.listNotifications;
     xhr.open("GET", url, true);
@@ -77,20 +77,25 @@ $("#notificationsDropdown").on("show.bs.dropdown", function getNotifications(){
                                             data-dismiss="alert">×</button>`;
                                             
                             var header = document.createElement("strong");
+                            header.className = "text-capitalize";
                             var title = document.createTextNode(responseDict[key]['title']);
-                            var time = document.createElement("small");
-                            var timestamp = document.createTextNode(parseDateTime(responseDict[key]['time']));
-                            var description = document.createTextNode(responseDict[key]['description']);
+
+                            var body = document.createElement("p");
+                            body.style.marginBottom = "0";
+                            var description = document.createTextNode(makeSentenceCase(responseDict[key]['description']));
+
+                            var footer = document.createElement("small");
+                            var time = document.createTextNode(parseDateTime(responseDict[key]['time']));
 
                             link.appendChild(div);
                             div.appendChild(header);
                             header.appendChild(title);
-                            div.appendChild(document.createElement("br"));
-                            div.appendChild(description);
-                            div.appendChild(document.createElement("br"));
-                            div.appendChild(time);
-                            time.appendChild(timestamp);
-                            nContainer.prepend(link);
+                            div.appendChild(body);
+                            body.appendChild(description);
+                            div.appendChild(footer);
+                            footer.appendChild(time);
+
+                            nContainer.appendChild(link);
                             link.onclick = function() {markAsRead(responseDict[key]['pk']);};
                         }
                     }
@@ -99,7 +104,7 @@ $("#notificationsDropdown").on("show.bs.dropdown", function getNotifications(){
         }
     };
     xhr.send();
-});
+}
 
 
 function markAsRead(pk=""){
@@ -124,6 +129,7 @@ function markAsRead(pk=""){
     xhr.send();
     getUnreadCount();
 }
+
 
 function deleteNotifications(pk=""){
     var xhr = new XMLHttpRequest();
@@ -159,6 +165,18 @@ function parseDateTime(isoFormat) {
 function getAbsoluteURL(path){
     return window.location.protocol + "//" +window.location.host + path;
 }
+
+
+const makeSentenceCase = (s) => {
+    if (typeof s !== 'string') return ''
+    return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+
+$("#notificationsDropdown").on("show.bs.dropdown", function() {
+    getNotifications();
+    getUnreadCount();
+});
 
 
 $('.dropdown').on('show.bs.dropdown', function() {
