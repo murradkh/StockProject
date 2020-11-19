@@ -75,15 +75,12 @@ class Profile(models.Model):
     def get_notifications(self):
         notifications_list = Notification.objects.filter(user__pk=self.pk)
         notifications_dict = {}
-        i = 0
         for notification in notifications_list:
-            notifications_dict [i] = {'pk': notification.pk,
-                                    'title': notification.title,
-                                    'description': notification.description,
-                                    'time': notification.time,
-                                    'path': notification.stock.get_path(),
-                                    'is_read': notification.is_read}
-            i += 1
+            notifications_dict [notification.pk] = {'title': notification.title,
+                                                    'description': notification.description,
+                                                    'time': notification.time,
+                                                    'path': notification.stock.get_path(),
+                                                    'is_read': notification.is_read}
         return notifications_dict
 
 
