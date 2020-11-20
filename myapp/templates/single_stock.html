@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="col-md-12 text-left">
+<div class="col-md-12 text-left" >
     <table>
         <tr>
             <td><h2>{{ data.companyName }}<small class="text-muted">({{ data.symbol }}) &emsp14;</small></h2></td>
@@ -25,7 +25,7 @@
     <p class="lead">{{ data.primaryExchange }}</p>
 </div>
 
-<div class="col-md-12 text-left">
+<div class="col-md-12 text-left" id="stock_data">
 	<span class="lead">
 	<big>
 			{{ data.latestPrice }}
@@ -43,7 +43,7 @@
 </div>
 <div class="row">
     <div class="pt-4 col-sm-6 pl-5">
-        <dl class="row text-left">
+        <dl class="row text-left" id ="text">
             <dt class="col-sm-6">Previous Close</dt>
             <dd class="col-sm-6">{{ data.previousClose }}</dd>
 
@@ -140,7 +140,8 @@
 	setOriginSymbol("{{data.symbol}}");
 	getHistoricData();
 	};
-
+//startInterval("{{ Interval }}" ,"{{ request.path }}")
+startInterval(10000 ,"{{ request.path }}")
 </script>
 {% endblock %}
 
