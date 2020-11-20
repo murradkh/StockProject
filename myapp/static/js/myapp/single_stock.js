@@ -5,6 +5,7 @@ var myLineChart;
 var originSymbol;
 var myLineChart;
 
+
 function getHistoricData(time_range='1m' , update=false) {
     recent_time_range_chose = time_range;
     $.get(`/historic/${originSymbol},${recent_symbols_to_compare.toString()}/${time_range}/`, function(data,received,
@@ -183,10 +184,10 @@ function startInterval(time, path){
     }, time)
 
 
-    setInterval(function() {
-     if(recent_time_range_chose == '1d'){
-                getHistoricData("1d",true)
-    }
-    }, time*6)
+//    setInterval(function() {
+//     if(recent_time_range_chose == '1d'){
+//                getHistoricData("1d",true)
+//    }
+//    }, time)
     }
 
