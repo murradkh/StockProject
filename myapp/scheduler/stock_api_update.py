@@ -1,13 +1,18 @@
 from myapp.models import Stock, WatchStock
 from myapp import stock_api
 from django.db import transaction
-import time
-from django.db import connection
+from datetime import datetime
+
+
+def stock_api_update():
+    start = datetime.now(datetime.now().astimezone().tzinfo)
+    top_stock_update()
+    update_existing_stocks()
+    delete_stocks(start)
+
 
 @transaction.atomic
-def stock_api_update():
-    start = time.time()
-    #update_existing_stocks()
+def top_stock_update():
     top_stocks = stock_api.get_top_stocks()
     index = 1
     try:
@@ -27,43 +32,26 @@ def stock_api_update():
             index += 1
     except KeyError as e:
         pass
-    print("time cost --------------------", start-time.time())
 
 
 def update_existing_stocks():
-    # each profile
-    # p = Profile.objects.all()#[0].watchlist.all()
-    # # for stock in p:
-    # #     print(stock.symbol)
-    # stocks = set()
-    # for w in p:
-    #     for stock in w.watchlist.all():
-    #             stocks.add(stock.symbol)
-    # print(stocks)
     s = WatchStock.objects.all().values("stock_id").distinct()
-    obj=[]
-
     for w in s:
+        stock = Stock.objects.all().filter(symbol=w.get('stock_id'))[0]
+        if (datetime.now(stock.last_modified.tzinfo) - stock.last_modified).total_seconds() > 5:
+            data = stock_api.get_stock_info(stock.symbol)
+            Stock.objects.filter(symbol=stock.symbol).update(
+                name=data['companyName'],
+                top_rank=None,
+                price=data['latestPrice'],
+                change=data['change'],
+                change_percent=data['changePercent'],
+                market_cap=data['marketCap'],
+                primary_exchange=data['primaryExchange'],
+                last_modified=datetime.now(stock.last_modified.tzinfo))
 
-        stock = Stock.objects.all().filter(symbol=w.get('stock_id'))
-        #print(stock)
 
+def delete_stocks(time_threshold):
+    stock = Stock.objects.all().filter(last_modified__lt=time_threshold)
+    stock.delete()
 
-
-    # objs = [
-    #     Entry.objects.create(headline='Entry 1'),
-    #     Entry.objects.create(headline='Entry 2'),
-    # ]
-    # objs[0].headline = 'This is entry 1'
-    # objs[1].headline = 'This is entry 2'
-    # Entry.objects.bulk_update(objs, ['headline'])
-
-    # for p in Profile.watchlist.raw('SELECT distinct * FROM myapp_profile_watchlist'):
-    #     print(p)
-    # cursor = connection.cursor()
-    # cursor.execute('''SELECT distinct * FROM myapp_profile_watchlist''')
-    # row = cursor.feachall()
-    # print(row)
-
-# def get_stock_info(symbol):
-# 'symbol,companyName,marketcap,totalCash,primaryExchange,latestPrice,latestSource,change,changePercent'
