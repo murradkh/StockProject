@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.test import Client, TestCase
-from myapp.models import Profile, Stock, WatchedStock, ChangeStatusRule, ChangeThresholdRule, PriceThresholdRule, \
+from django.test import TestCase
+from myapp.models import Stock, WatchedStock, ChangeStatusRule, ChangeThresholdRule, PriceThresholdRule, \
     RecommendationAnalystRule
 
 
@@ -17,10 +17,9 @@ class NotificationModelsRulesTestCase(TestCase):
                                      price=10.0,
                                      change=2.0,
                                      change_percent=20.0)
-        watched_stock = WatchedStock.objects.create(profile=usr.profile, stock=stock)
+        WatchedStock.objects.create(profile=usr.profile, stock=stock)
 
     def test_change_status_rule(self):
-        # assertQuerysetEqual
         watched_stock = WatchedStock.objects.get(pk=1)
         ChangeStatusRule(watched_stock=watched_stock, status='N', num_of_days=4, fired=False).full_clean()
         ChangeStatusRule(watched_stock=watched_stock, status='P', num_of_days=4, fired=False).full_clean()
