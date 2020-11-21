@@ -6,7 +6,7 @@ from django.urls import reverse
 from myrails.settings import THREAD_INTERVAL
 
 from myapp import stock_api
-from myapp.models import Stock, Profile
+from myapp.models import Stock, Profile, Notification
 
 from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm
 from django.http import JsonResponse, HttpResponse
@@ -240,3 +240,37 @@ def list_stocks_names_view(request, search_text):
         response = JsonResponse(context)
         response.status_code = status_code
         return response
+
+
+@login_required(login_url='login')
+def list_notifications_view(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    return JsonResponse(profile.get_notifications())
+
+
+@login_required(login_url='login')
+def notification_unread_count_view(request, pk=""):
+    profile, created = Profile.objects.get_or_create(user=request.user)   
+    return JsonResponse({'unread_count': Notification.objects.filter(is_read=False, user=profile).count()})
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def notification_remove_view(request, pk=""):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if pk:
+        Notification.objects.filter(pk=pk, user=profile).delete()
+    else:
+        Notification.objects.filter(user=profile).delete()
+    return HttpResponse('OK')
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def notifications_mark_read_view(request, pk=""):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if pk:
+        Notification.objects.filter(pk=pk, user=profile).update(is_read=True)
+    else:
+        Notification.objects.filter(user=profile).update(is_read=True)
+    return HttpResponse('OK')

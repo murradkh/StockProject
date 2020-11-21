@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -19,6 +20,9 @@ class Stock(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+    def get_path(self):
+        return reverse('single_stock', kwargs={ 'symbol': self.symbol})
+
     @classmethod
     def add_to_watchlist(cls, profile, stock_symbol):
         stock = cls.objects.get(symbol=stock_symbol)
@@ -33,14 +37,13 @@ class Stock(models.Model):
 
     @classmethod
     def add_to_db(cls, data):
-        stock = cls.objects.create(symbol=data['symbol'],
-                                   name=data['companyName'],
-                                   # top_rank=None,
-                                   price=data['latestPrice'],
-                                   change=data['change'],
-                                   change_percent=data['changePercent'],
-                                   market_cap=data['marketCap'],
-                                   primary_exchange=data['primaryExchange'])
+        cls.objects.create(symbol=data['symbol'], 
+                            name=data['companyName'],
+                            price=data['latestPrice'],
+                            change=data['change'],
+                            change_percent=data['changePercent'],
+                            market_cap=data['marketCap'],
+                            primary_exchange=data['primaryExchange'])
 
 
 class Profile(models.Model):
@@ -69,6 +72,17 @@ class Profile(models.Model):
     def __str__(self):
         return f'{self.user.username}'
 
+    def get_notifications(self):
+        notifications_list = Notification.objects.filter(user__pk=self.pk)
+        notifications_dict = {}
+        for notification in notifications_list:
+            notifications_dict [notification.pk] = {'title': notification.title,
+                                                    'description': notification.description,
+                                                    'time': notification.time,
+                                                    'path': notification.stock.get_path(),
+                                                    'is_read': notification.is_read}
+        return notifications_dict
+
 
 class WatchedStock(models.Model):
     profile = models.ForeignKey("Profile", on_delete=models.CASCADE)
@@ -93,7 +107,7 @@ class Notification(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True, null=True)
     time = models.DateTimeField(auto_now=True)
-    link = models.URLField(max_length=300, null=True)
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, null=True)
     is_read = models.BooleanField(default=False)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='notifications')
 
