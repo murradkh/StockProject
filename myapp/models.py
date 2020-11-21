@@ -71,8 +71,7 @@ class WatchList:
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    # portfolio = models.ManyToManyField(Stock)
+    portfolio = models.OneToOneField("Portfolio", on_delete=models.CASCADE,null=True)
 
     def __init__(self, *args, **kwargs):
         super(Profile, self).__init__(*args, **kwargs)
@@ -80,6 +79,28 @@ class Profile(models.Model):
 
     def __str__(self):
         return f'{self.user.username}'
+
+
+class Portfolio(models.Model):
+    budget = models.IntegerField(default=100)
+
+
+class BuyStock(models.Model):
+    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="bought_stocks")
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    created_on = models.DateTimeField(auto_now_add=True)
+    quantity = models.PositiveIntegerField(default=1)
+    expense_price = models.PositiveIntegerField()
+    budget_left = models.IntegerField()
+
+
+class SellStock(models.Model):
+    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="sold_stocks")
+    bought_stock = models.ForeignKey(BuyStock, on_delete=models.CASCADE, related_name="sold_stock")
+    created_on = models.DateTimeField(auto_now_add=True)
+    quantity = models.PositiveIntegerField(default=1)
+    earning_price = models.PositiveIntegerField()
+    budget_left = models.IntegerField()
 
 
 class WatchStock(models.Model):
