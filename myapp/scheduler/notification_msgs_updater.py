@@ -1,12 +1,6 @@
-from myapp.models import Stock, ChangeStatusRule, Notification, ChangeThresholdRule, PriceThresholdRule, \
+from myapp.models import ChangeStatusRule, Notification, ChangeThresholdRule, PriceThresholdRule, \
     RecommendationAnalystRule
 from myapp import stock_api
-from django.urls import reverse
-
-CHANGE_STATUS_RULE_THREAD_INT = 1  # one minute interval
-CHANGE_THRESHOLD_RULE_THREAD_INT = 1  # one minute interval
-PRICE_THRESHOLD_RULE_THREAD_INT = 1  # one minute interval
-RECOMMENDATION_ANALYST_RULE_THREAD_INT = 1  # one minute interval
 
 
 def change_status_rule():
