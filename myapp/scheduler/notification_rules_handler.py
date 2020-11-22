@@ -86,7 +86,7 @@ def price_threshold_rule():
             data = stock_api.get_stock_info(symbol=rule.watched_stock.stock.symbol, filter=("latestPrice",))
             if "latestPrice" in data:
                 if rule.when == "B" and rule.price_threshold > data['latestPrice']:
-                    title = f"Blow Threshold value Reached for {rule.watched_stock.stock.name}"
+                    title = f"Below Threshold value Reached for {rule.watched_stock.stock.name}"
                     description = f"the price value {data['latestPrice']} reached below the threshold" \
                                   f" {rule.price_threshold}"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
@@ -102,7 +102,7 @@ def price_threshold_rule():
                     rule.fired = True
                     rule.save()
                 elif rule.when == 'O' and rule.price_threshold == data['latestPrice']:
-                    title = f"Threshold value Reached for {rule.watched_stock.stock.name}"
+                    title = f"On Threshold value Reached for {rule.watched_stock.stock.name}"
                     description = f"the price value reached the threshold" \
                                   f" {rule.price_threshold}"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
