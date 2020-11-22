@@ -86,9 +86,9 @@ class Portfolio(models.Model):
 
 
 class BuyStock(models.Model):
-    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="bought_stocks")
     symbol = models.CharField(max_length=12, primary_key=True)
     name = models.CharField(max_length=64)
+    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="bought_stocks")
     created_on = models.DateTimeField(auto_now_add=True)
     quantity = models.PositiveIntegerField(default=1)
     expense_price = models.PositiveIntegerField()
