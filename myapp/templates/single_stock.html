@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% include "subtemplate/buy_model.html" %}
 <div class="col-md-12 text-left" >
     <table>
         <tr>
@@ -15,6 +16,8 @@
                         class='fa fa-eye'></i> Add to watchlist
                 </button>
                 {% endif %}
+                <button id ="buyBtn" onclick=""  class="btn btn-outline-success" data-toggle="modal" data-target="#buyModel">
+                    <i class="fa fa-money" aria-hidden="true"></i> Buy </button>
             </td>
             {% endif %}
         </tr>
@@ -139,6 +142,9 @@
 	window.onload = function(){
 	setOriginSymbol("{{data.symbol}}");
 	getHistoricData();
+
+
+
 	};
 //startInterval("{{ Interval }}" ,"{{ request.path }}")
 startInterval(10000 ,"{{ request.path }}")
