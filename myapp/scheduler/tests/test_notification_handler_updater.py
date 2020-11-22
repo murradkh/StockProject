@@ -1,13 +1,9 @@
-import time
-
 from django.test import TestCase
 
-from myapp.models import Stock, WatchedStock, User, ChangeStatusRule, Notification, ChangeThresholdRule, \
-    PriceThresholdRule
+from myapp.models import Stock, WatchedStock, User
 from unittest import mock
 
-from myapp.scheduler import scheduler
-from myapp.scheduler.notification_rules_handler import change_status_rule, change_threshold_rule, price_threshold_rule
+from myapp.scheduler.notification_rules_handler import *
 
 
 class NotificationMsgsUpdaterTestCase(TestCase):
@@ -34,9 +30,23 @@ class NotificationMsgsUpdaterTestCase(TestCase):
                                        price=10.0,
                                        change=2.0,
                                        change_percent=20.0)
+        stock_4 = Stock.objects.create(symbol="AYRO",
+                                       name='Electrameccanica Vehicles Corp',
+                                       top_rank=1,
+                                       price=10.0,
+                                       change=2.0,
+                                       change_percent=20.0)
+        stock_5 = Stock.objects.create(symbol="IDEX",
+                                       name='Electrameccanica Vehicles Corp',
+                                       top_rank=1,
+                                       price=10.0,
+                                       change=2.0,
+                                       change_percent=20.0)
         WatchedStock.objects.create(profile=usr.profile, stock=stock_1)
         WatchedStock.objects.create(profile=usr.profile, stock=stock_2)
         WatchedStock.objects.create(profile=usr.profile, stock=stock_3)
+        WatchedStock.objects.create(profile=usr.profile, stock=stock_4)
+        WatchedStock.objects.create(profile=usr.profile, stock=stock_5)
 
     @mock.patch("myapp.scheduler.notification_rules_handler.stock_api")
     def test_change_status_rule(self, mocked_stock_api):
@@ -166,9 +176,8 @@ class NotificationMsgsUpdaterTestCase(TestCase):
 
     @mock.patch("myapp.scheduler.notification_rules_handler.stock_api")
     def test_price_threshold_rule(self, mocked_stock_api):
-        watched_stock = WatchedStock.objects.get(pk=1)
-
         # Below threshold testing
+        watched_stock = WatchedStock.objects.get(pk=1)
         rule = PriceThresholdRule.objects.create(watched_stock=watched_stock, when='B', price_threshold=20,
                                                  fired=False)
         dump_data = {'latestPrice': 12.638}
@@ -236,3 +245,167 @@ class NotificationMsgsUpdaterTestCase(TestCase):
         mocked_stock_api.get_stock_info.return_value = dump_data
         price_threshold_rule()
         self.assertEqual(len(Notification.objects.filter(pk=4)), 0)
+
+    @mock.patch("myapp.scheduler.notification_rules_handler.stock_api")
+    def test_recommendation_analyst_rule(self, mocked_stock_api):
+        # Buy recommendation testing
+        watched_stock = WatchedStock.objects.get(pk=1)
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='B',
+                                                        threshold_recommenders_percentage=33, fired=False)
+        dump_data = {'ratingBuy': 2, 'ratingOverweight': 1, 'ratingHold': 1, 'ratingUnderweight': 1, 'ratingSell': 1,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        mocked_stock_api.get_analyst_recommendations.assert_called_with(symbol=rule.watched_stock.stock.symbol)
+        n = Notification.objects.get(pk=1)
+        self.assertIsInstance(n, Notification)
+        self.assertTrue("Buy" in n.title)
+        self.assertTrue(str(rule.threshold_recommenders_percentage) in n.description)
+
+        # checking the notification would be called once
+        recommendation_analyst_rule()
+        mocked_stock_api.get_analyst_recommendations.assert_called_once()
+
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='B',
+                                                        threshold_recommenders_percentage=34, fired=False)
+        dump_data = {'ratingBuy': 2, 'ratingOverweight': 1, 'ratingHold': 1, 'ratingUnderweight': 1, 'ratingSell': 1,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        self.assertEqual(len(Notification.objects.filter(pk=2)), 0)
+
+        # Moderate Buy recommendation testing
+        watched_stock = WatchedStock.objects.get(pk=2)
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='MB',
+                                                        threshold_recommenders_percentage=33, fired=False)
+        dump_data = {'ratingBuy': 2, 'ratingOverweight': 1, 'ratingHold': 1, 'ratingUnderweight': 1, 'ratingSell': 1,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        mocked_stock_api.get_analyst_recommendations.assert_called_with(symbol=rule.watched_stock.stock.symbol)
+        n = Notification.objects.get(pk=2)
+        self.assertIsInstance(n, Notification)
+        self.assertTrue("Buy" in n.title)
+        self.assertTrue(str(rule.threshold_recommenders_percentage) in n.description)
+
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='MB',
+                                                        threshold_recommenders_percentage=33, fired=False)
+        dump_data = {'ratingBuy': 1, 'ratingOverweight': 2, 'ratingHold': 1, 'ratingUnderweight': 1, 'ratingSell': 1,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        mocked_stock_api.get_analyst_recommendations.assert_called_with(symbol=rule.watched_stock.stock.symbol)
+        n = Notification.objects.get(pk=3)
+        self.assertIsInstance(n, Notification)
+        self.assertTrue("Moderate Buy" in n.title)
+        self.assertTrue(str(rule.threshold_recommenders_percentage) in n.description)
+
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='MB',
+                                                        threshold_recommenders_percentage=34, fired=False)
+        dump_data = {'ratingBuy': 1, 'ratingOverweight': 2, 'ratingHold': 1, 'ratingUnderweight': 1, 'ratingSell': 1,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        self.assertEqual(len(Notification.objects.filter(pk=4)), 0)
+
+        # Hold recommendation testing
+        watched_stock = WatchedStock.objects.get(pk=3)
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='H',
+                                                        threshold_recommenders_percentage=33, fired=False)
+        dump_data = {'ratingBuy': 1, 'ratingOverweight': 1, 'ratingHold': 2, 'ratingUnderweight': 1, 'ratingSell': 1,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        mocked_stock_api.get_analyst_recommendations.assert_called_with(symbol=rule.watched_stock.stock.symbol)
+        n = Notification.objects.get(pk=4)
+        self.assertIsInstance(n, Notification)
+        self.assertTrue("Hold" in n.title)
+        self.assertTrue(str(rule.threshold_recommenders_percentage) in n.description)
+
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='H',
+                                                        threshold_recommenders_percentage=34, fired=False)
+        dump_data = {'ratingBuy': 1, 'ratingOverweight': 1, 'ratingHold': 2, 'ratingUnderweight': 1, 'ratingSell': 1,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        self.assertEqual(len(Notification.objects.filter(pk=5)), 0)
+
+        # Moderate Sell recommendation testing
+        watched_stock = WatchedStock.objects.get(pk=4)
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='MS',
+                                                        threshold_recommenders_percentage=33, fired=False)
+        dump_data = {'ratingBuy': 1, 'ratingOverweight': 1, 'ratingHold': 1, 'ratingUnderweight': 1, 'ratingSell': 2,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        mocked_stock_api.get_analyst_recommendations.assert_called_with(symbol=rule.watched_stock.stock.symbol)
+        n = Notification.objects.get(pk=5)
+        self.assertIsInstance(n, Notification)
+        self.assertTrue("Sell" in n.title)
+        self.assertTrue(str(rule.threshold_recommenders_percentage) in n.description)
+
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='MS',
+                                                        threshold_recommenders_percentage=33, fired=False)
+        dump_data = {'ratingBuy': 1, 'ratingOverweight': 1, 'ratingHold': 1, 'ratingUnderweight': 2, 'ratingSell': 1,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        mocked_stock_api.get_analyst_recommendations.assert_called_with(symbol=rule.watched_stock.stock.symbol)
+        n = Notification.objects.get(pk=6)
+        self.assertIsInstance(n, Notification)
+        self.assertTrue("Moderate Sell" in n.title)
+        self.assertTrue(str(rule.threshold_recommenders_percentage) in n.description)
+
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='MS',
+                                                        threshold_recommenders_percentage=34, fired=False)
+        dump_data = {'ratingBuy': 1, 'ratingOverweight': 1, 'ratingHold': 1, 'ratingUnderweight': 2, 'ratingSell': 1,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        self.assertEqual(len(Notification.objects.filter(pk=7)), 0)
+
+        # Sell recommendation testing
+        watched_stock = WatchedStock.objects.get(pk=5)
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='S',
+                                                        threshold_recommenders_percentage=33, fired=False)
+        dump_data = {'ratingBuy': 1, 'ratingOverweight': 1, 'ratingHold': 1, 'ratingUnderweight': 1, 'ratingSell': 2,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        mocked_stock_api.get_analyst_recommendations.assert_called_with(symbol=rule.watched_stock.stock.symbol)
+        n = Notification.objects.get(pk=7)
+        self.assertIsInstance(n, Notification)
+        self.assertTrue("Sell" in n.title)
+        self.assertTrue(str(rule.threshold_recommenders_percentage) in n.description)
+
+        rule = RecommendationAnalystRule.objects.create(watched_stock=watched_stock, category='S',
+                                                        threshold_recommenders_percentage=34, fired=False)
+        dump_data = {'ratingBuy': 1, 'ratingOverweight': 1, 'ratingHold': 1, 'ratingUnderweight': 1, 'ratingSell': 2,
+                     'ratingNone': 0, 'ratingScaleMark': 1, 'consensusStartDate': 1648034225850,
+                     'consensusEndDate': None, 'corporateActionsAppliedDate': 1533502145053}
+
+        mocked_stock_api.get_analyst_recommendations.return_value = dump_data
+        recommendation_analyst_rule()
+        self.assertEqual(len(Notification.objects.filter(pk=8)), 0)
