@@ -71,7 +71,7 @@ class WatchList:
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    portfolio = models.OneToOneField("Portfolio", on_delete=models.CASCADE,null=True)
+    portfolio = models.OneToOneField("Portfolio", on_delete=models.CASCADE, null=True, related_name="profile")
 
     def __init__(self, *args, **kwargs):
         super(Profile, self).__init__(*args, **kwargs)
@@ -87,7 +87,8 @@ class Portfolio(models.Model):
 
 class BuyStock(models.Model):
     portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="bought_stocks")
-    stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    symbol = models.CharField(max_length=12, primary_key=True)
+    name = models.CharField(max_length=64)
     created_on = models.DateTimeField(auto_now_add=True)
     quantity = models.PositiveIntegerField(default=1)
     expense_price = models.PositiveIntegerField()
