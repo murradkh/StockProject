@@ -1,6 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from .notification_msgs_updater import change_status_rule, \
+from .notification_rules_handler import change_status_rule, \
     change_threshold_rule, price_threshold_rule, recommendation_analyst_rule
 from .stock_api_update import stock_api_update
 from myrails.settings import THREAD_INTERVAL

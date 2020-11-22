@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Stock, Profile, Notification, WatchedStock
-from .sub_models.notification_rules import ChangeStatusRule, ChangeThresholdRule, PriceThresholdRule, \
+from .sub_models.notification_rules_models import ChangeStatusRule, ChangeThresholdRule, PriceThresholdRule, \
     RecommendationAnalystRule
 
 admin.site.register(Stock)
