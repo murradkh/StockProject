@@ -182,15 +182,15 @@ def watchlist_remove_view(request, symbol):
 
 @require_http_methods(['POST'])
 @login_required(login_url='login')
-def sell_stock_view(request, symbol):
+def sell_stock_view(request, buy_id):
     status_code = 200
     profile = Profile.objects.get(user=request.user)
     try:
         q = request.GET.get("quantity")
         if q is None:
-            profile.portfolio.sell_stock(symbol, 1)
+            profile.portfolio.sell_stock(buy_id, 1)
         else:
-            profile.portfolio.buy_stock(symbol, int(q))
+            profile.portfolio.sell_stock(buy_id, int(q))
         response = HttpResponse('OK')
     except InvalidSellQuantityValue as e:
         status_code = 404

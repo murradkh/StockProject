@@ -103,23 +103,20 @@ class Portfolio(models.Model):
         else:
             raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
 
-    def sell_stock(self, symbol, quantity=1):
-        # bought_stocks = self.bought_stocks.filter(symbol=symbol, sold=False)
-        # if len(bought_stocks) >= quantity > 0:
-        #     for bought_stock in bought_stocks[:quantity]:
-        #         SellStock.objects.create(portfolio=self, bought_stock=bought_stock, quantity=quantity, earning_price=, )
-        # pass
-        # else:
-        #     raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
-        pass
-
-        # stock = Stock.objects.get(symbol=symbol)
-        # amount = quantity * stock.price
-        # SellStock.objects.create(portfolio=self, symbol=symbol, name=stock.name, quantity=quantity,
-        #                          expense_price=amount,
-        #                          budget_left=(self.budget - amount))
-        # self.budget -= amount
-        # self.save()
+    def sell_stock(self, buy_id, quantity=1):
+        bought_stock = self.bought_stocks.get(id=buy_id)
+        if (bought_stock.quantity - bought_stock.sold_quantity) >= quantity > 0:
+            amount = quantity * bought_stock.stock.price
+            SoldStock.objects.create(portfolio=self, bought_stock=bought_stock, quantity=quantity,
+                                     earning_price=amount, budget_left=self.budget + amount,
+                                     gain_price=amount - (
+                                             bought_stock.expense_price / bought_stock.quantity * quantity))
+            bought_stock.sold_quantity += quantity
+            bought_stock.save()
+            self.budget += amount
+            self.save()
+        else:
+            raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
 
 
 class BoughtStock(models.Model):
@@ -129,7 +126,7 @@ class BoughtStock(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     expense_price = models.FloatField()
     budget_left = models.FloatField()
-    sold = models.BooleanField(default=False)
+    sold_quantity = models.PositiveIntegerField(default=0)
 
 
 class SoldStock(models.Model):
@@ -140,7 +137,7 @@ class SoldStock(models.Model):
     earning_price = models.FloatField()  # the price of which the <quantity> stocks sold
     budget_left = models.FloatField()
     gain_price = models.FloatField()  # its the profits gained from selling the stocks, which equals to
-    # <earning-price> - <bought-price>
+    # <earning-price> - <bought_stocks_price>
 
 
 class WatchStock(models.Model):
