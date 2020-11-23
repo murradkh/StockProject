@@ -1,10 +1,18 @@
-from myapp.models import Stock
+from myapp.models import Stock, WatchStock
 from myapp import stock_api
 from django.db import transaction
+from datetime import datetime
+
+
+def stock_api_update():
+    start = datetime.now(datetime.now().astimezone().tzinfo)
+    top_stock_update()
+    update_existing_stocks()
+    delete_stocks(start)
 
 
 @transaction.atomic
-def stock_api_update():
+def top_stock_update():
     top_stocks = stock_api.get_top_stocks()
     index = 1
     try:
@@ -24,3 +32,26 @@ def stock_api_update():
             index += 1
     except KeyError as e:
         pass
+
+
+def update_existing_stocks():
+    s = WatchStock.objects.all().values("stock_id").distinct()
+    for w in s:
+        stock = Stock.objects.all().filter(symbol=w.get('stock_id'))[0]
+        if (datetime.now(stock.last_modified.tzinfo) - stock.last_modified).total_seconds() > 5:
+            data = stock_api.get_stock_info(stock.symbol)
+            Stock.objects.filter(symbol=stock.symbol).update(
+                name=data['companyName'],
+                top_rank=None,
+                price=data['latestPrice'],
+                change=data['change'],
+                change_percent=data['changePercent'],
+                market_cap=data['marketCap'],
+                primary_exchange=data['primaryExchange'],
+                last_modified=datetime.now(stock.last_modified.tzinfo))
+
+
+def delete_stocks(time_threshold):
+    stock = Stock.objects.all().filter(last_modified__lt=time_threshold)
+    stock.delete()
+
