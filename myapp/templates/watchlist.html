@@ -33,7 +33,14 @@
                     {{ stock.change_percent|floatformat:2 }}%
                     </td>
                     <td onclick="event.cancelBubble=true; return false;">
-                        <button onclick="watchlistRemove('{{stock.symbol}}','{{forloop.counter}}')" class="btn btn-outline-danger" style="padding: 0px 6px;"><i class='fa fa-eye-slash'></i></button>
+                        <button onclick="watchlistRemove('{{stock.symbol}}','{{forloop.counter}}')" 
+                        class="btn btn-outline-danger" style="padding: 0px 6px;">
+                            <i class='fa fa-eye-slash'></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" style="padding: 0px 8px;"
+                        onclick="getStockRules('{{forloop.counter}}', '{{stock.symbol}}')">
+                            <i class='fa fa-cog'></i>
+                        </button>
                     </td>
                 </tr>
             {% endfor %}
@@ -42,6 +49,9 @@
         Your watchlist is currently empty 
     {% endif %}
 </div>
+{% for stock in profile.watchlist.all %}
+    {% include "subtemplate/list_rules.html" with counter=forloop.counter stockname=stock.name stocksymbol=stock.symbol %}
+{% endfor %}
 {% endblock %}
 {% load static %}
 {% block scripts %}
