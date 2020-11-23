@@ -90,9 +90,9 @@ class Portfolio(models.Model):
         if quantity > 0:
             stock = Stock.objects.get(symbol=symbol)
             amount = quantity * stock.price
-            BuyStock.objects.create(portfolio=self, symbol=symbol, name=stock.name, quantity=quantity,
-                                    expense_price=amount,
-                                    budget_left=(self.budget - amount))
+            BoughtStock.objects.create(portfolio=self, symbol=symbol, name=stock.name, quantity=quantity,
+                                       expense_price=amount,
+                                       budget_left=(self.budget - amount))
             self.budget -= amount
             self.save()
         else:
@@ -115,7 +115,7 @@ class Portfolio(models.Model):
         # self.save()
 
 
-class BuyStock(models.Model):
+class BoughtStock(models.Model):
     symbol = models.CharField(max_length=12)
     name = models.CharField(max_length=64)
     portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="bought_stocks")
@@ -126,9 +126,9 @@ class BuyStock(models.Model):
     sold = models.BooleanField(default=False)
 
 
-class SellStock(models.Model):
+class SoldStock(models.Model):
     portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="sold_stocks")
-    bought_stock = models.ForeignKey(BuyStock, on_delete=models.CASCADE, related_name="sold_stock")
+    bought_stock = models.ForeignKey(BoughtStock, on_delete=models.CASCADE, related_name="sold_stock")
     created_on = models.DateTimeField(auto_now_add=True)
     quantity = models.PositiveIntegerField(default=1)
     earning_price = models.FloatField()  # the price of which the <quantity> stocks sold
