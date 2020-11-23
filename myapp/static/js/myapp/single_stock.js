@@ -87,6 +87,7 @@ function getRandomRgba() {
 
     function watchlistEdit() {
         var editButton = document.getElementById("editbutton");
+        var rulesButton = document.getElementById("rulesbutton");
 
         if (editButton.innerHTML.includes("Add to watchlist")) {
             var operation = "wadd";
@@ -106,10 +107,12 @@ function getRandomRgba() {
                     if (operation == "wadd") {
                         editButton.innerHTML = "<i class='fa fa-eye-slash'></i> Remove from watchlist";
                         editButton.className = "btn btn-outline-danger";
+                        rulesButton.className = "btn btn-outline-secondary visible";
                     }
                     else {
                         editButton.innerHTML = "<i class='fa fa-eye'></i> Add to watchlist";
                         editButton.className = "btn btn-outline-primary";
+                        rulesButton.className = "btn btn-outline-secondary invisible";
                     }
                 }
             }
