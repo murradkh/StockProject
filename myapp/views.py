@@ -190,15 +190,20 @@ def sell_stock_view(request, symbol):
         if q is None:
             profile.portfolio.sell_stock(symbol, 1)
         else:
-            profile.portfolio.sell_stock(symbol, int(q))
+            profile.portfolio.buy_stock(symbol, int(q))
         response = HttpResponse('OK')
     except InvalidSellQuantityValue as e:
         status_code = 404
         response = HttpResponse(e.message)
-    except Stock.DoesNotExist:
+    except StockSymbolNotFound as e:
         status_code = 404
-        response = HttpResponse('Symbol Not in DB')
-
+        response = HttpResponse('Symbol Not Found')
+    except StockServerUnReachable as e:
+        status_code = 503
+        response = HttpResponse('Service Unavailable')
+    except Exception as e:
+        status_code = 520
+        response = HttpResponse('Unknown Error')
     response.status_code = status_code
     return response
 
@@ -218,9 +223,15 @@ def buy_stock_view(request, symbol):
     except InvalidSellQuantityValue as e:
         status_code = 404
         response = HttpResponse(e.message)
-    except Stock.DoesNotExist:
+    except StockSymbolNotFound as e:
         status_code = 404
-        response = HttpResponse('Symbol Not in DB')
+        response = HttpResponse('Symbol Not Found')
+    except StockServerUnReachable as e:
+        status_code = 503
+        response = HttpResponse('Service Unavailable')
+    except Exception as e:
+        status_code = 520
+        response = HttpResponse('Unknown Error')
     response.status_code = status_code
     return response
 

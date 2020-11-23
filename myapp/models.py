@@ -41,6 +41,7 @@ class Stock(models.Model):
                                    change_percent=data['changePercent'],
                                    market_cap=data['marketCap'],
                                    primary_exchange=data['primaryExchange'])
+        return stock
 
     @classmethod
     def is_needed(cls, stock_symbol):
@@ -88,9 +89,13 @@ class Portfolio(models.Model):
 
     def buy_stock(self, symbol, quantity=1):
         if quantity > 0:
-            stock = Stock.objects.get(symbol=symbol)
+            try:
+                stock = Stock.objects.get(symbol=symbol)
+            except Stock.DoesNotExist:
+                data = stock_api.get_stock_info(symbol)
+                stock = Stock.add_to_db(data)
             amount = quantity * stock.price
-            BoughtStock.objects.create(portfolio=self, symbol=symbol, name=stock.name, quantity=quantity,
+            BoughtStock.objects.create(portfolio=self, stock=stock, quantity=quantity,
                                        expense_price=amount,
                                        budget_left=(self.budget - amount))
             self.budget -= amount
@@ -99,13 +104,15 @@ class Portfolio(models.Model):
             raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
 
     def sell_stock(self, symbol, quantity=1):
-        bought_stocks = self.bought_stocks.filter(symbol=symbol, sold=False)
-        if len(bought_stocks) >= quantity > 0:
-            for bought_stock in bought_stocks[:quantity]:
-                # SellStock.objects.create(portfolio=self, bought_stock=bought_stock, quantity=quantity, earning_price=, )
-                pass
-        else:
-            raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
+        # bought_stocks = self.bought_stocks.filter(symbol=symbol, sold=False)
+        # if len(bought_stocks) >= quantity > 0:
+        #     for bought_stock in bought_stocks[:quantity]:
+        #         SellStock.objects.create(portfolio=self, bought_stock=bought_stock, quantity=quantity, earning_price=, )
+        # pass
+        # else:
+        #     raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
+        pass
+
         # stock = Stock.objects.get(symbol=symbol)
         # amount = quantity * stock.price
         # SellStock.objects.create(portfolio=self, symbol=symbol, name=stock.name, quantity=quantity,
@@ -116,8 +123,7 @@ class Portfolio(models.Model):
 
 
 class BoughtStock(models.Model):
-    symbol = models.CharField(max_length=12)
-    name = models.CharField(max_length=64)
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
     portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="bought_stocks")
     created_on = models.DateTimeField(auto_now_add=True)
     quantity = models.PositiveIntegerField(default=1)
