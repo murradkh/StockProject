@@ -23,4 +23,8 @@ urlpatterns = [
     path('notifications/<int:pk>/nread/', views.notifications_mark_read_view, name='single_notification_read'),
     path('notifications/nremove/', views.notification_remove_view, name='clear_notifications'),
     path('notifications/<int:pk>/nremove/', views.notification_remove_view, name='single_notification_remove'),
+    path('rules/<str:symbol>/', views.rules_list_view, name='stock_rules_list'),
+    path('rules/add/<str:rule_type>/<str:symbol>/', views.add_rule_view, name='add_notification_rule'),
+    path('rules/edit/<str:rule_type>/<int:pk>/', views.edit_rule_view, name='edit_notification_rule'),
+    path('rules/delete/<str:rule_type>/<int:pk>/', views.delete_rule_view, name='delete_notification_rule'),
 ]
