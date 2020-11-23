@@ -79,6 +79,7 @@ class Profile(models.Model):
     def __init__(self, *args, **kwargs):
         super(Profile, self).__init__(*args, **kwargs)
         self.watchlist = WatchList(self)
+        self.portfolio = Portfolio(self)
 
     def __str__(self):
         return f'{self.user.username}'

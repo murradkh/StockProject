@@ -10,11 +10,12 @@
         </button>
       </div>
       <div class="modal-body" style="margin: 20px;">
-    <form>
+    <form onsubmit="return validateForm()" name ='buyForm'>
       <div class="form-group row">
         <label for="staticBudget" class="col-sm-2 col-form-label">Budget</label>
         <div class="col-sm-10">
-            <input type="text" readonly class="form-control-plaintext" id="staticBudget" value={{ data.latestPrice }}>
+            <input type="text" readonly class="form-control-plaintext" id="staticBudget" value={{ budget }}>
+
         </div>
       </div>
       <div class="form-group row">
@@ -27,13 +28,15 @@
       <div class ="form-group row">
           <label  class="col-sm-2 col-form-label ">Quantity </label>
           <div class="col-sm-10 ">
-               <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="5">
+               <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="100" value ="1"
+                      onChange="multiply()">
           </div>
       </div>
       <div class="form-group row">
-        <label for="staticTotal" class="col-sm-2 col-form-label">Price</label>
+        <label for="staticTotal" class="col-sm-2 col-form-label">Total</label>
         <div class="col-sm-10">
-            <input type="text" readonly class="form-control-plaintext" id="staticTotal" value={{ data.latestPrice }}>
+            <input type="text" readonly class="form-control-plaintext" id="staticTotal" value={{ data.latestPrice }}
+                   name="Total">
         </div>
       </div>
 
@@ -42,7 +45,7 @@
 
 
 
-         <div class="modal-footer">
+         <div class="modal-footer form-group row">
           <button type="submit" class="btn btn-primary">Submit</button>
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
              </div>

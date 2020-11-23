@@ -190,4 +190,28 @@ function startInterval(time, path){
 //    }
 //    }, time)
     }
+function multiply()
+{
+    // Get the input values
+    a = Number(document.getElementById('quantity').value);
+    b = Number(document.getElementById('staticPrice').value);
+
+    // Do the multiplication
+    c = a*b;
+
+
+    document.getElementById('staticTotal').value=Math.round(c * 100) / 100;
+}
+function  validateForm()
+{
+  var total = Number(document.forms["buyForm"]["Total"].value);
+  var budget = Number(document.getElementById('staticBudget').value);
+  if (total > budget ) {
+    alert("this process is above budget ");
+    return false;
+
+
+
+}
+}
 

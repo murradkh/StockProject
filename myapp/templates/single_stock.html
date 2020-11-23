@@ -4,6 +4,7 @@
 {% include "subtemplate/buy_model.html" %}
 <div class="col-md-12 text-left" >
     <table>
+
         <tr>
             <td><h2>{{ data.companyName }}<small class="text-muted">({{ data.symbol }}) &emsp14;</small></h2></td>
             {% if profile %}
@@ -142,18 +143,12 @@
 	window.onload = function(){
 	setOriginSymbol("{{data.symbol}}");
 	getHistoricData();
+	$("#quantity").trigger(function(){
+        $('#desti').click(function(){ multiply();});
 
-	 $('.count').prop('disabled', true);
-   	$(document).on('click','.plus',function(){
-	    $('.count').val(parseInt($('.count').val()) + 1 );
-	    console.log($('#input_qty').val());
     });
-    $(document).on('click','.minus',function(){
-        $('.count').val(parseInt($('.count').val()) - 1 );
-    	    if ($('.count').val() == 0) {
-				$('.count').val(1);
-			}
-    });
+
+
 
 	};
 //startInterval("{{ Interval }}" ,"{{ request.path }}")
