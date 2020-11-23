@@ -1,4 +1,4 @@
-from myapp.models import Stock, WatchStock
+from myapp.models import Stock, WatchStock, BoughtStock
 from myapp import stock_api
 from django.db import transaction
 from datetime import datetime
@@ -8,6 +8,7 @@ def stock_api_update():
     start = datetime.now(datetime.now().astimezone().tzinfo)
     top_stock_update()
     update_existing_stocks()
+    update_bought_stocks()
     delete_stocks(start)
 
 
@@ -51,7 +52,23 @@ def update_existing_stocks():
                 last_modified=datetime.now(stock.last_modified.tzinfo))
 
 
+def update_bought_stocks():
+    bought_stocks = BoughtStock.objects.all()
+    for bought_stock in bought_stocks:
+        if (datetime.now(bought_stock.stock.last_modified.tzinfo) - bought_stock.stock.last_modified).total_seconds() \
+                > 5:
+            data = stock_api.get_stock_info(bought_stock.stock.symbol)
+            Stock.objects.filter(symbol=bought_stock.stock.symbol).update(
+                name=data['companyName'],
+                top_rank=None,
+                price=data['latestPrice'],
+                change=data['change'],
+                change_percent=data['changePercent'],
+                market_cap=data['marketCap'],
+                primary_exchange=data['primaryExchange'],
+                last_modified=datetime.now(bought_stock.stock.last_modified.tzinfo))
+
+
 def delete_stocks(time_threshold):
     stock = Stock.objects.all().filter(last_modified__lt=time_threshold)
     stock.delete()
-
