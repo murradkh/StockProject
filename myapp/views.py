@@ -206,7 +206,6 @@ def sell_stock_view(request, symbol):
 @require_http_methods(['POST'])
 @login_required(login_url='login')
 def buy_stock_view(request, symbol):
-    # TODO: to create the stock if it's not in DB
     status_code = 200
     profile = Profile.objects.get(user=request.user)
     try:
