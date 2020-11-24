@@ -17,7 +17,8 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 
-from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange
+from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange, \
+    InvalidSellQuantityValue
 from django.db.models import Q
 
 STOCKS_PER_PAGE = 10
@@ -72,7 +73,7 @@ def index(request):
             "stocks_per_page_query": urlencode(stocks_per_page_query),
             'page_title': 'Main',
             'profile': profile,
-            'Interval': (THREAD_INTERVAL*1000)
+            'Interval': (THREAD_INTERVAL * 1000)
         }
 
         return render(request, 'index.html', context)
@@ -131,7 +132,8 @@ def profile_view(request):
 def watchlist_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
 
-    return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile ,'Interval': (THREAD_INTERVAL * 1000)})
+    return render(request, 'watchlist.html', {'page_title': 'My watchlist', 'profile': profile, 'Interval': (
+            THREAD_INTERVAL * 1000)})
 
 
 @require_http_methods(['POST'])
@@ -174,6 +176,62 @@ def watchlist_remove_view(request, symbol):
     else:
         status_code = 404
         response = HttpResponse('Symbol Not in DB')
+    response.status_code = status_code
+    return response
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def sell_stock_view(request, buy_id):
+    status_code = 200
+    profile = Profile.objects.get(user=request.user)
+    try:
+        q = request.GET.get("quantity")
+        if q is None:
+            profile.portfolio.sell_stock(buy_id, 1)
+        else:
+            profile.portfolio.sell_stock(buy_id, int(q))
+        response = HttpResponse('OK')
+    except InvalidSellQuantityValue as e:
+        status_code = 404
+        response = HttpResponse(e.message)
+    except StockSymbolNotFound as e:
+        status_code = 404
+        response = HttpResponse('Symbol Not Found')
+    except StockServerUnReachable as e:
+        status_code = 503
+        response = HttpResponse('Service Unavailable')
+    except Exception as e:
+        status_code = 520
+        response = HttpResponse('Unknown Error')
+    response.status_code = status_code
+    return response
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def buy_stock_view(request, symbol):
+    status_code = 200
+    profile = Profile.objects.get(user=request.user)
+    try:
+        q = request.GET.get("quantity")
+        if q is None:
+            profile.portfolio.buy_stock(symbol, 1)
+        else:
+            profile.portfolio.buy_stock(symbol, int(q))
+        response = HttpResponse('OK')
+    except InvalidSellQuantityValue as e:
+        status_code = 404
+        response = HttpResponse(e.message)
+    except StockSymbolNotFound as e:
+        status_code = 404
+        response = HttpResponse('Symbol Not Found')
+    except StockServerUnReachable as e:
+        status_code = 503
+        response = HttpResponse('Service Unavailable')
+    except Exception as e:
+        status_code = 520
+        response = HttpResponse('Unknown Error')
     response.status_code = status_code
     return response
 
