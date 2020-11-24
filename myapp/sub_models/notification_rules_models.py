@@ -18,14 +18,27 @@ class ChangeStatusRule(models.Model):
     def get_rules(cls) -> QuerySet:
         return ChangeStatusRule.objects.all()
 
+    @classmethod
+    def get_rules_dict(cls, profile, symbol):
+        watched_stock = profile.watchedstock_set.filter(stock__symbol=symbol)[:1]
+        rules_dict = {}
+        if watched_stock.exists():
+            ruleset = cls.objects.filter(watched_stock=watched_stock[0])
+            for rule in ruleset:
+                rules_dict[rule.pk] = {'status': rule.get_status_display(),
+                                       'number of days': rule.num_of_days} 
+        return rules_dict
+
+
 
 class ChangeThresholdRule(models.Model):
     """ change value rule is about notifying when the change of stock reaching a specific change value percentage """
     watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE, related_name='change_threshold_rules')
     when = models.CharField(max_length=20, choices=[('B', 'Below threshold'), ('A', 'Above threshold'),
                                                     ('O', 'On threshold')], default='A')
-    percentage_threshold = models.FloatField(default=0, validators=[MaxValueValidator(100), MinValueValidator(
-        -100)])
+
+    percentage_threshold = models.FloatField(default=0, validators=[MaxValueValidator(100), MinValueValidator(-100)])
+
     fired = models.BooleanField(default=False)
 
     def __str__(self):
@@ -34,6 +47,17 @@ class ChangeThresholdRule(models.Model):
     @classmethod
     def get_rules(cls) -> QuerySet:
         return ChangeThresholdRule.objects.all()
+
+    @classmethod
+    def get_rules_dict(cls, profile, symbol):
+        watched_stock = profile.watchedstock_set.filter(stock__symbol=symbol)[:1]
+        rules_dict = {}
+        if watched_stock.exists():
+            ruleset = cls.objects.filter(watched_stock=watched_stock[0])
+            for rule in ruleset:
+                rules_dict[rule.pk] = {'when': rule.get_when_display(),
+                                       'percentage threshold': rule.percentage_threshold} 
+        return rules_dict
 
 
 class PriceThresholdRule(models.Model):
@@ -50,6 +74,17 @@ class PriceThresholdRule(models.Model):
     @classmethod
     def get_rules(cls) -> QuerySet:
         return PriceThresholdRule.objects.all()
+
+    @classmethod
+    def get_rules_dict(cls, profile, symbol):
+        watched_stock = profile.watchedstock_set.filter(stock__symbol=symbol)[:1]
+        rules_dict = {}
+        if watched_stock.exists():
+            ruleset = cls.objects.filter(watched_stock=watched_stock[0])
+            for rule in ruleset:
+                rules_dict[rule.pk] = {'when': rule.get_when_display(), 
+                                       'price threshold': rule.price_threshold} 
+        return rules_dict
 
 
 class RecommendationAnalystRule(models.Model):
@@ -70,3 +105,15 @@ class RecommendationAnalystRule(models.Model):
     @classmethod
     def get_rules(cls) -> QuerySet:
         return RecommendationAnalystRule.objects.all()
+
+    @classmethod
+    def get_rules_dict(cls, profile, symbol):
+        watched_stock = profile.watchedstock_set.filter(stock__symbol=symbol)[:1]
+        rules_dict = {}
+        if watched_stock.exists():
+            ruleset = cls.objects.filter(watched_stock=watched_stock[0])
+            for rule in ruleset:
+                rules_dict[rule.pk] = {'category': rule.get_category_display(),
+                                       'threshold recommenders percentage': rule.threshold_recommenders_percentage} 
+        return rules_dict
+
