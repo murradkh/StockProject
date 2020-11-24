@@ -185,7 +185,7 @@ $('#notificationsDropdown').on('show.bs.dropdown', function() {
 
 
 $('#notificationsDropdown').on('hide.bs.dropdown', function() {
-    setTimeout(function(){console.log("waiting for count");}, 2000);
+    setTimeout(function(){console.log("waiting for count");}, 5000);
     getUnreadCount();
 });
 
