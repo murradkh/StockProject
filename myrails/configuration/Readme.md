@@ -46,3 +46,6 @@ If there are errors after this step:
 * Make sure the new environmental variable has been correctly set
 
 Otherwise, the Django server should now be running using a local MySQL db server.
+
+## STEP 5 - Deploy on Production Server
+The production server settings are based of the contents of `prod.encrypted` file. The file was encrypted using asymmetrical 3072 bit RSA encryption, this file must be decrypted using a special private key found on the server machine when deploying code changes on the server. The decryption command has been added to the `deploy.sh` Shell script.
