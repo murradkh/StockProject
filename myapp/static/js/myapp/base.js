@@ -15,6 +15,13 @@ function getCookie(cname) {
 }
 
 
+$(document).ready(function(){
+    $('.clickable-row').click(function(){
+        window.location = $(this).data('href');
+    });
+});
+
+
 function getUnreadCount(){
     badge = document.getElementById('badgeCounter');
     badge.innerHTML = "";
@@ -127,7 +134,6 @@ function markAsRead(pk=""){
     };
     xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
     xhr.send();
-    getUnreadCount();
 }
 
 
@@ -152,7 +158,6 @@ function deleteNotifications(pk=""){
     };
     xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
     xhr.send();
-    getUnreadCount();
 }
 
 
@@ -173,8 +178,14 @@ const makeSentenceCase = (s) => {
 }
 
 
-$("#notificationsDropdown").on("show.bs.dropdown", function() {
+$('#notificationsDropdown').on('show.bs.dropdown', function() {
     getNotifications();
+    getUnreadCount();
+});
+
+
+$('#notificationsDropdown').on('hide.bs.dropdown', function() {
+    setTimeout(function(){console.log("waiting for count");}, 1000);
     getUnreadCount();
 });
 
