@@ -130,11 +130,6 @@ var myapp = {
   }
 </script>
 <script type="text/javascript" src="{% static 'js/myapp/base.js' %}">
-    $(document).ready(function(){
-        $('.clickable-row').click(function(){
-            window.location = $(this).data('href');
-        });
-    });
 </script>
 <script>
     $(document).ready(getUnreadCount());

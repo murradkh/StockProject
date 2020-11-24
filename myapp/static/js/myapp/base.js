@@ -14,6 +14,11 @@ function getCookie(cname) {
     return "";
 }
 
+$(document).ready(function(){
+    $('.clickable-row').click(function(){
+        window.location = $(this).data('href');
+    });
+});
 
 function getUnreadCount(){
     badge = document.getElementById('badgeCounter');
