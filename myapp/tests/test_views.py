@@ -20,6 +20,11 @@ class UserLoginTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(template_name='watchlist.html')
 
+    def test_user_auth_portfolio(self):
+        response = self.client.get('/accounts/portfolio/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(template_name='portfolio.html')
+
     def test_login_required_redirect(self):
         self.client.logout()
         response = self.client.get('/accounts/password/')  # Must redirect to login page
