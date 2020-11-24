@@ -192,15 +192,9 @@ function startInterval(time, path){
     }
 function multiply()
 {
-    // Get the input values
-    a = Number(document.getElementById('quantity').value);
-    b = Number(document.getElementById('staticPrice').value);
-
-    // Do the multiplication
-    c = a*b;
-
-
-    document.getElementById('staticTotal').value=Math.round(c * 100) / 100;
+    qty = Number(document.getElementById('quantity').value);
+    price = Number(document.getElementById('staticPrice').value);
+    document.getElementById('staticTotal').value=Math.round(qty*price * 100) / 100;
 }
 function  validateForm()
 {
@@ -210,8 +204,10 @@ function  validateForm()
     alert("this process is above budget ");
     return false;
 
-
-
 }
 }
+function reset (){
+ $("#quantity")[0].reset()
+}
+
 
