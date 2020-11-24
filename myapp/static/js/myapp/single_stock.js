@@ -205,6 +205,7 @@ function  validateForm()
     return false;
 
 }
+
 }
 function reset (){
  $("#quantity")[0].reset()
