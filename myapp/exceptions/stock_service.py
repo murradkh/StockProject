@@ -17,6 +17,18 @@ class InvalidTimeRange(Exception):
 
 
 class InvalidSellQuantityValue(Exception):
-    def __init__(self, message):
+    def __init__(self, message="the amount of bought stocks is less than requested stocks to sell!"):
         self.message = message
         super(InvalidSellQuantityValue, self).__init__(message)
+
+
+class InAdequateBudgetLeft(Exception):
+    def __init__(self, message="no enough budget left to user to perform buy transaction!"):
+        self.message = message
+        super(InAdequateBudgetLeft, self).__init__(message)
+
+
+class InvalidQuantityValue(Exception):
+    def __init__(self, message="Invalid quantity value, less than 1"):
+        self.message = message
+        super(InvalidQuantityValue, self).__init__(message)

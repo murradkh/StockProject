@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from myapp import stock_api
 
 # Create your models here.
-from myapp.exceptions.stock_service import InvalidSellQuantityValue
+from myapp.exceptions.stock_service import InvalidSellQuantityValue, InAdequateBudgetLeft, InvalidQuantityValue
 
 
 class Stock(models.Model):
@@ -95,13 +95,16 @@ class Portfolio(models.Model):
                 data = stock_api.get_stock_info(symbol)
                 stock = Stock.add_to_db(data)
             amount = quantity * stock.price
-            BoughtStock.objects.create(portfolio=self, stock=stock, quantity=quantity,
-                                       expense_price=amount,
-                                       budget_left=(self.budget - amount))
-            self.budget -= amount
-            self.save()
+            if amount <= self.budget:
+                BoughtStock.objects.create(portfolio=self, stock=stock, quantity=quantity,
+                                           expense_price=amount,
+                                           budget_left=(self.budget - amount))
+                self.budget -= amount
+                self.save()
+            else:
+                raise InAdequateBudgetLeft()
         else:
-            raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
+            raise InvalidQuantityValue()
 
     def sell_stock(self, buy_id, quantity=1):
         bought_stock = self.bought_stocks.get(id=buy_id)
@@ -116,7 +119,7 @@ class Portfolio(models.Model):
             self.budget += amount
             self.save()
         else:
-            raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
+            raise InvalidSellQuantityValue()
 
 
 class BoughtStock(models.Model):
