@@ -1,4 +1,4 @@
-from myapp.models import Stock, WatchStock
+from myapp.models import Stock, WatchedStock
 from myapp import stock_api
 from django.db import transaction
 from datetime import datetime
