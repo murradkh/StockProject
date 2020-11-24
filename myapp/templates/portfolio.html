@@ -56,13 +56,13 @@
                         <td>{{ stock.stock.symbol }}</td>
                         <td>{{ stock.created_on|date }} at {{ stock.created_on|time:"H:i" }}</td> 
                         <td>{{ stock.quantity }}</td>
-                        <td>{{ stock.expense_price|div:stock.quantity|floatformat:2 }}</td>
+                        <td>{{ stock.expense_price|floatformat:2 }}</td>
                         <td class="{% if stock.stock.price >= stock.expense_price|div:stock.quantity %}
                                         text-success
                                     {% else %}
                                         text-danger
                                     {% endif %}">          
-                            {{ stock.stock.price|floatformat:2 }}
+                            {{ stock.stock.price|mul:stock.quantity|floatformat:2 }}
                         </td>
                         <td>{{ stock.sold_quantity }}</td>
                         <td>${{ stock.budget_left|floatformat:2  }}</td>
