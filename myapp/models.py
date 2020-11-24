@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from myapp.sub_models.notification_rules import *
+from myapp.sub_models.notification_rules_models import *
 
 
 class Stock(models.Model):
