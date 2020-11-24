@@ -1,12 +1,6 @@
-from myapp.models import Stock, ChangeStatusRule, Notification, ChangeThresholdRule, PriceThresholdRule, \
+from myapp.models import ChangeStatusRule, Notification, ChangeThresholdRule, PriceThresholdRule, \
     RecommendationAnalystRule
 from myapp import stock_api
-from django.urls import reverse
-
-CHANGE_STATUS_RULE_THREAD_INT = 1  # one minute interval
-CHANGE_THRESHOLD_RULE_THREAD_INT = 1  # one minute interval
-PRICE_THRESHOLD_RULE_THREAD_INT = 1  # one minute interval
-RECOMMENDATION_ANALYST_RULE_THREAD_INT = 1  # one minute interval
 
 
 def change_status_rule():
@@ -58,7 +52,7 @@ def change_threshold_rule():
             data = stock_api.get_stock_info(symbol=rule.watched_stock.stock.symbol, filter=("changePercent",))
             if "changePercent" in data:
                 if rule.when == "B" and rule.percentage_threshold > data['changePercent']:
-                    title = f"Blow Threshold value Reached for {rule.watched_stock.stock}"
+                    title = f"Below Threshold value Reached for {rule.watched_stock.stock}"
                     description = f"the change value percentage " \
                                   f"{round(data['changePercent'])}% reached below the threshold" \
                                   f" {rule.percentage_threshold}%"
@@ -78,7 +72,7 @@ def change_threshold_rule():
                 elif rule.when == 'O' and rule.percentage_threshold == data['changePercent']:
                     title = f"On Threshold value Reached for {rule.watched_stock.stock.name}"
                     description = f"the change value percentage reached the threshold" \
-                                  f" {round(rule.percentage_threshold)}%"
+                                  f" {rule.percentage_threshold}%"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
                                                 stock=rule.watched_stock.stock)
                     rule.fired = True
@@ -92,7 +86,7 @@ def price_threshold_rule():
             data = stock_api.get_stock_info(symbol=rule.watched_stock.stock.symbol, filter=("latestPrice",))
             if "latestPrice" in data:
                 if rule.when == "B" and rule.price_threshold > data['latestPrice']:
-                    title = f"Blow Threshold value Reached for {rule.watched_stock.stock.name}"
+                    title = f"Below Threshold value Reached for {rule.watched_stock.stock.name}"
                     description = f"the price value {data['latestPrice']} reached below the threshold" \
                                   f" {rule.price_threshold}"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
@@ -108,7 +102,7 @@ def price_threshold_rule():
                     rule.fired = True
                     rule.save()
                 elif rule.when == 'O' and rule.price_threshold == data['latestPrice']:
-                    title = f"Threshold value Reached for {rule.watched_stock.stock.name}"
+                    title = f"On Threshold value Reached for {rule.watched_stock.stock.name}"
                     description = f"the price value reached the threshold" \
                                   f" {rule.price_threshold}"
                     Notification.objects.create(user=rule.watched_stock.profile, title=title, description=description,
