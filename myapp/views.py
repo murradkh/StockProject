@@ -6,7 +6,7 @@ from django.urls import reverse
 from myrails.settings import THREAD_INTERVAL
 
 from myapp import stock_api
-from myapp.models import Stock, Profile
+from myapp.models import Stock, Profile, SoldStock, BoughtStock
 
 from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm
 from django.http import JsonResponse, HttpResponse
@@ -184,7 +184,7 @@ def watchlist_remove_view(request, symbol):
 @login_required(login_url='login')
 def sell_stock_view(request, buy_id):
     status_code = 200
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     try:
         q = request.GET.get("quantity")
         if q is None:
@@ -212,7 +212,7 @@ def sell_stock_view(request, buy_id):
 @login_required(login_url='login')
 def buy_stock_view(request, symbol):
     status_code = 200
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     try:
         q = request.GET.get("quantity")
         if q is None:
@@ -298,3 +298,13 @@ def list_stocks_names_view(request, search_text):
         response = JsonResponse(context)
         response.status_code = status_code
         return response
+
+
+@login_required(login_url='login')
+def portfolio_view(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    context = {'page_title': 'My Portfolio', 'profile': profile, 
+               'bought_stocks': BoughtStock.objects.filter(portfolio=profile.portfolio),
+               'sold_stocks': SoldStock.objects.filter(portfolio=profile.portfolio),
+               'Interval': (THREAD_INTERVAL * 1000)}
+    return render(request, 'portfolio.html', context)
