@@ -11,6 +11,7 @@ urlpatterns = [
     path('accounts/login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('accounts/logout/', views.logout_view, name='logout'),
     path('accounts/watchlist/', views.watchlist_view, name='watchlist'),
+    path('accounts/portfolio/', views.portfolio_view, name='portfolio'),
     path('stock/<str:symbol>/wremove/', views.watchlist_remove_view, name='watchlist_remove'),
     path('stock/<str:symbol>/wadd/', views.watchlist_add_view, name='watchlist_add'),
     path('stock/<str:symbol>/buy/', views.buy_stock_view, name='buy_stock'),
