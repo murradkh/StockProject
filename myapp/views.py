@@ -6,8 +6,10 @@ from django.urls import reverse
 from myrails.settings import THREAD_INTERVAL
 
 from myapp import stock_api
+
 from myapp.models import Stock, WatchedStock, Profile, Notification
 from myapp.sub_models.notification_rules_models import ChangeStatusRule, ChangeThresholdRule, PriceThresholdRule, RecommendationAnalystRule
+
 
 from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm, ChangeStatusRuleForm,  get_rule_from_str
 from django.http import JsonResponse, HttpResponse

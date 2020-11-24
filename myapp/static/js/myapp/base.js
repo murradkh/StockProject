@@ -14,11 +14,13 @@ function getCookie(cname) {
     return "";
 }
 
+
 $(document).ready(function(){
     $('.clickable-row').click(function(){
         window.location = $(this).data('href');
     });
 });
+
 
 function getUnreadCount(){
     badge = document.getElementById('badgeCounter');
@@ -193,6 +195,7 @@ $('.dropdown').on('hide.bs.dropdown', function() {
     $(this).find('.dropdown-menu').first().stop(true, true).slideUp(100);
 });
 
+
 function getStockRules(counter, symbol) {
     $('#manageRulesDialog'+counter).modal('show');
 
@@ -282,6 +285,7 @@ function getRuleName(ruleType){
         return 'analyst recommendations';
     }
 }
+
 
 
 window.setInterval(getUnreadCount, 30000);

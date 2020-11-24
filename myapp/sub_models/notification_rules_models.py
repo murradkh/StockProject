@@ -17,7 +17,7 @@ class ChangeStatusRule(models.Model):
     @classmethod
     def get_rules(cls) -> QuerySet:
         return ChangeStatusRule.objects.all()
-    
+
     @classmethod
     def get_rules_dict(cls, profile, symbol):
         watched_stock = profile.watchedstock_set.filter(stock__symbol=symbol)[:1]
@@ -30,12 +30,15 @@ class ChangeStatusRule(models.Model):
         return rules_dict
 
 
+
 class ChangeThresholdRule(models.Model):
     """ change value rule is about notifying when the change of stock reaching a specific change value percentage """
     watched_stock = models.ForeignKey("WatchedStock", on_delete=models.CASCADE, related_name='change_threshold_rules')
     when = models.CharField(max_length=20, choices=[('B', 'Below threshold'), ('A', 'Above threshold'),
                                                     ('O', 'On threshold')], default='A')
+
     percentage_threshold = models.FloatField(default=0, validators=[MaxValueValidator(100), MinValueValidator(-100)])
+
     fired = models.BooleanField(default=False)
 
     def __str__(self):
@@ -113,3 +116,4 @@ class RecommendationAnalystRule(models.Model):
                 rules_dict[rule.pk] = {'category': rule.get_category_display(),
                                        'threshold recommenders percentage': rule.threshold_recommenders_percentage} 
         return rules_dict
+
