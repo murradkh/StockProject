@@ -134,7 +134,6 @@ function markAsRead(pk=""){
     };
     xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
     xhr.send();
-    getUnreadCount();
 }
 
 
@@ -159,7 +158,6 @@ function deleteNotifications(pk=""){
     };
     xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
     xhr.send();
-    getUnreadCount();
 }
 
 
@@ -180,8 +178,14 @@ const makeSentenceCase = (s) => {
 }
 
 
-$("#notificationsDropdown").on("show.bs.dropdown", function() {
+$('#notificationsDropdown').on('show.bs.dropdown', function() {
     getNotifications();
+    getUnreadCount();
+});
+
+
+$('#notificationsDropdown').on('hide.bs.dropdown', function() {
+    setTimeout(function(){console.log("waiting for count");}, 2000);
     getUnreadCount();
 });
 
