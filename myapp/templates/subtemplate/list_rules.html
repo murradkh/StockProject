@@ -10,26 +10,9 @@
             <div class="modal-body overflow-auto" id="modalBody{{ counter }}" style="height: 400px;" >
             </div>
             <div class="modal-footer">
-                <div class="btn-group dropright">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
-                      <i class="fa fa-plus"></i> Add new rule
-                    </button>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{% url 'add_notification_rule' 'change_status' stocksymbol %}">
-                            Status Change Rule
-                        </a>
-                        <a class="dropdown-item" href="{% url 'add_notification_rule' 'change_threshold' stocksymbol %}">
-                            Threshold Change Rule
-                        </a>
-                        <a class="dropdown-item" href="{% url 'add_notification_rule' 'price_threshold' stocksymbol %}">
-                            Price Threshold Rule
-                        </a>
-                        <a class="dropdown-item" href="{% url 'add_notification_rule' 'recommendation_analyst' stocksymbol %}">
-                            Analyst Recommendation Rule
-                        </a>
-                    </div>
-                </div>
+                <a class="btn btn-primary"  href="{% url 'add_notification_rule' 'change_status' stocksymbol %}">
+                    &emsp;<i class="fa fa-plus"></i>&ensp;Add New Rule&emsp;
+                </a>
             </div>
         </div>
     </div>
