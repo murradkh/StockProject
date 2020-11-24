@@ -6,9 +6,12 @@ from django.urls import reverse
 from myrails.settings import THREAD_INTERVAL
 
 from myapp import stock_api
-from myapp.models import Stock, Profile, Notification
 
-from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm
+from myapp.models import Stock, WatchedStock, Profile, Notification
+from myapp.sub_models.notification_rules_models import ChangeStatusRule, ChangeThresholdRule, PriceThresholdRule, RecommendationAnalystRule
+
+
+from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm, ChangeStatusRuleForm,  get_rule_from_str
 from django.http import JsonResponse, HttpResponse
 
 from django.contrib import messages
@@ -275,3 +278,75 @@ def notifications_mark_read_view(request, pk=""):
     else:
         Notification.objects.filter(user=profile).update(is_read=True)
     return HttpResponse('OK')
+
+
+@login_required(login_url='login')
+def add_rule_view(request, rule_type, symbol):
+    form, rule_name, rule = get_rule_from_str(request, rule_type)
+    if form == None:
+        context = {'error_message': 'Invalid notification rule type'}
+        response = render(request, 'exception.html', context)
+        response.status_code = 400
+        return response
+
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    watched_stock = WatchedStock.objects.filter(stock__symbol=symbol, profile=profile)
+    if watched_stock.exists():
+        form.fields['watched_stock'].initial = watched_stock[0]
+        if form.is_valid():
+            form.save()
+            messages.info(request, f'Notification rule for {watched_stock[0].stock.name} successfully added')
+            return redirect('single_stock', symbol=symbol)
+        context = {'page_title': f'New {rule_name} Rule',
+                   'rule_type': rule_type,
+                    'form': form, 
+                    'stock': watched_stock[0].stock}
+        response = render(request, 'add_rule.html', context)
+        return response
+    else:
+        messages.warning(request, 'This Stock could not be found in your watchlist')
+        return redirect('single_stock', symbol=symbol)
+
+
+@login_required(login_url='login')
+def edit_rule_view(request, rule_type, pk):
+    form, rule_name, rule = get_rule_from_str(request, rule_type, pk)
+    if form == None:
+        context = {'error_message': 'Invalid notification rule type'}
+        response = render(request, 'exception.html', context)
+        response.status_code = 400
+        return response
+    if rule:
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.info(request, 'Notification rule successfully updated')
+            return redirect('index')
+        context = {'page_title': f'Edit {rule_name} Rule',
+                   'rule_name': rule_name, 'rule_type': rule_type,
+                   'pk': pk, 'form': form}
+        response = render(request, 'edit_rule.html', context)
+        return response
+    else:
+        context = {'error_message': 'Notification rule not found'}
+        response = render(request, 'exception.html', context)
+        response.status_code = 404
+        return response
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def delete_rule_view(request, rule_type, pk):
+    form, rule_name, rule = get_rule_from_str(request, rule_type, pk)
+    rule.delete()
+    return HttpResponse('OK')
+
+
+@login_required(login_url='login')
+def rules_list_view (request, symbol):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    resposne_dict = {'change_status': ChangeStatusRule.get_rules_dict(profile, symbol),
+                    'change_threshold': ChangeThresholdRule.get_rules_dict(profile, symbol),
+                    'price_threshold': PriceThresholdRule.get_rules_dict(profile, symbol),
+                    'recommendation_analyst': RecommendationAnalystRule.get_rules_dict(profile, symbol)}
+    return JsonResponse(resposne_dict)

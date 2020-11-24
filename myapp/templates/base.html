@@ -56,9 +56,6 @@
                             <button class="dropdown-item" onclick="deleteNotifications()">
                                 <i class="fa fa-window-close"></i>&ensp; Clear all
                             </button>
-                            <button class="dropdown-item disabled" data-toggle="dropdown">
-                                <i class="fa fa-cogs"></i>&ensp; Change rules
-                            </button>
                         </div>
                     </div>
                 </li>
@@ -100,7 +97,12 @@
 <div class="wrapper">
     <section class="container">
         {% for message in messages %}
-        <div class="alert-{{ message.tags }}" role="alert">{{ message }}</div>
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fa fa-{{ message.tags }}"></i>&emsp; {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         {% endfor %}
         {% block content %}
         <p>Placeholder text</p>
@@ -128,11 +130,6 @@ var myapp = {
   }
 </script>
 <script type="text/javascript" src="{% static 'js/myapp/base.js' %}">
-    $(document).ready(function(){
-        $('.clickable-row').click(function(){
-            window.location = $(this).data('href');
-        });
-    });
 </script>
 <script>
     $(document).ready(getUnreadCount());
