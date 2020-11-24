@@ -1,4 +1,3 @@
-
 <div class="modal fade" id="buyModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
      aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -10,46 +9,80 @@
         </button>
       </div>
       <div class="modal-body" style="margin: 20px;">
-    <form onsubmit="return validateForm()" name ='buyForm'>
-      <div class="form-group row">
-        <label for="staticBudget" class="col-sm-2 col-form-label">Budget</label>
-        <div class="col-sm-10">
-            <input type="text" readonly class="form-control-plaintext" id="staticBudget" value={{ budget }}>
 
-        </div>
-      </div>
-      <div class="form-group row">
-        <label for="staticPrice" class="col-sm-2 col-form-label">Price</label>
-        <div class="col-sm-10">
-            <input type="text" readonly class="form-control-plaintext" id="staticPrice" value={{ data.latestPrice }}>
-        </div>
-      </div>
-
-      <div class ="form-group row">
-          <label  class="col-sm-2 col-form-label ">Quantity </label>
-          <div class="col-sm-10 ">
-               <input type="number" class="form-control" id="quantity" name="quantity" min="1" max="100" value ="1"
-                      onChange="multiply()">
+        <form  name ='buyForm'  id ='buyForm'>
+            {% csrf_token %}
+          <div class="form-group row">
+            <label for="staticBudget" class="col-sm-2 col-form-label">Budget</label>
+            <div class="col-sm-10">
+                <input type="text" readonly class="form-control-plaintext" id="staticBudget" value={{ budget }}>
+            </div>
           </div>
+
+          <div class="form-group row">
+            <label for="staticPrice" class="col-sm-2 col-form-label">Price</label>
+            <div class="col-sm-10">
+                <input type="text" readonly class="form-control-plaintext" id="staticPrice" value={{ data.latestPrice }}>
+            </div>
+          </div>
+
+          <div class ="form-group row">
+              <label  class="col-sm-2 col-form-label ">Quantity </label>
+              <div class="col-sm-10 ">
+                   <input type="number" class="form-control" id="quantity" name="quantity" min="1"  value ="1"
+                          name="quantity" onChange="multiply()">
+              </div>
+          </div>
+
+             <div class="form-check form-check-inline ">
+                 <div class="col-sm-2  ">
+                    <input  class ="form-check-input" type="checkbox" name="checkbox" id="checkbox" value="checkbox">
+                   </div>
+                <label class="form-check-label text-left" for="checkbox">
+                    <small>Do you want to sell this stock if it's go below the threshold Automatically? </small></label>
+            </div>
+
+
+            <div class="form-group row" id="threshold_div">
+                <label  class="col-sm-2 col-form-label">Threshold</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" onkeypress="return isNumberKey(this, event);"
+                           name="threshold"  id ="threshold"/>
+                </div>
+            </div>
+
+          <div class="form-group row">
+            <label for="staticTotal" class="col-sm-2 col-form-label">Total</label>
+            <div class="col-sm-10">
+                <input type="text" readonly class="form-control-plaintext" id="staticTotal" value={{ data.latestPrice }}
+                       name="Total">
+            </div>
+          </div>
+
+             <div class="modal-footer form-group row">
+              <button type="submit" class="btn btn-primary" >Submit</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="resetForm()">Close</button>
+                 </div>
+        </form>
       </div>
-      <div class="form-group row">
-        <label for="staticTotal" class="col-sm-2 col-form-label">Total</label>
-        <div class="col-sm-10">
-            <input type="text" readonly class="form-control-plaintext" id="staticTotal" value={{ data.latestPrice }}
-                   name="Total">
-        </div>
-      </div>
-
-         <div class="modal-footer form-group row">
-          <button type="submit" class="btn btn-primary">Submit</button>
-          <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="reset()">Close</button>
-             </div>
-    </form>
-      </div>
-
-
-
-
     </div>
   </div>
 </div>
+<div id ="x"></div>
+
+{% load static %}
+
+<script type="text/javascript"
+        src="{% static 'js/myapp/buy_model.js' %}"></script>
+<script>
+window.onload = function(){
+	$("#quantity").trigger(function(){
+        $('#desti').click(function(){ multiply();});
+    });
+    $("#quantity").change(function(){
+        $('#desti').click(function(){ multiply();});
+    });
+    $.fn.ShowInput;
+	};
+
+</script>

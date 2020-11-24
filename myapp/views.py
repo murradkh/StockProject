@@ -90,8 +90,11 @@ def single_stock(request, symbol):
     template = 'single_stock.html'
     try:
         # budget
-        profile, create = Profile.objects.get_or_create(user=request.user)
-        budget = profile.portfolio.budget
+        if request.user.is_authenticated:
+            profile, create = Profile.objects.get_or_create(user=request.user)
+            budget = profile.portfolio.budget
+        else:
+            budget = 0
         data = stock_api.get_stock_info(symbol)
         stock = Stock.objects.filter(symbol=symbol)[:1]
         if request.user.is_authenticated:
@@ -219,9 +222,12 @@ def buy_stock_view(request, symbol):
     status_code = 200
     profile = Profile.objects.get(user=request.user)
     try:
-        q = request.GET.get("quantity")
+        q = request.POST['quantity']
+        threshold = request.POST['threshold']
         if q is None:
             profile.portfolio.buy_stock(symbol, 1)
+        elif threshold is not None and len(threshold.strip()) > 0:
+            profile.portfolio.buy_stock(symbol, int(q), int(threshold))
         else:
             profile.portfolio.buy_stock(symbol, int(q))
         response = HttpResponse('OK')
