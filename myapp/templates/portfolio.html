@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% load mathfilters %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-9 text-left">
+            <h3>Your Portfolio</h3>
+        </div>
+        <div class="col-3 text-right">  
+            <h5><small>Current budget </small>
+                <span class="badge badge-pill 
+                            {% if profile.portfolio.budget == 0 %}
+                                badge-danger
+                            {% else %}
+                                badge-success
+                            {% endif %}">
+                    ${{ profile.portfolio.budget|floatformat:2  }}
+                </span>
+            </h5>
+        </div>
+    </div>
+    <div>
+        <div class="d-flex justify-content-center">
+            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" style="padding-left: 4px">
+                    <a class="nav-link active alert-secondary" id="bought-stocks-tab" data-toggle="pill"
+                    href="#bought-stocks" role="tab" aria-controls="bought-stocks" aria-selected="true">
+                        <i class="fa fa-shopping-bag"></i>&ensp; Bought Stocks
+                    </a>
+                </li>
+                <li class="nav-item" style="padding-left: 4px">
+                    <a class="nav-link alert-secondary" id="sold-stocks-tab" data-toggle="pill"
+                    href="#sold-stocks" role="tab" aria-controls="sold-stocks" aria-selected="false">
+                        <i class="fa fa-history"></i>&ensp; Sold Stocks
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="bought-stocks" role="tabpanel" aria-labelledby="bought-stocks-tab">
+            {% if bought_stocks %}
+            <table id="bought-stocks-table" class="table table-hover data-table">
+                <tr>
+                    <th>Symbol</th>
+                    <th>Bought on</th>
+                    <th>Purchased Quantity</th>
+                    <th>Purchase Price</th>
+                    <th>Current Price</th>
+                    <th>Sold Quantity</th>
+                    <th>Budget Left</th>       
+                </tr>
+                {% for stock in bought_stocks %}    
+                    <tr id="row{{forloop.counter}}" class="clickable-row" data-href="{% url 'single_stock' stock.stock.symbol %}">
+                        <td>{{ stock.stock.symbol }}</td>
+                        <td>{{ stock.created_on|date }} at {{ stock.created_on|time:"H:i" }}</td> 
+                        <td>{{ stock.quantity }}</td>
+                        <td>{{ stock.expense_price|div:stock.quantity|floatformat:2 }}</td>
+                        <td class="{% if stock.stock.price >= stock.expense_price|div:stock.quantity %}
+                                        text-success
+                                    {% else %}
+                                        text-danger
+                                    {% endif %}">          
+                            {{ stock.stock.price|floatformat:2 }}
+                        </td>
+                        <td>{{ stock.sold_quantity }}</td>
+                        <td>${{ stock.budget_left|floatformat:2  }}</td>
+                    </tr>
+                {% endfor %}
+            </table>               
+            {% else %}
+                No bought stocks
+            {% endif %}
+            </div>
+            <div class="tab-pane fade" id="sold-stocks" role="tabpanel" aria-labelledby="sold-stocks-tab">
+                {% if sold_stocks %}
+                <table id="sold-stocks-table" class="table table-hover data-table">
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Sold on</th>
+                        <th>Sold Quantity</th>
+                        <th>Selling Price</th>
+                        <th>Current Price</th>
+                        <th>Net Gain/Loss</th>
+                        <th>Budget Left</th>       
+                    </tr>
+                    {% for stock in sold_stocks %}
+                        <tr id="row{{forloop.counter}}" class="clickable-row" data-href="{% url 'single_stock' stock.bought_stock.stock.symbol %}">
+                            <td>{{ stock.bought_stock.stock.symbol }}</td>
+                            <td>{{ stock.created_on|date }} at {{ stock.created_on|time:"H:i" }}</td> 
+                            <td>{{ stock.quantity }}</td>
+                            <td>{{ stock.earning_price|div:stock.quantity|floatformat:2 }}</td>
+                            <td>{{ stock.bought_stock.stock.price|floatformat:2 }}</td>
+                            <td class="{% if stock.gain_price >= 0 %}
+                                            text-success
+                                        {% else %}
+                                            text-danger
+                                        {% endif %}">
+                                {{ stock.gain_price }}
+                            </td>
+                            <td>${{ stock.budget_left|floatformat:2  }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>           
+                {% else %}
+                    No sold stocks
+                {% endif %} 
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% load static %}
+{% block scripts %}
+<script>
+
+</script>
+{% endblock %}
