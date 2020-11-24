@@ -4,8 +4,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from myapp import stock_api
 
-
 # Create your models here.
+from myapp.exceptions.stock_service import InvalidSellQuantityValue
+
+
 class Stock(models.Model):
     symbol = models.CharField(max_length=12, primary_key=True)
     name = models.CharField(max_length=64)
@@ -39,6 +41,7 @@ class Stock(models.Model):
                                    change_percent=data['changePercent'],
                                    market_cap=data['marketCap'],
                                    primary_exchange=data['primaryExchange'])
+        return stock
 
     @classmethod
     def is_needed(cls, stock_symbol):
@@ -82,26 +85,59 @@ class Profile(models.Model):
 
 
 class Portfolio(models.Model):
-    budget = models.IntegerField(default=100)
+    budget = models.FloatField(default=500)
+
+    def buy_stock(self, symbol, quantity=1):
+        if quantity > 0:
+            try:
+                stock = Stock.objects.get(symbol=symbol)
+            except Stock.DoesNotExist:
+                data = stock_api.get_stock_info(symbol)
+                stock = Stock.add_to_db(data)
+            amount = quantity * stock.price
+            BoughtStock.objects.create(portfolio=self, stock=stock, quantity=quantity,
+                                       expense_price=amount,
+                                       budget_left=(self.budget - amount))
+            self.budget -= amount
+            self.save()
+        else:
+            raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
+
+    def sell_stock(self, buy_id, quantity=1):
+        bought_stock = self.bought_stocks.get(id=buy_id)
+        if (bought_stock.quantity - bought_stock.sold_quantity) >= quantity > 0:
+            amount = quantity * bought_stock.stock.price
+            SoldStock.objects.create(portfolio=self, bought_stock=bought_stock, quantity=quantity,
+                                     earning_price=amount, budget_left=self.budget + amount,
+                                     gain_price=amount - (
+                                             bought_stock.expense_price / bought_stock.quantity * quantity))
+            bought_stock.sold_quantity += quantity
+            bought_stock.save()
+            self.budget += amount
+            self.save()
+        else:
+            raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
 
 
-class BuyStock(models.Model):
-    symbol = models.CharField(max_length=12, primary_key=True)
-    name = models.CharField(max_length=64)
+class BoughtStock(models.Model):
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
     portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="bought_stocks")
     created_on = models.DateTimeField(auto_now_add=True)
     quantity = models.PositiveIntegerField(default=1)
-    expense_price = models.PositiveIntegerField()
-    budget_left = models.IntegerField()
+    expense_price = models.FloatField()
+    budget_left = models.FloatField()
+    sold_quantity = models.PositiveIntegerField(default=0)
 
 
-class SellStock(models.Model):
+class SoldStock(models.Model):
     portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="sold_stocks")
-    bought_stock = models.ForeignKey(BuyStock, on_delete=models.CASCADE, related_name="sold_stock")
+    bought_stock = models.ForeignKey(BoughtStock, on_delete=models.CASCADE, related_name="sold_stock")
     created_on = models.DateTimeField(auto_now_add=True)
     quantity = models.PositiveIntegerField(default=1)
-    earning_price = models.PositiveIntegerField()
-    budget_left = models.IntegerField()
+    earning_price = models.FloatField()  # the price of which the <quantity> stocks sold
+    budget_left = models.FloatField()
+    gain_price = models.FloatField()  # its the profits gained from selling the stocks, which equals to
+    # <earning-price> - <bought_stocks_price>
 
 
 class WatchStock(models.Model):
@@ -112,7 +148,7 @@ class WatchStock(models.Model):
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        Profile.objects.create(user=instance, portfolio=Portfolio.objects.create())
 
 
 @receiver(post_save, sender=User)
