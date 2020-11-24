@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
-from myapp.sub_models.notification_rules import ChangeStatusRule, ChangeThresholdRule, PriceThresholdRule, RecommendationAnalystRule
+from myapp.sub_models.notification_rules_models import ChangeStatusRule, ChangeThresholdRule, PriceThresholdRule, RecommendationAnalystRule
 
 
 class CustomRegistrationFrom(UserCreationForm):
