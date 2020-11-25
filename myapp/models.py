@@ -88,7 +88,8 @@ class Profile(models.Model):
 class Portfolio(models.Model):
     budget = models.FloatField(default=500)
 
-    # TODO: add __str__
+    def __str__(self):
+        return f"{self.profile} portfolio with budget {self.budget}"
 
     def buy_stock(self, symbol, quantity=1):
         if quantity > 0:
