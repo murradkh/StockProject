@@ -6,7 +6,7 @@ from django.urls import reverse
 from myrails.settings import THREAD_INTERVAL
 
 from myapp import stock_api
-from myapp.models import Stock, Profile
+from myapp.models import Stock, Profile, Portfolio
 
 from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm
 from django.http import JsonResponse, HttpResponse
@@ -18,7 +18,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange, \
-    InvalidSellQuantityValue
+    InvalidSellQuantityValue, InAdequateBudgetLeft, InvalidQuantityValue, InvalidBuyID
 from django.db.models import Q
 
 STOCKS_PER_PAGE = 10
@@ -187,12 +187,18 @@ def sell_stock_view(request, buy_id):
     profile = Profile.objects.get(user=request.user)
     try:
         q = request.GET.get("quantity")
+        portfolio, created = Portfolio.objects.get_or_create(profile=profile)
+        if created:
+            profile.save()
         if q is None:
-            profile.portfolio.sell_stock(buy_id, 1)
+            portfolio.sell_stock(buy_id, 1)
         else:
-            profile.portfolio.sell_stock(buy_id, int(q))
+            portfolio.sell_stock(buy_id, int(q))
         response = HttpResponse('OK')
     except InvalidSellQuantityValue as e:
+        status_code = 404
+        response = HttpResponse(e.message)
+    except InvalidBuyID as e:
         status_code = 404
         response = HttpResponse(e.message)
     except StockSymbolNotFound as e:
@@ -215,12 +221,18 @@ def buy_stock_view(request, symbol):
     profile = Profile.objects.get(user=request.user)
     try:
         q = request.GET.get("quantity")
+        portfolio, created = Portfolio.objects.get_or_create(profile=profile)
+        if created:
+            profile.save()
         if q is None:
-            profile.portfolio.buy_stock(symbol, 1)
+            portfolio.buy_stock(symbol, 1)
         else:
-            profile.portfolio.buy_stock(symbol, int(q))
+            portfolio.buy_stock(symbol, int(q))
         response = HttpResponse('OK')
-    except InvalidSellQuantityValue as e:
+    except InvalidQuantityValue as e:
+        status_code = 404
+        response = HttpResponse(e.message)
+    except InAdequateBudgetLeft as e:
         status_code = 404
         response = HttpResponse(e.message)
     except StockSymbolNotFound as e:

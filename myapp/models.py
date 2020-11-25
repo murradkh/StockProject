@@ -5,7 +5,8 @@ from django.dispatch import receiver
 from myapp import stock_api
 
 # Create your models here.
-from myapp.exceptions.stock_service import InvalidSellQuantityValue
+from myapp.exceptions.stock_service import InvalidSellQuantityValue, InAdequateBudgetLeft, InvalidQuantityValue, \
+    InvalidBuyID
 
 
 class Stock(models.Model):
@@ -87,6 +88,9 @@ class Profile(models.Model):
 class Portfolio(models.Model):
     budget = models.FloatField(default=500)
 
+    def __str__(self):
+        return f"{self.profile} portfolio with budget {self.budget}"
+
     def buy_stock(self, symbol, quantity=1):
         if quantity > 0:
             try:
@@ -95,16 +99,22 @@ class Portfolio(models.Model):
                 data = stock_api.get_stock_info(symbol)
                 stock = Stock.add_to_db(data)
             amount = quantity * stock.price
-            BoughtStock.objects.create(portfolio=self, stock=stock, quantity=quantity,
-                                       expense_price=amount,
-                                       budget_left=(self.budget - amount))
-            self.budget -= amount
-            self.save()
+            if amount <= self.budget:
+                BoughtStock.objects.create(portfolio=self, stock=stock, quantity=quantity,
+                                           expense_price=amount,
+                                           budget_left=(self.budget - amount))
+                self.budget -= amount
+                self.save()
+            else:
+                raise InAdequateBudgetLeft()
         else:
-            raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
+            raise InvalidQuantityValue()
 
     def sell_stock(self, buy_id, quantity=1):
-        bought_stock = self.bought_stocks.get(id=buy_id)
+        try:
+            bought_stock = self.bought_stocks.get(id=buy_id)
+        except BoughtStock.DoesNotExist:
+            raise InvalidBuyID()
         if (bought_stock.quantity - bought_stock.sold_quantity) >= quantity > 0:
             amount = quantity * bought_stock.stock.price
             SoldStock.objects.create(portfolio=self, bought_stock=bought_stock, quantity=quantity,
@@ -116,7 +126,7 @@ class Portfolio(models.Model):
             self.budget += amount
             self.save()
         else:
-            raise InvalidSellQuantityValue("the amount of bought stocks is less than requested stocks to sell!")
+            raise InvalidSellQuantityValue()
 
 
 class BoughtStock(models.Model):
