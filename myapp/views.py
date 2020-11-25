@@ -6,7 +6,7 @@ from django.urls import reverse
 from myrails.settings import THREAD_INTERVAL
 
 from myapp import stock_api
-from myapp.models import Stock, Profile
+from myapp.models import Stock, Profile, Portfolio
 
 from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm
 from django.http import JsonResponse, HttpResponse
@@ -187,10 +187,13 @@ def sell_stock_view(request, buy_id):
     profile = Profile.objects.get(user=request.user)
     try:
         q = request.GET.get("quantity")
+        portfolio, created = Portfolio.objects.get_or_create(profile=profile)
+        if created:
+            profile.save()
         if q is None:
-            profile.portfolio.sell_stock(buy_id, 1)
+            portfolio.sell_stock(buy_id, 1)
         else:
-            profile.portfolio.sell_stock(buy_id, int(q))
+            portfolio.sell_stock(buy_id, int(q))
         response = HttpResponse('OK')
     except InvalidSellQuantityValue as e:
         status_code = 404
@@ -218,10 +221,13 @@ def buy_stock_view(request, symbol):
     profile = Profile.objects.get(user=request.user)
     try:
         q = request.GET.get("quantity")
+        portfolio, created = Portfolio.objects.get_or_create(profile=profile)
+        if created:
+            profile.save()
         if q is None:
-            profile.portfolio.buy_stock(symbol, 1)
+            portfolio.buy_stock(symbol, 1)
         else:
-            profile.portfolio.buy_stock(symbol, int(q))
+            portfolio.buy_stock(symbol, int(q))
         response = HttpResponse('OK')
     except InvalidQuantityValue as e:
         status_code = 404

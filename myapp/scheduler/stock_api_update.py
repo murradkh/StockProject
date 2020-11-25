@@ -5,7 +5,7 @@ from myapp import stock_api
 from django.db import transaction
 from datetime import datetime
 
-MAX_UNNEEDED_HISTORY_TO_PRESERVE_IN_PORTFOLIO = 2
+MAX_UNNEEDED_HISTORY_TO_PRESERVE_IN_PORTFOLIO = 20
 
 
 def stock_api_update():
