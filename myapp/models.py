@@ -5,7 +5,8 @@ from django.dispatch import receiver
 from myapp import stock_api
 
 # Create your models here.
-from myapp.exceptions.stock_service import InvalidSellQuantityValue, InAdequateBudgetLeft, InvalidQuantityValue
+from myapp.exceptions.stock_service import InvalidSellQuantityValue, InAdequateBudgetLeft, InvalidQuantityValue, \
+    InvalidBuyID
 
 
 class Stock(models.Model):
@@ -87,6 +88,8 @@ class Profile(models.Model):
 class Portfolio(models.Model):
     budget = models.FloatField(default=500)
 
+    # TODO: add __str__
+
     def buy_stock(self, symbol, quantity=1):
         if quantity > 0:
             try:
@@ -107,7 +110,10 @@ class Portfolio(models.Model):
             raise InvalidQuantityValue()
 
     def sell_stock(self, buy_id, quantity=1):
-        bought_stock = self.bought_stocks.get(id=buy_id)
+        try:
+            bought_stock = self.bought_stocks.get(id=buy_id)
+        except BoughtStock.DoesNotExist:
+            raise InvalidBuyID()
         if (bought_stock.quantity - bought_stock.sold_quantity) >= quantity > 0:
             amount = quantity * bought_stock.stock.price
             SoldStock.objects.create(portfolio=self, bought_stock=bought_stock, quantity=quantity,

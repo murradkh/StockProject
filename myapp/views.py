@@ -18,7 +18,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange, \
-    InvalidSellQuantityValue, InAdequateBudgetLeft, InvalidQuantityValue
+    InvalidSellQuantityValue, InAdequateBudgetLeft, InvalidQuantityValue, InvalidBuyID
 from django.db.models import Q
 
 STOCKS_PER_PAGE = 10
@@ -193,6 +193,9 @@ def sell_stock_view(request, buy_id):
             profile.portfolio.sell_stock(buy_id, int(q))
         response = HttpResponse('OK')
     except InvalidSellQuantityValue as e:
+        status_code = 404
+        response = HttpResponse(e.message)
+    except InvalidBuyID as e:
         status_code = 404
         response = HttpResponse(e.message)
     except StockSymbolNotFound as e:

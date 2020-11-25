@@ -32,3 +32,9 @@ class InvalidQuantityValue(Exception):
     def __init__(self, message="Invalid quantity value, less than 1"):
         self.message = message
         super(InvalidQuantityValue, self).__init__(message)
+
+
+class InvalidBuyID(Exception):
+    def __init__(self, message="Buy ID provided doesn't exist !"):
+        self.message = message
+        super(InvalidBuyID, self).__init__(message)
