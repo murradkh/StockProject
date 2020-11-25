@@ -7,7 +7,7 @@ var alert_msg ='<div  class="alert alert-success alert-dismissible fade show  " 
 function multiply(){
     qty = Number(document.getElementById('quantity').value);
     price = Number(document.getElementById('staticPrice').value);
-    document.getElementById('staticTotal').value=Math.round(qty*price * 100) / 100;
+    document.getElementById('staticTotal').value = Math.round(qty * price * 100) / 100;
 }
 
 

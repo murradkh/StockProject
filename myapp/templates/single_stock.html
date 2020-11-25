@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% include "subtemplate/buy_model.html" %}
+{% include "subtemplate/buy_model.html" with id=1 name=data.companyName budget=budget latestPrice=data.latestPrice %}
 <div class="col-md-12 text-left" >
     <table>
 
@@ -17,7 +17,7 @@
                         class='fa fa-eye'></i> Add to watchlist
                 </button>
                 {% endif %}
-                <button id ="buyBtn" onclick=""  class="btn btn-outline-success" data-toggle="modal" data-target="#buyModel">
+                <button id ="buyBtn" onclick=""  class="btn btn-outline-success" data-toggle="modal" data-target="#buyModel1">
                     <i class="fa fa-money" aria-hidden="true"></i> Buy </button>
             </td>
             {% endif %}
