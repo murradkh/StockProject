@@ -49,7 +49,8 @@
                     <th>Purchase Price</th>
                     <th>Current Price</th>
                     <th>Sold Quantity</th>
-                    <th>Budget Left</th>       
+                    <th>Budget Left</th>
+                    <th>Sell</th>       
                 </tr>
                 {% for stock in bought_stocks %}    
                     <tr id="row{{forloop.counter}}" class="clickable-row" data-href="{% url 'single_stock' stock.stock.symbol %}">
@@ -66,6 +67,9 @@
                         </td>
                         <td>{{ stock.sold_quantity }}</td>
                         <td>${{ stock.budget_left|floatformat:2  }}</td>
+                        <td onclick="event.cancelBubble=true; return false;">
+                            <button onclick="getSellForm('{{forloop.counter}}')" class="btn btn-outline-secondary" style="padding: 0px 8px;"><i class='fa fa-money'></i></button>
+                        </td>
                     </tr>
                 {% endfor %}
             </table>               
@@ -83,7 +87,8 @@
                         <th>Selling Price</th>
                         <th>Current Price</th>
                         <th>Net Gain/Loss</th>
-                        <th>Budget Left</th>       
+                        <th>Budget Left</th>
+                        <th>Buy Again</th>       
                     </tr>
                     {% for stock in sold_stocks %}
                         <tr id="row{{forloop.counter}}" class="clickable-row" data-href="{% url 'single_stock' stock.bought_stock.stock.symbol %}">
@@ -100,6 +105,9 @@
                                 {{ stock.gain_price }}
                             </td>
                             <td>${{ stock.budget_left|floatformat:2  }}</td>
+                            <td onclick="event.cancelBubble=true; return false;">
+                                <button onclick="getBuyForm('{{forloop.counter}}')" class="btn btn-outline-success" style="padding: 0px 8px;"><i class='fa fa-money'></i></button>
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>           
@@ -110,10 +118,18 @@
         </div>
     </div>
 </div>
+{% for stock in bought_stocks %}
+    {% include "subtemplate/sell_model.html" with id=stock.id name=stock.stock.name budget=profile.portfolio.budget latestPrice=stock.stock.price gainLoss=stock.stock.price|sub:stock.expense_price|floatformat:2  %}
+{% endfor %}
+{% for stock in sold_stocks %}
+    {% include "subtemplate/buy_model.html" with id=forloop.counter name=stock.bought_stock.stock.name budget=profile.portfolio.budget latestPrice=stock.bought_stock.stock.price %}
+{% endfor %}
 {% endblock %}
+
 {% load static %}
 {% block scripts %}
-<script>
-
+<script type="text/javascript" src="{% static 'js/myapp/buy_model.js' %}">
+</script>
+<script type="text/javascript" src="{% static 'js/myapp/sell_model.js' %}">
 </script>
 {% endblock %}

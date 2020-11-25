@@ -60,22 +60,26 @@ $.fn.ShowInput = $(function () {
     });
 });
 
-
-$(document).ready(function(){
-    $('#buy_success').hide();
-        $('#buyForm').submit(function(e){
-        if (validateForm()){
-        $.post('buy/', $(this).serialize(), function(data){
-            $('.message').html(data.message);
-            document.getElementById('x').innerHTML =alert_msg;
-            $('#buyModel').modal('hide');
-            resetForm();
-        });
-        e.preventDefault();
-        }
-        else{
-
-        return false;
-        }
+function submitvalidate(){
+    $('buyForm').submit(function(e){
+    if (validateForm()){
+    $.post('buy/', $(this).serialize(), function(data){
+        $('.message').html(data.message);
+        document.getElementById('x').innerHTML = alert_msg;
+        $('#buyModel').modal('hide');
+        resetForm();
     });
+    e.preventDefault();
+    }
+    else{
+
+    return false;
+    }
 });
+}
+
+$(document).ready(submitvalidate());
+
+function getBuyForm(counter) {
+    $('#buyModel'+counter).modal('show');
+}
