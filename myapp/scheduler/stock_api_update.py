@@ -58,9 +58,9 @@ def update_existing_stocks():
 
 def update_bought_stocks():
     needed_bought_stocks = list(BoughtStock.objects.exclude(sold_quantity=F("quantity")))
-    last_bought_stocks_to_preserve = list(BoughtStock.objects.filter(sold_quantity=F("quantity")).order_by(
+    unneeded_bought_stocks_to_preserve = list(BoughtStock.objects.filter(sold_quantity=F("quantity")).order_by(
         "-created_on")[:MAX_UNNEEDED_HISTORY_TO_PRESERVE_IN_PORTFOLIO])
-    for bought_stock in needed_bought_stocks + last_bought_stocks_to_preserve:
+    for bought_stock in needed_bought_stocks + unneeded_bought_stocks_to_preserve:
         data = stock_api.get_stock_info(bought_stock.stock.symbol)
         Stock.objects.filter(symbol=bought_stock.stock.symbol).update(
             name=data['companyName'],
