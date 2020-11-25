@@ -24,7 +24,6 @@ $(document).ready(function(){
 
 function getUnreadCount(){
     badge = document.getElementById('badgeCounter');
-    badge.innerHTML = "";
     var xhr = new XMLHttpRequest();
     var url = myapp.URLS.notificationsUnreadCount;
     xhr.open("GET", url, true);
@@ -32,9 +31,10 @@ function getUnreadCount(){
         if (xhr.readyState === XMLHttpRequest.DONE) {
             var status = xhr.status;
             if (status === 0 || (status >= 200 && status < 400)) {
+                badge.innerHTML = "";
                 var responseDict = JSON.parse(xhr.responseText);
                 var numNotifications = responseDict['unread_count']
-                if (numNotifications > 0){      
+                if (numNotifications > 0){
                     badge.appendChild(document.createTextNode(numNotifications));
                 }
             }
@@ -49,14 +49,16 @@ function getNotifications(){
     var url = myapp.URLS.listNotifications;
     xhr.open("GET", url, true);
 
-    nContainer = document.getElementById('notificationsContainer');
-    nContainer.innerHTML = "";
-
+    var badge = document.getElementById('badgeCounter');
+    var nContainer = document.getElementById('notificationsContainer');
+    
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             var status = xhr.status;
             if (status === 0 || (status >= 200 && status < 400)) {
                 var responseDict = JSON.parse(xhr.responseText);
+                nContainer.innerHTML = "";
+                badge.innerHTML = "";
                 if (Object.keys(responseDict).length === 0) {
                     var paragraph = document.createElement("p");
                     paragraph.className = "text-center";
@@ -68,21 +70,25 @@ function getNotifications(){
                     for (var key in responseDict) {
                         if (responseDict.hasOwnProperty(key)) {
                             var link = document.createElement("a");
+                            link.id = "link" + String(key);
                             link.href = getAbsoluteURL(responseDict[key]['path']);
                             link.style.textDecoration = "none";
-
                             var div = document.createElement("div");
+                            div.id = "alert" + String(key);
+
                             if (responseDict[key]['is_read']){
                                 div.className = "alert alert-secondary";
                             }
                             else {
                                 div.className = "alert alert-primary";
+                                badge.innerHTML = Number(badge.innerHTML) + 1;
                             }
-                            
-                            div.innerHTML = `<button type="button" class="close" 
-                                            onclick="deleteNotifications(${String(key)})" 
+
+                            div.innerHTML = `<button type="button" class="close"
+                                            onclick="deleteNotifications(${String(key)});
+                                            event.cancelBubble=true; return false;"
                                             data-dismiss="alert">×</button>`;
-                                            
+
                             var header = document.createElement("strong");
                             header.className = "text-capitalize";
                             var title = document.createTextNode(responseDict[key]['title']);
@@ -115,12 +121,18 @@ function getNotifications(){
 
 
 function markAsRead(pk=""){
+    var badge = document.getElementById('badgeCounter');
     var xhr = new XMLHttpRequest();
     if (pk === "") {
-        var url = myapp.URLS.notificationsAllRead; 
+        var url = myapp.URLS.notificationsAllRead;
+        badge.innerHTML="";
     }
     else {
         var url = getAbsoluteURL(`/notifications/${pk}/nread/`);
+        badge.innerHTML = Number(badge.innerHTML) - 1;
+        if (Number(badge.innerHTML) <= 0) {
+            badge.innerHTML="";
+        }
     }
     xhr.open("POST", url, true);
 
@@ -138,12 +150,31 @@ function markAsRead(pk=""){
 
 
 function deleteNotifications(pk=""){
+    var badge = document.getElementById('badgeCounter');
+    var nContainer = document.getElementById('notificationsContainer')
+
     var xhr = new XMLHttpRequest();
     if (pk === "") {
         var url = myapp.URLS.notificationsAllClear;
+        badge.innerHTML="";
+        nContainer.innerHTML ="";
     }
     else {
-        var url = getAbsoluteURL(`/notifications/${pk}/nremove/`);
+        var url = getAbsoluteURL(`/notifications/${pk}/nremove/`);     
+        if (document.getElementById("alert"+String(pk)).className == "alert alert-primary"){
+            badge.innerHTML = Number(badge.innerHTML) - 1;
+            if (Number(badge.innerHTML) <= 0) {
+                badge.innerHTML="";
+            }
+        }
+        document.getElementById("link"+String(pk)).remove();
+    }
+    if (nContainer.childNodes.length === 0) {
+        var paragraph = document.createElement("p");
+        paragraph.className = "text-center";
+        var text = document.createTextNode("No new notifications");
+        paragraph.appendChild(text);
+        nContainer.prepend(paragraph);
     }
 
     xhr.open("POST", url, true);
@@ -180,12 +211,6 @@ const makeSentenceCase = (s) => {
 
 $('#notificationsDropdown').on('show.bs.dropdown', function() {
     getNotifications();
-    getUnreadCount();
-});
-
-
-$('#notificationsDropdown').on('hide.bs.dropdown', function() {
-    setTimeout(function(){console.log("waiting for count");}, 5000);
     getUnreadCount();
 });
 
@@ -246,15 +271,15 @@ function getStockRules(counter, symbol) {
                                                   href="../../../rules/edit/${ruleType}/${key}/">
                                                   <i class='fa fa-pencil'></i></a>`;
                             ruleDiv.appendChild(buttonCol);
-                            
+
                             for (var key in singleRuleDict){
-                                
+
                                 var field = document.createTextNode(key +": ");
                                 var fieldTag = document.createElement("a");
                                 fieldTag.className = "text-capitalize";
                                 var value = document.createTextNode(singleRuleDict[key]);
                                 var valueTag = document.createElement("b");
-                                
+
                                 fieldTag.appendChild(field);
                                 valueTag.appendChild(value);
                                 infoCol.appendChild(fieldTag);
@@ -289,7 +314,6 @@ function getRuleName(ruleType){
         return 'analyst recommendations';
     }
 }
-
 
 
 window.setInterval(getUnreadCount, 30000);
