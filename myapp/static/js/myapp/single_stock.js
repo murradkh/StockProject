@@ -176,6 +176,9 @@ function startInterval(time, path){
         success: function(data) {
             $('#stock_data').replaceWith($('#stock_data',data));
             $('#text').replaceWith($('#text',data));
+             $('#staticPrice').replaceWith($('#staticPrice',data));
+
+
         },
         error: function(data) {
             console.log("error")
@@ -190,4 +193,6 @@ function startInterval(time, path){
 //    }
 //    }, time)
     }
+
+
 

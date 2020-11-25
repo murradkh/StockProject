@@ -87,7 +87,7 @@ class Profile(models.Model):
 class Portfolio(models.Model):
     budget = models.FloatField(default=500)
 
-    def buy_stock(self, symbol, quantity=1):
+    def buy_stock(self, symbol, quantity=1,threshold=None):
         if quantity > 0:
             try:
                 stock = Stock.objects.get(symbol=symbol)
@@ -97,7 +97,7 @@ class Portfolio(models.Model):
             amount = quantity * stock.price
             BoughtStock.objects.create(portfolio=self, stock=stock, quantity=quantity,
                                        expense_price=amount,
-                                       budget_left=(self.budget - amount))
+                                       budget_left=(self.budget - amount), threshold=threshold)
             self.budget -= amount
             self.save()
         else:
@@ -127,6 +127,7 @@ class BoughtStock(models.Model):
     expense_price = models.FloatField()
     budget_left = models.FloatField()
     sold_quantity = models.PositiveIntegerField(default=0)
+    threshold = models.FloatField(null=True)
 
 
 class SoldStock(models.Model):

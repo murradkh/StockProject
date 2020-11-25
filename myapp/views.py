@@ -6,7 +6,8 @@ from django.urls import reverse
 from myrails.settings import THREAD_INTERVAL
 
 from myapp import stock_api
-from myapp.models import Stock, Profile, SoldStock, BoughtStock
+from myapp.models import Stock, Profile, SoldStock, BoughtStock, Portfolio
+
 
 from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm
 from django.http import JsonResponse, HttpResponse
@@ -42,7 +43,8 @@ def index(request):
                                     name=stock['companyName'],
                                     price=stock['latestPrice'],
                                     change=stock['change'],
-                                    change_percent=stock['changePercent'],
+                                    change_percent=stock['c'
+                                                         'hangePercent'],
                                     market_cap=stock['marketCap'],
                                     primary_exchange=stock['primaryExchange']))
         else:
@@ -88,6 +90,12 @@ def single_stock(request, symbol):
     status_code = 200
     template = 'single_stock.html'
     try:
+        # budget
+        if request.user.is_authenticated:
+            profile, create = Profile.objects.get_or_create(user=request.user)
+            budget = profile.portfolio.budget
+        else:
+            budget = 0
         data = stock_api.get_stock_info(symbol)
         stock = Stock.objects.filter(symbol=symbol)[:1]
         if request.user.is_authenticated:
@@ -105,7 +113,8 @@ def single_stock(request, symbol):
         context = {'error_message': "Unknown Error occurred: {}".format(", ".join(e.args)), "status_code": status_code}
         template = "exception.html"
     else:
-        context = {'page_title': 'Stock Page - %s' % symbol, 'data': data, 'stock': stock, 'profile': profile}
+        context = {'page_title': 'Stock Page - %s' % symbol, 'data': data, 'stock': stock, 'profile': profile ,
+                   'budget':budget}
     finally:
         response = render(request, template, context)
         response.status_code = status_code
@@ -214,9 +223,12 @@ def buy_stock_view(request, symbol):
     status_code = 200
     profile, created = Profile.objects.get_or_create(user=request.user)
     try:
-        q = request.GET.get("quantity")
+        q = request.POST['quantity']
+        threshold = request.POST['threshold']
         if q is None:
             profile.portfolio.buy_stock(symbol, 1)
+        elif threshold is not None and len(threshold.strip()) > 0:
+            profile.portfolio.buy_stock(symbol, int(q), int(threshold))
         else:
             profile.portfolio.buy_stock(symbol, int(q))
         response = HttpResponse('OK')
@@ -260,9 +272,10 @@ def logout_view(request):
 def single_stock_historic(request, symbols, time_range='1m'):
     context = None
     status_code = 200
+
     try:
         data = stock_api.get_stock_historic_prices(symbols, time_range=time_range)
-        context = {'data': data}
+        context = { 'data': data}
     except StockSymbolNotFound as e:
         context = {"error_message": e.message}
         status_code = 404

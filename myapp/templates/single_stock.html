@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% include "subtemplate/buy_model.html" with id=1 name=data.companyName budget=budget latestPrice=data.latestPrice %}
 <div class="col-md-12 text-left" >
     <table>
+
         <tr>
             <td><h2>{{ data.companyName }}<small class="text-muted">({{ data.symbol }}) &emsp14;</small></h2></td>
             {% if profile %}
@@ -15,6 +17,8 @@
                         class='fa fa-eye'></i> Add to watchlist
                 </button>
                 {% endif %}
+                <button id ="buyBtn" onclick=""  class="btn btn-outline-success" data-toggle="modal" data-target="#buyModel1">
+                    <i class="fa fa-money" aria-hidden="true"></i> Buy </button>
             </td>
             {% endif %}
         </tr>
@@ -139,6 +143,7 @@
 	window.onload = function(){
 	setOriginSymbol("{{data.symbol}}");
 	getHistoricData();
+
 	};
 //startInterval("{{ Interval }}" ,"{{ request.path }}")
 startInterval(10000 ,"{{ request.path }}")
