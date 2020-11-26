@@ -14,3 +14,27 @@ class InvalidTimeRange(Exception):
     def __init__(self, message):
         self.message = message
         super(InvalidTimeRange, self).__init__(message)
+
+
+class InvalidSellQuantityValue(Exception):
+    def __init__(self, message="the amount of bought stocks is less than requested stocks to sell!"):
+        self.message = message
+        super(InvalidSellQuantityValue, self).__init__(message)
+
+
+class InAdequateBudgetLeft(Exception):
+    def __init__(self, message="no enough budget left to user to perform buy transaction!"):
+        self.message = message
+        super(InAdequateBudgetLeft, self).__init__(message)
+
+
+class InvalidQuantityValue(Exception):
+    def __init__(self, message="Invalid quantity value, less than 1"):
+        self.message = message
+        super(InvalidQuantityValue, self).__init__(message)
+
+
+class InvalidBuyID(Exception):
+    def __init__(self, message="Buy ID provided doesn't exist !"):
+        self.message = message
+        super(InvalidBuyID, self).__init__(message)
