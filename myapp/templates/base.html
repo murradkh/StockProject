@@ -23,13 +23,12 @@
 
 <div class="wrapper">
     <nav class="navbar navbar-expand-lg navbar-light">
-        <div id="logo" class="navbar-brand"><a href="/"><img src="{% static 'logo.png' %}" alt="Project Rails"/></a>
+        <div id="logo" class="navbar-brand"><a href="/"><img src="{% static 'logo_nav.svg' %}" alt="Rails Finance"/></a>
         </div>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div class="navbar-nav">
-                <a class="nav-item nav-link active" href="/">Home</a>
-                <a class="nav-item nav-link disabled" href="#">Exchange System</a>
-                <a class="nav-item nav-link disabled" href="#">Contact</a>
+                <a class="nav-item nav-link active" href="/"><i class="fa fa-home"></i> Home</a>
+                <a class="nav-item nav-link" href="#"><i class="fa fa-info-circle"></i> About</a>
             </div>
         </div>
 
@@ -90,6 +89,7 @@
                     <a class="nav-link" href="{% url 'login' %}">
                         <i class="fa fa-user"></i> Login</a>
                 </li>
+                <span class="badge badge-pill badge-primary" id="badgeCounter"></span>
                 {% endif %}
 
             </ul>
@@ -132,6 +132,13 @@ var myapp = {
       notificationsAllClear: "{% url 'clear_notifications' %}",
     }
   }
+  if (`{{user.is_authenticated}}`== 'True'){
+    var isAuth = true;
+  }
+  else{
+    var isAuth = false;
+  }
+    
 </script>
 <script type="text/javascript" src="{% static 'js/myapp/base.js' %}">
 </script>
