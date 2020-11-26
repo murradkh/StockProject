@@ -122,7 +122,7 @@
     </div>
 </div>
 {% for stock in bought_stocks %}
-    {% include "subtemplate/sell_model.html" with id=stock.id qty=stock.quantity name=stock.stock budget=profile.portfolio.budget  latestPrice=stock.stock.price  gainLoss=stock.stock.price|sub:stock.expense_price|floatformat:2 buy_id=stock.id %}
+    {% include "subtemplate/sell_model.html" with id=stock.id qty=stock.quantity name=stock.stock budget=profile.portfolio.budget  latestPrice=stock.stock.price  gainLoss=stock.expense_price|div:stock.quantity|sub:stock.stock.price|floatformat:2  buy_id=stock.id %}
 {% endfor %}
 
 {% endblock %}
