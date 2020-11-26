@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div id="logo" class="navbar-brand"><a href="/"><img src="{% static 'logo_large.svg' %}" class="img-fluid" style="height: 180px;" alt="Rails Finance"/></a>
+    <h3 class="text-dark">Rails Finance</h3>
+    <a class="text-secondary" href="https://github.com/tommerw/StockProject"><i class="fa fa-github" aria-hidden="true"></i></a><br>
+    <div class="my-4"></div>
+    <small>Built by</small><br>
+    <a href="https://www.linkedin.com/in/murrad-k-0136a5153/"> Murrad Khalil</a>&emsp13;&emsp13;
+    <a href="https://www.linkedin.com/in/kamalq97/"> Kamal Qarain </a>&emsp13;&emsp13;
+    <a href="https://www.linkedin.com/in/malak-abuthraa/"> Malak Abuthaa </a>
+    <div class="my-4"></div>
+    <small>Under the supervison of</small><br>
+    <a href="https://www.linkedin.com/in/tommerwizansky/"> Tommer Wizansky </a><br>
+    <div class="my-4"></div>
+    <small>As part of</small><br>
+    <a href="https://www.linkedin.com/company/project-rails/about/">Project Rails</a>
+</div>
+{% endblock %}
