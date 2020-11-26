@@ -1,6 +1,5 @@
+from myapp.models import Stock, WatchedStock, BoughtStock, SoldStock
 from django.db.models import F
-
-from myapp.models import Stock, WatchStock, BoughtStock, SoldStock
 from myapp import stock_api
 from django.db import transaction
 from datetime import datetime
@@ -40,7 +39,7 @@ def top_stock_update():
 
 
 def update_existing_stocks():
-    s = WatchStock.objects.all().values("stock_id").distinct()
+    s = WatchedStock.objects.all().values("stock_id").distinct()
     for w in s:
         stock = Stock.objects.all().filter(symbol=w.get('stock_id'))[0]
         if (datetime.now(stock.last_modified.tzinfo) - stock.last_modified).total_seconds() > 5:

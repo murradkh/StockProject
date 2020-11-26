@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div class="container">
+    <div class="col-md-12 text-left">
+        <h3>Edit {{rule_name}} Rule</h3>
+    </div>
+    <div class="col-md-6">
+        <div class="my-3"></div>
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% for hidden_field in form.hidden_fields %}
+                    {{ hidden_field }}
+                {% endfor %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% for field in form.visible_fields %}
+                    <div class="form-group text-left">
+                    {{ field.label_tag | title }}
+
+                    {% if form.is_bound %}
+                        {% if field.errors %}
+                        {% render_field field class="form-control is-invalid" %}
+                        {% for error in field.errors %}
+                            <div class="invalid-feedback">
+                            {{ error }}
+                            </div>
+                        {% endfor %}
+                        {% else %}
+                        {% render_field field class="form-control is-valid" %}
+                        {% endif %}
+                    {% else %}
+                        {% render_field field class="form-control" %}
+                    {% endif %}
+
+                    {% if field.help_text %}
+                        <small class="form-text text-primary">{{ field.help_text | safe }}</small>
+                    {% endif %}
+                    </div>
+                {% endfor %}
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-save"></i> Save Changes</button>
+                </div>
+            </form>
+            <div class="form-group">
+                <small>No longer want to have this rule?<br></small> 
+                <a class="text-danger" data-toggle="modal" data-target="#delete_dialog">
+                    <i class="fa fa-trash"></i> Delete Rule
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="delete_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Confirm Rule Deletion</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-left">Are you sure you want to delete this {{ rule_name | lower }} rule?</p>
+                <small class="text-danger"><i class="fa fa-warning"></i> This action cannot be undone</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                <button onclick="deleteRule()" type="button" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    form = document.getElementsByClassName("form-group text-left");
+    var checkbox = form[form.length - 1];
+    checkbox.innerHTML = `<div class="form-group text-left">
+                                <input type="checkbox" name="fired" class="" required="" id="id_fired">
+                                <label for="Id_Fired">Do not let this rule send me notifications </label>
+                            </div>`
+</script>
+<script>
+    function deleteRule() {
+        var xhr = new XMLHttpRequest();
+        var url = "{% url 'delete_notification_rule' rule_type pk %}";
+        xhr.open("POST", url, true);
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                var status = xhr.status;
+                if (status === 0 || (status >= 200 && status < 400)) {
+                    console.log("rule deleted");
+                    window.location.href = "{% url 'index' %}"          
+                }
+            }
+        };
+        xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+        xhr.send();
+    }
+</script>
+{% endblock %}
+

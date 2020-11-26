@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div class="container">
+    <div class="col-md-12 text-left">
+        <h3>Create a New Notification Rule</h3>
+    </div>
+    <div class="row">  
+        <div class="col-md-5 text-left" style="margin-left:16px; margin-right: 48px;">
+            <div class="my-3"></div>
+            <p>Rule Type:</p>
+            <div class="custom-control custom-radio">
+                <input type="radio" class="custom-control-input" id="change_status" name="rulesRadios">
+                <label class="custom-control-label" for="change_status"> 
+                    <strong class="text-capitalize">Status Change Rule</strong>
+                    <p>Notify me when there is a positive/negative change in the
+                       stock ranking for a specified number of consecutive days</p>
+                </label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" class="custom-control-input" id="change_threshold" name="rulesRadios">
+                <label class="custom-control-label" for="change_threshold">
+                    <strong class="text-capitalize">Threshold Change Rule</strong>
+                    <p>Notify me when the change in stock price reaches or exceeds a 
+                       specified percentage value</p>
+                </label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" class="custom-control-input" id="price_threshold" name="rulesRadios">
+                <label class="custom-control-label" for="price_threshold">
+                    <strong class="text-capitalize">Price Threshold Rule</strong>
+                    <p>Notify me when the price of stock reaches or exceeds a specified 
+                       threshold price value</p>
+                </label>
+            </div>
+            <div class="custom-control custom-radio">
+                <input type="radio" class="custom-control-input" id="recommendation_analyst" name="rulesRadios">
+                <label class="custom-control-label" for="recommendation_analyst">
+                    <strong class="text-capitalize">Analyst Recommendations Rule</strong>
+                    <p>Notify me when financial analysts are recommending to 
+                       Buy/Over-Weight/Hold/Under-Weight/Sell the stock </p>
+                </label>
+            </div>
+            <div class="my-3"></div>
+        </div>
+        <div class="col-md-6">
+            <div class="my-3"></div>
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% for hidden_field in form.hidden_fields %}
+                    {{ hidden_field }}
+                {% endfor %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% for field in form.visible_fields %}
+                    <div class="form-group text-left">
+                    {{ field.label_tag | title }}
+
+                    {% if form.is_bound %}
+                        {% if field.errors %}
+                        {% render_field field class="form-control is-invalid" %}
+                        {% for error in field.errors %}
+                            <div class="invalid-feedback">
+                            {{ error }}
+                            </div>
+                        {% endfor %}
+                        {% else %}
+                        {% render_field field class="form-control is-valid" %}
+                        {% endif %}
+                    {% else %}
+                        {% render_field field class="form-control" %}
+                    {% endif %}
+
+                    {% if field.help_text %}
+                        <small class="form-text text-primary">{{ field.help_text | safe }}</small>
+                    {% endif %}
+                    </div>
+                {% endfor %}
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-save"></i> Save New Rule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    form = document.getElementsByClassName("form-group text-left");
+    var checkbox = form[form.length - 1];
+    checkbox.innerHTML = `<div class="form-group text-left">
+                            <input type="checkbox" name="fired" class="" required="" id="id_fired">
+                            <label for="Id_Fired">Do not let this rule send me notifications </label>
+                        </div>`
+    </script>
+<script>
+    $("#{{rule_type}}").prop("checked", true);
+
+    $('#change_status').change(function () {
+    if ($(this).prop("checked")) {
+        window.location.href = "{% url 'add_notification_rule' 'change_status' stock.symbol %}";
+    }});
+
+    $('#change_threshold').change(function () {
+    if ($(this).prop("checked")) {
+        window.location.href = "{% url 'add_notification_rule' 'change_threshold' stock.symbol %}";
+    }});
+
+    $('#price_threshold').change(function () {
+    if ($(this).prop("checked")) {
+        window.location.href = "{% url 'add_notification_rule' 'price_threshold' stock.symbol %}";
+    }});
+
+    $('#recommendation_analyst').change(function () {
+    if ($(this).prop("checked")) {
+        window.location.href = "{% url 'add_notification_rule' 'recommendation_analyst' stock.symbol %}";
+    }});
+</script>
+{% endblock %}

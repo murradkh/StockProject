@@ -36,13 +36,40 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
             <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
+                <li class="nav-item dropdown" id="notificationsDropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-1" data-toggle="dropdown"
+                       aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-bell"></i> Notifications 
+                        <span class="badge badge-pill badge-primary" id="badgeCounter"></span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-info"
+                         aria-labelledby="navbarDropdownMenuLink-1"
+                         style="width: 380px !important;"> 
+                        <div class="overflow-auto" id="notificationsContainer" style="padding: 8px 16px 0px 16px;">
+                            <div class="d-flex justify-content-center">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                  <span class="sr-only">Loading...</span>
+                                </div>
+                              </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div id="actionsContainer">
+                            <button class="dropdown-item" onclick="markAsRead()">
+                                <i class="fa fa-check-circle"></i>&ensp; Mark all as read
+                            </button>
+                            <button class="dropdown-item" onclick="deleteNotifications()">
+                                <i class="fa fa-window-close"></i>&ensp; Clear all
+                            </button>
+                        </div>
+                    </div>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link disabled" href="#">
-                        <i class="fa fa-cubes"></i> My Portfolio</a>
+                        <i class="fa fa-cubes"></i> Portfolio</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'watchlist' %}">
-                        <i class="fa fa-eye"></i> My Watchlist</a>
+                        <i class="fa fa-eye"></i> Watchlist</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
@@ -73,9 +100,13 @@
 
 <div class="wrapper">
     <section class="container">
-
         {% for message in messages %}
-        <div class="alert-{{ message.tags }}" role="alert">{{ message }}</div>
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <i class="fa fa-{{ message.tags }}"></i>&emsp; {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
         {% endfor %}
         {% block content %}
         <p>Placeholder text</p>
@@ -93,28 +124,20 @@
 <script type="text/javascript" src="{% static 'js/addons/datatables.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/modules/chart.js' %}"></script>
 <script>
-            $(document).ready(function(){
-                $('.clickable-row').click(function(){
-                    window.location = $(this).data('href');
-                });
-            });
-
-            function getCookie(cname) {
-                var name = cname + "=";
-                var decodedCookie = decodeURIComponent(document.cookie);
-                var ca = decodedCookie.split(';');
-                for(var i = 0; i <ca.length; i++) {
-                    var c = ca[i];
-                    while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                    }
-                    if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                    }
-                }
-                return "";
-            }
-        </script>
+var myapp = {
+    URLS: {
+      listNotifications: "{% url 'list_notifications' %}",
+      notificationsUnreadCount: "{% url 'notification_unread_count' %}",
+      notificationsAllRead: "{% url 'notifications_all_read' %}",
+      notificationsAllClear: "{% url 'clear_notifications' %}",
+    }
+  }
+</script>
+<script type="text/javascript" src="{% static 'js/myapp/base.js' %}">
+</script>
+<script>
+    $(document).ready(getUnreadCount());
+</script>
     {% block scripts %}
     {% endblock scripts %}
 </body>
