@@ -3,6 +3,7 @@
 {% load mathfilters %}
 
 {% block content %}
+<div id ="alert"></div>
 <div class="container">
     <div class="row">
         <div class="col-9 text-left">
@@ -68,7 +69,8 @@
                         <td>{{ stock.sold_quantity }}</td>
                         <td>${{ stock.budget_left|floatformat:2  }}</td>
                         <td onclick="event.cancelBubble=true; return false;">
-                            <button onclick="getSellForm('{{forloop.counter}}')" class="btn btn-outline-secondary" style="padding: 0px 8px;"><i class='fa fa-money'></i></button>
+                            <button onclick="getSellForm('{{stock.id}}')" class="btn btn-outline-secondary" style="padding: 0px 8px;"><i
+                                    class='fa fa-money'></i></button>
                         </td>
                     </tr>
                 {% endfor %}
@@ -106,7 +108,8 @@
                             </td>
                             <td>${{ stock.budget_left|floatformat:2  }}</td>
                             <td onclick="event.cancelBubble=true; return false;">
-                                <button onclick="getBuyForm('{{forloop.counter}}')" class="btn btn-outline-success" style="padding: 0px 8px;"><i class='fa fa-money'></i></button>
+                                <button onclick="onclickBuy('{{stock.bought_stock.stock.symbol}}')" class="btn btn-outline-success"
+                                        style="padding: 0px 8px;"><i class='fa fa-money'></i></button>
                             </td>
                         </tr>
                     {% endfor %}
@@ -119,17 +122,22 @@
     </div>
 </div>
 {% for stock in bought_stocks %}
-    {% include "subtemplate/sell_model.html" with id=stock.id name=stock.stock.name budget=profile.portfolio.budget latestPrice=stock.stock.price gainLoss=stock.stock.price|sub:stock.expense_price|floatformat:2  %}
+    {% include "subtemplate/sell_model.html" with id=stock.id qty=stock.quantity name=stock.stock budget=profile.portfolio.budget  latestPrice=stock.stock.price  gainLoss=stock.stock.price|sub:stock.expense_price|floatformat:2 buy_id=stock.id %}
 {% endfor %}
-{% for stock in sold_stocks %}
-    {% include "subtemplate/buy_model.html" with id=forloop.counter name=stock.bought_stock.stock.name budget=profile.portfolio.budget latestPrice=stock.bought_stock.stock.price %}
-{% endfor %}
-{% endblock %}
 
+{% endblock %}
 {% load static %}
 {% block scripts %}
-<script type="text/javascript" src="{% static 'js/myapp/buy_model.js' %}">
-</script>
+
 <script type="text/javascript" src="{% static 'js/myapp/sell_model.js' %}">
+
+</script>
+
+<script>
+function onclickBuy(stock){
+    window.location.href = "../../stock/"+stock;
+
+}
+
 </script>
 {% endblock %}

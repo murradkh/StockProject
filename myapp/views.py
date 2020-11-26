@@ -20,7 +20,8 @@ from django.contrib.auth import login, logout
 
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange, \
     InvalidSellQuantityValue
-from django.db.models import Q
+
+from django.db.models import F
 
 STOCKS_PER_PAGE = 10
 
@@ -195,7 +196,7 @@ def sell_stock_view(request, buy_id):
     status_code = 200
     profile, created = Profile.objects.get_or_create(user=request.user)
     try:
-        q = request.GET.get("quantity")
+        q = int(request.POST['quantity'])
         if q is None:
             profile.portfolio.sell_stock(buy_id, 1)
         else:
@@ -225,12 +226,14 @@ def buy_stock_view(request, symbol):
     try:
         q = request.POST['quantity']
         threshold = request.POST['threshold']
+        price = float(request.POST['staticPrice'])
+        print('staticPrice', price)
         if q is None:
             profile.portfolio.buy_stock(symbol, 1)
         elif threshold is not None and len(threshold.strip()) > 0:
-            profile.portfolio.buy_stock(symbol, int(q), int(threshold))
+            profile.portfolio.buy_stock(symbol, price, int(q), int(threshold))
         else:
-            profile.portfolio.buy_stock(symbol, int(q))
+            profile.portfolio.buy_stock(symbol, price, int(q))
         response = HttpResponse('OK')
     except InvalidSellQuantityValue as e:
         status_code = 404
@@ -317,7 +320,7 @@ def list_stocks_names_view(request, search_text):
 def portfolio_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
     context = {'page_title': 'My Portfolio', 'profile': profile, 
-               'bought_stocks': BoughtStock.objects.filter(portfolio=profile.portfolio),
+               'bought_stocks': BoughtStock.objects.filter(portfolio=profile.portfolio, quantity__gt=F('sold_quantity')),
                'sold_stocks': SoldStock.objects.filter(portfolio=profile.portfolio),
                'Interval': (THREAD_INTERVAL * 1000)}
     return render(request, 'portfolio.html', context)

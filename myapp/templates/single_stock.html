@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% include "subtemplate/buy_model.html" with id=1 name=data.companyName budget=budget latestPrice=data.latestPrice %}
+
+{% include "subtemplate/buy_model.html" with id=1 name=data.companyName budget=budget latestPrice=data.latestPrice stock=data.symbol %}
 <div class="col-md-12 text-left" >
     <table>
         <tr>
@@ -31,7 +32,7 @@
 <div class="col-md-12 text-left" id="stock_data">
 	<span class="lead">
 	<big>
-			{{ data.latestPrice }}
+			<span id="price">{{ data.latestPrice }}</span>
 			<small class="lead">
 					{% if data.changePercent >= 0 %}
 									<span class="text-success">+{{ data.change }} (+{{ data.changePercent }}%)</span>
@@ -146,6 +147,13 @@
 	};
 //startInterval("{{ Interval }}" ,"{{ request.path }}")
 startInterval(10000 ,"{{ request.path }}")
+
+$(window).on('shown.bs.modal', function() {
+    $('.buyModel').modal('show');
+    price =document.getElementById("price").innerHTML;
+    document.getElementById("staticPrice").value = price;
+
+});
 </script>
 {% endblock %}
 

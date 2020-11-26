@@ -3,7 +3,7 @@ var alert_msg ='<div  class="alert alert-success alert-dismissible fade show  " 
                  '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'+
                  '<span aria-hidden="true">&times;</span></button></div>';
 
-
+var path =""
 function multiply(){
     qty = Number(document.getElementById('quantity').value);
     price = Number(document.getElementById('staticPrice').value);
@@ -61,12 +61,12 @@ $.fn.ShowInput = $(function () {
 });
 
 function submitvalidate(){
-    $('buyForm').submit(function(e){
+    $('#buyForm').submit(function(e){
     if (validateForm()){
     $.post('buy/', $(this).serialize(), function(data){
         $('.message').html(data.message);
         document.getElementById('x').innerHTML = alert_msg;
-        $('#buyModel').modal('hide');
+        $('.buyModel').modal('hide');
         resetForm();
     });
     e.preventDefault();
@@ -78,8 +78,12 @@ function submitvalidate(){
 });
 }
 
-$(document).ready(submitvalidate());
+
 
 function getBuyForm(counter) {
     $('#buyModel'+counter).modal('show');
+}
+
+function getPath(stock, path){
+console.log("path is =" + " "+String(path));
 }
