@@ -104,7 +104,7 @@
                                         {% else %}
                                             text-danger
                                         {% endif %}">
-                                {{ stock.gain_price }}
+                                {{ stock.gain_price|floatformat:2 }}
                             </td>
                             <td>${{ stock.budget_left|floatformat:2  }}</td>
                             <td onclick="event.cancelBubble=true; return false;">
@@ -128,16 +128,12 @@
 {% endblock %}
 {% load static %}
 {% block scripts %}
-
-<script type="text/javascript" src="{% static 'js/myapp/sell_model.js' %}">
-
-</script>
+<script type="text/javascript" src="{% static 'js/myapp/sell_model.js' %}"></script>
 
 <script>
 function onclickBuy(stock){
     window.location.href = "../../stock/"+stock;
 
 }
-
 </script>
 {% endblock %}
