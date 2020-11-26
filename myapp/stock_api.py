@@ -55,10 +55,10 @@ def get_top_stocks():
         raise e
 
 
-def get_stock_info(symbol):
+def get_stock_info(symbol, filter=()):
     # 'symbol,companyName,marketcap,totalCash,primaryExchange,latestPrice,latestSource,change,changePercent'
     try:
-        return _request_data('/stable/stock/{symbol}/quote'.format(symbol=symbol),
+        return _request_data(f"/stable/stock/{symbol}/quote?{'' if not filter else ('filter=' + (','.join(filter)))}",
                              additional_parameters={'displayPercent': 'true'})
     except ConnectionError:
         raise StockServerUnReachable("Stock server UnReachable!")
@@ -69,21 +69,24 @@ def get_stock_info(symbol):
         raise e
 
 
-def get_stock_historic_prices(symbols, time_range='1m'):
+def get_stock_historic_prices(symbols, time_range='1m', chart_interval=None, filter=()):
     if time_range not in ALLOWED_TIME_RANGES:
         raise InvalidTimeRange("Invalid time range")
     try:
-        if time_range == '6m':
-            chart_interval = 3
-        elif time_range.endswith('y'):
-            chart_interval = int(time_range[0]) * 6
-        elif time_range == 'max':
-            chart_interval = 30
-        else:
-            chart_interval = 1
+        if not chart_interval:
+            if time_range == '6m':
+                chart_interval = 3
+            elif time_range.endswith('y'):
+                chart_interval = int(time_range[0]) * 6
+            elif time_range == 'max':
+                chart_interval = 30
+            else:
+                chart_interval = 1
         response = _request_data(
-            '/stable/stock/market/batch?symbols={symbols}&types=chart&range={time_range}&chartInterval={chart_interval}&includeToday=true'.format(
-                symbols=symbols, time_range=time_range, chart_interval=chart_interval))
+            f'/stable/stock/market/batch?symbols={symbols}&types=chart&range={time_range}&'
+            f'chartInterval={chart_interval}&includeToday=true&'
+            f'{"" if not filter else ("filter=" + (",".join(filter)))}',
+            additional_parameters={'displayPercent': 'true'})
         if len(response) == 1:
             return response.popitem()[1]['chart']
         return response
@@ -103,7 +106,7 @@ def list_stocks_names(search_text, filter=()):
             symbols = ",".join([obj['symbol'] for obj in response])
             if symbols:
                 response = _request_data(f'/stable/stock/market/batch?symbols={symbols}&types=quote&'
-                                         f'{"" if not filter else ("filter="+(",".join(filter)))}',
+                                         f'{"" if not filter else ("filter=" + (",".join(filter)))}',
                                          additional_parameters={'displayPercent': 'true'})
                 return [i['quote'] for i in response.values()]
         return []

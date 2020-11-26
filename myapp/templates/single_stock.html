@@ -5,23 +5,34 @@
 {% include "subtemplate/buy_model.html" with id=1 name=data.companyName budget=budget latestPrice=data.latestPrice stock=data.symbol %}
 <div class="col-md-12 text-left" >
     <table>
-        <tr>
-            <td><h2>{{ data.companyName }}<small class="text-muted">({{ data.symbol }}) &emsp14;</small></h2></td>
+        <div class="row">
+            <div class="col-sm-auto">
+            <h2>{{ data.companyName }}<small class="text-muted">({{ data.symbol }}) &emsp14;</small></h2>
+            </div>
             {% if profile %}
-            <td>{% if stock.0 in profile.watchlist.all %}
+            <div class="col text-left align-items-center">{% if stock.0 in profile.watchlist.all %}
                 <button id="editbutton" onclick="watchlistEdit()" class="btn btn-outline-danger"><i
                         class='fa fa-eye-slash'></i> Remove from watchlist
+                </button>
+                <button id="rulesbutton" class="btn btn-outline-secondary visible"
+                onclick="getStockRules('1', '{{ data.symbol }}')">
+                    <i class='fa fa-cogs'></i>
                 </button>
                 {% else %}
                 <button id="editbutton" onclick="watchlistEdit()" class="btn btn-outline-primary"><i
                         class='fa fa-eye'></i> Add to watchlist
                 </button>
+                <button id="rulesbutton" class="btn btn-outline-secondary invisible"
+                onclick="getStockRules('1', '{{ data.symbol }}')">
+                    <i class='fa fa-cogs'></i>
+                </button>
                 {% endif %}
                 <button id ="buyBtn" onclick=""  class="btn btn-outline-success" data-toggle="modal" data-target="#buyModel1">
                     <i class="fa fa-money" aria-hidden="true"></i> Buy </button>
             </td>
+            </div>
             {% endif %}
-        </tr>
+        </div>
     </table>
 </div>
 
@@ -156,6 +167,5 @@ $(window).on('shown.bs.modal', function() {
 });
 </script>
 {% endblock %}
-
 
 
