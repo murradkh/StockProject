@@ -1,14 +1,15 @@
 from django.contrib.auth.models import User
 from django.test import Client
-
+from myapp.models import Profile, Stock, Notification
 from django.test import TestCase
 
 
 class UserLoginTestCase(TestCase):
     def setUp(self):
-        self.test_user = User.objects.create_user(username='tester', password='randomexample')
-        self.client = Client()
-        self.client.post('/accounts/login/', {'username': 'tester', 'password': 'randomexample'})
+        self.test_user = User.objects.create_user(username='tester',
+                                                  password='randomexample')
+        self.client.post('/accounts/login/', {'username': 'tester', 
+                                              'password': 'randomexample'})
 
     def test_user_auth_profile(self):
         response = self.client.get('/accounts/profile/')
@@ -20,6 +21,11 @@ class UserLoginTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(template_name='watchlist.html')
 
+    def test_user_auth_portfolio(self):
+        response = self.client.get('/accounts/portfolio/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(template_name='portfolio.html')
+
     def test_login_required_redirect(self):
         self.client.logout()
         response = self.client.get('/accounts/password/')  # Must redirect to login page
@@ -28,7 +34,6 @@ class UserLoginTestCase(TestCase):
 
 
 class EndPointsTestCase(TestCase):
-
     def setUp(self):
         self.existed_symbols = ['AAL', 'WFC', "CCL"]
         self.not_existed_symbols = ['kamal', 'murad', 'malak']
@@ -70,3 +75,70 @@ class EndPointsTestCase(TestCase):
         self.assertEqual(len(response.json()['stocks_names']), 0)
         response = self.client.get("/stocks/list_names/")
         self.assertEquals(response.status_code, 404)
+
+
+class NotificationsViewTestCase(TestCase):
+    def setUp(self):
+        self.test_user = User.objects.create_user(username='tester',
+                                                  password='randomexample')
+
+        self.test_stock_1 = Stock.objects.create(symbol="APPL",
+                                                name='Apple',
+                                                top_rank=1,
+                                                price=10.0, 
+                                                change=2.0, 
+                                                change_percent=20.0)
+
+        self.test_notif_1 = Notification.objects.create(title="Apple Notification 1",
+                                                        description="First Apple notification",
+                                                        stock=self.test_stock_1, 
+                                                        user=Profile.objects.get(user=self.test_user))
+
+        self.test_notif_2 = Notification.objects.create(title="Apple Notification 2",
+                                                        description="Second Apple notification",
+                                                        stock=self.test_stock_1, 
+                                                        user=Profile.objects.get(user=self.test_user))
+
+        self.client.post('/accounts/login/', {'username': 'tester', 
+                                              'password': 'randomexample'})
+
+
+    def test_notifications_list(self):
+        response = self.client.get("/notifications/")
+        self.assertIsInstance(response.json(), dict)
+        self.assertEqual(len(response.json()), 2)
+
+    def test_notifications_all_unread(self):
+        response = self.client.get("/notifications/")
+        for key in response.json():
+            self.assertFalse(response.json()[key]['is_read'])
+        response = self.client.get("/notifications/unread_count/")
+        self.assertEqual(response.json()['unread_count'], 2)
+
+    def test_notifications_one_read(self):
+        self.client.post(f"/notifications/{self.test_notif_1.pk}/nread/")
+        response = self.client.get("/notifications/")
+        self.assertTrue(response.json()[str(self.test_notif_1.pk)]['is_read'])
+        self.assertFalse(response.json()[str(self.test_notif_2.pk)]['is_read'])
+        response = self.client.get("/notifications/unread_count/")
+        self.assertEqual(response.json()['unread_count'], 1)
+    
+    def test_notifications_all_read(self):
+        self.client.post("/notifications/nread/")
+        response = self.client.get("/notifications/")
+        for key in response.json():
+            self.assertTrue(response.json()[key]['is_read'])
+        response = self.client.get("/notifications/unread_count/")
+        self.assertEqual(response.json()['unread_count'], 0)
+    
+    def test_notifications_delete_one(self):
+        id_1 = self.test_notif_1.pk
+        self.client.post(f"/notifications/{id_1}/nremove/")
+        response = self.client.get("/notifications/")
+        self.assertRaises(KeyError, lambda: response.json()[str(id_1)]['title'])   # no longer exists in dict
+        self.assertEqual(len(response.json()), 1)
+
+    def test_notifications_clear_all(self):
+        self.client.post("/notifications/nremove/")
+        response = self.client.get("/notifications/")
+        self.assertEqual(len(response.json()), 0)

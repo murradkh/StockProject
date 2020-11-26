@@ -6,9 +6,12 @@ from django.urls import reverse
 from myrails.settings import THREAD_INTERVAL
 
 from myapp import stock_api
-from myapp.models import Stock, Profile, Portfolio
+from myapp.models import Portfolio
+from myapp.models import Stock, WatchedStock, Profile, Notification, SoldStock, BoughtStock
+from myapp.sub_models.notification_rules_models import ChangeStatusRule, ChangeThresholdRule, PriceThresholdRule, \
+    RecommendationAnalystRule
 
-from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm
+from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm, ChangeStatusRuleForm, get_rule_from_str
 from django.http import JsonResponse, HttpResponse
 
 from django.contrib import messages
@@ -19,7 +22,8 @@ from django.contrib.auth import login, logout
 
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange, \
     InvalidSellQuantityValue, InAdequateBudgetLeft, InvalidQuantityValue, InvalidBuyID
-from django.db.models import Q
+
+from django.db.models import F
 
 STOCKS_PER_PAGE = 10
 
@@ -42,7 +46,8 @@ def index(request):
                                     name=stock['companyName'],
                                     price=stock['latestPrice'],
                                     change=stock['change'],
-                                    change_percent=stock['changePercent'],
+                                    change_percent=stock['c'
+                                                         'hangePercent'],
                                     market_cap=stock['marketCap'],
                                     primary_exchange=stock['primaryExchange']))
         else:
@@ -88,6 +93,12 @@ def single_stock(request, symbol):
     status_code = 200
     template = 'single_stock.html'
     try:
+        # budget
+        if request.user.is_authenticated:
+            profile, create = Profile.objects.get_or_create(user=request.user)
+            budget = profile.portfolio.budget
+        else:
+            budget = 0
         data = stock_api.get_stock_info(symbol)
         stock = Stock.objects.filter(symbol=symbol)[:1]
         if request.user.is_authenticated:
@@ -105,7 +116,8 @@ def single_stock(request, symbol):
         context = {'error_message': "Unknown Error occurred: {}".format(", ".join(e.args)), "status_code": status_code}
         template = "exception.html"
     else:
-        context = {'page_title': 'Stock Page - %s' % symbol, 'data': data, 'stock': stock, 'profile': profile}
+        context = {'page_title': 'Stock Page - %s' % symbol, 'data': data, 'stock': stock, 'profile': profile,
+                   'budget': budget}
     finally:
         response = render(request, template, context)
         response.status_code = status_code
@@ -184,9 +196,9 @@ def watchlist_remove_view(request, symbol):
 @login_required(login_url='login')
 def sell_stock_view(request, buy_id):
     status_code = 200
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     try:
-        q = request.GET.get("quantity")
+        q = request.POST.get("quantity")
         portfolio, created = Portfolio.objects.get_or_create(profile=profile)
         if created:
             profile.save()
@@ -218,16 +230,22 @@ def sell_stock_view(request, buy_id):
 @login_required(login_url='login')
 def buy_stock_view(request, symbol):
     status_code = 200
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
     try:
-        q = request.GET.get("quantity")
+        q = request.POST.get("quantity")
+        threshold = request.POST['threshold']
+        price = float(request.POST['staticPrice'])
+        print('staticPrice', price)
+
         portfolio, created = Portfolio.objects.get_or_create(profile=profile)
         if created:
             profile.save()
         if q is None:
             portfolio.buy_stock(symbol, 1)
+        elif threshold is not None and len(threshold.strip()) > 0:
+            profile.portfolio.buy_stock(symbol, price, int(q), int(threshold))
         else:
-            portfolio.buy_stock(symbol, int(q))
+            profile.portfolio.buy_stock(symbol, price, int(q))
         response = HttpResponse('OK')
     except InvalidQuantityValue as e:
         status_code = 404
@@ -272,6 +290,7 @@ def logout_view(request):
 def single_stock_historic(request, symbols, time_range='1m'):
     context = None
     status_code = 200
+
     try:
         data = stock_api.get_stock_historic_prices(symbols, time_range=time_range)
         context = {'data': data}
@@ -310,3 +329,120 @@ def list_stocks_names_view(request, search_text):
         response = JsonResponse(context)
         response.status_code = status_code
         return response
+
+
+@login_required(login_url='login')
+def portfolio_view(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    context = {'page_title': 'My Portfolio', 'profile': profile,
+               'bought_stocks': BoughtStock.objects.filter(portfolio=profile.portfolio,
+                                                           quantity__gt=F('sold_quantity')),
+               'sold_stocks': SoldStock.objects.filter(portfolio=profile.portfolio),
+               'Interval': (THREAD_INTERVAL * 1000)}
+    return render(request, 'portfolio.html', context)
+
+
+def list_notifications_view(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    return JsonResponse(profile.get_notifications())
+
+
+@login_required(login_url='login')
+def notification_unread_count_view(request, pk=""):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    return JsonResponse({'unread_count': Notification.objects.filter(is_read=False, user=profile).count()})
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def notification_remove_view(request, pk=""):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if pk:
+        Notification.objects.filter(pk=pk, user=profile).delete()
+    else:
+        Notification.objects.filter(user=profile).delete()
+    return HttpResponse('OK')
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def notifications_mark_read_view(request, pk=""):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if pk:
+        Notification.objects.filter(pk=pk, user=profile).update(is_read=True)
+    else:
+        Notification.objects.filter(user=profile).update(is_read=True)
+    return HttpResponse('OK')
+
+
+@login_required(login_url='login')
+def add_rule_view(request, rule_type, symbol):
+    form, rule_name, rule = get_rule_from_str(request, rule_type)
+    if form == None:
+        context = {'error_message': 'Invalid notification rule type'}
+        response = render(request, 'exception.html', context)
+        response.status_code = 400
+        return response
+
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    watched_stock = WatchedStock.objects.filter(stock__symbol=symbol, profile=profile)
+    if watched_stock.exists():
+        form.fields['watched_stock'].initial = watched_stock[0]
+        if form.is_valid():
+            form.save()
+            messages.info(request, f'Notification rule for {watched_stock[0].stock.name} successfully added')
+            return redirect('single_stock', symbol=symbol)
+        context = {'page_title': f'New {rule_name} Rule',
+                   'rule_type': rule_type,
+                   'form': form,
+                   'stock': watched_stock[0].stock}
+        response = render(request, 'add_rule.html', context)
+        return response
+    else:
+        messages.warning(request, 'This Stock could not be found in your watchlist')
+        return redirect('single_stock', symbol=symbol)
+
+
+@login_required(login_url='login')
+def edit_rule_view(request, rule_type, pk):
+    form, rule_name, rule = get_rule_from_str(request, rule_type, pk)
+    if form == None:
+        context = {'error_message': 'Invalid notification rule type'}
+        response = render(request, 'exception.html', context)
+        response.status_code = 400
+        return response
+    if rule:
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.info(request, 'Notification rule successfully updated')
+            return redirect('index')
+        context = {'page_title': f'Edit {rule_name} Rule',
+                   'rule_name': rule_name, 'rule_type': rule_type,
+                   'pk': pk, 'form': form}
+        response = render(request, 'edit_rule.html', context)
+        return response
+    else:
+        context = {'error_message': 'Notification rule not found'}
+        response = render(request, 'exception.html', context)
+        response.status_code = 404
+        return response
+
+
+@require_http_methods(['POST'])
+@login_required(login_url='login')
+def delete_rule_view(request, rule_type, pk):
+    form, rule_name, rule = get_rule_from_str(request, rule_type, pk)
+    rule.delete()
+    return HttpResponse('OK')
+
+
+@login_required(login_url='login')
+def rules_list_view(request, symbol):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    resposne_dict = {'change_status': ChangeStatusRule.get_rules_dict(profile, symbol),
+                     'change_threshold': ChangeThresholdRule.get_rules_dict(profile, symbol),
+                     'price_threshold': PriceThresholdRule.get_rules_dict(profile, symbol),
+                     'recommendation_analyst': RecommendationAnalystRule.get_rules_dict(profile, symbol)}
+    return JsonResponse(resposne_dict)
+
