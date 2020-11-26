@@ -1,13 +1,17 @@
-from myapp.models import Stock, WatchedStock
+from myapp.models import Stock, WatchedStock, BoughtStock, SoldStock
+from django.db.models import F
 from myapp import stock_api
 from django.db import transaction
 from datetime import datetime
+
+MAX_UNNEEDED_HISTORY_TO_PRESERVE_IN_PORTFOLIO = 20
 
 
 def stock_api_update():
     start = datetime.now(datetime.now().astimezone().tzinfo)
     top_stock_update()
     update_existing_stocks()
+    update_bought_stocks()
     delete_stocks(start)
 
 
@@ -51,7 +55,23 @@ def update_existing_stocks():
                 last_modified=datetime.now(stock.last_modified.tzinfo))
 
 
+def update_bought_stocks():
+    needed_bought_stocks = list(BoughtStock.objects.exclude(sold_quantity=F("quantity")))
+    unneeded_bought_stocks_to_preserve = list(BoughtStock.objects.filter(sold_quantity=F("quantity")).order_by(
+        "-created_on")[:MAX_UNNEEDED_HISTORY_TO_PRESERVE_IN_PORTFOLIO])
+    for bought_stock in needed_bought_stocks + unneeded_bought_stocks_to_preserve:
+        data = stock_api.get_stock_info(bought_stock.stock.symbol)
+        Stock.objects.filter(symbol=bought_stock.stock.symbol).update(
+            name=data['companyName'],
+            top_rank=None,
+            price=data['latestPrice'],
+            change=data['change'],
+            change_percent=data['changePercent'],
+            market_cap=data['marketCap'],
+            primary_exchange=data['primaryExchange'],
+            last_modified=datetime.now(bought_stock.stock.last_modified.tzinfo))
+
+
 def delete_stocks(time_threshold):
     stock = Stock.objects.all().filter(last_modified__lt=time_threshold)
     stock.delete()
-

@@ -1,9 +1,13 @@
-from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from myapp import stock_api
 from myapp.sub_models.notification_rules_models import *
+
+from myapp.exceptions.stock_service import InvalidSellQuantityValue, InAdequateBudgetLeft, InvalidQuantityValue, \
+    InvalidBuyID
 
 
 class Stock(models.Model):
@@ -21,7 +25,7 @@ class Stock(models.Model):
         return f'{self.name}'
 
     def get_path(self):
-        return reverse('single_stock', kwargs={ 'symbol': self.symbol})
+        return reverse('single_stock', kwargs={'symbol': self.symbol})
 
     @classmethod
     def add_to_watchlist(cls, profile, stock_symbol):
@@ -37,17 +41,36 @@ class Stock(models.Model):
 
     @classmethod
     def add_to_db(cls, data):
-        cls.objects.create(symbol=data['symbol'], 
-                            name=data['companyName'],
-                            price=data['latestPrice'],
-                            change=data['change'],
-                            change_percent=data['changePercent'],
-                            market_cap=data['marketCap'],
-                            primary_exchange=data['primaryExchange'])
+        return cls.objects.create(symbol=data['symbol'],
+                                  name=data['companyName'],
+                                  price=data['latestPrice'],
+                                  change=data['change'],
+                                  change_percent=data['changePercent'],
+                                  market_cap=data['marketCap'],
+                                  primary_exchange=data['primaryExchange'])
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    portfolio = models.OneToOneField("Portfolio", on_delete=models.CASCADE, null=True, related_name="profile")
+
+    def __init__(self, *args, **kwargs):
+        super(Profile, self).__init__(*args, **kwargs)
+        self.watchlist = Profile.WatchList(self)
+
+    def __str__(self):
+        return f'{self.user.username}'
+
+    def get_notifications(self):
+        notifications_list = Notification.objects.filter(user__pk=self.pk)
+        notifications_dict = {}
+        for notification in notifications_list:
+            notifications_dict[notification.pk] = {'title': notification.title,
+                                                   'description': notification.description,
+                                                   'time': notification.time,
+                                                   'path': notification.stock.get_path(),
+                                                   'is_read': notification.is_read}
+        return notifications_dict
 
     class WatchList:
 
@@ -65,23 +88,70 @@ class Profile(models.Model):
             for obj in objects:
                 obj.delete()
 
-    def __init__(self, *args, **kwargs):
-        super(Profile, self).__init__(*args, **kwargs)
-        self.watchlist = Profile.WatchList(self)
+class Portfolio(models.Model):
+    budget = models.FloatField(default=500)
 
     def __str__(self):
-        return f'{self.user.username}'
+        return f"{self.profile} portfolio with budget {self.budget}"
 
-    def get_notifications(self):
-        notifications_list = Notification.objects.filter(user__pk=self.pk)
-        notifications_dict = {}
-        for notification in notifications_list:
-            notifications_dict [notification.pk] = {'title': notification.title,
-                                                    'description': notification.description,
-                                                    'time': notification.time,
-                                                    'path': notification.stock.get_path(),
-                                                    'is_read': notification.is_read}
-        return notifications_dict
+    def buy_stock(self, symbol, curPrice, quantity=1, threshold=None):
+        if quantity > 0:
+            try:
+                stock = Stock.objects.get(symbol=symbol)
+            except Stock.DoesNotExist:
+                data = stock_api.get_stock_info(symbol)
+                stock = Stock.add_to_db(data)
+            amount = quantity * curPrice
+            if amount <= self.budget:
+                BoughtStock.objects.create(portfolio=self, stock=stock, quantity=quantity,
+                                           expense_price=amount,
+                                           budget_left=(self.budget - amount),threshold=threshold)
+                self.budget -= amount
+                self.save()
+            else:
+                raise InAdequateBudgetLeft()
+        else:
+            raise InvalidQuantityValue()
+
+    def sell_stock(self, buy_id, quantity=1):
+        try:
+            bought_stock = self.bought_stocks.get(id=buy_id)
+        except BoughtStock.DoesNotExist:
+            raise InvalidBuyID()
+        if (bought_stock.quantity - bought_stock.sold_quantity) >= quantity > 0:
+            amount = quantity * bought_stock.stock.price
+            SoldStock.objects.create(portfolio=self, bought_stock=bought_stock, quantity=quantity,
+                                     earning_price=amount, budget_left=self.budget + amount,
+                                     gain_price=amount - (
+                                             bought_stock.expense_price / bought_stock.quantity * quantity))
+            bought_stock.sold_quantity += quantity
+            bought_stock.save()
+            self.budget += amount
+            self.save()
+        else:
+            raise InvalidSellQuantityValue()
+
+
+class BoughtStock(models.Model):
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="bought_stocks")
+    created_on = models.DateTimeField(auto_now_add=True)
+    quantity = models.PositiveIntegerField(default=1)
+    expense_price = models.FloatField()
+    budget_left = models.FloatField()
+    sold_quantity = models.PositiveIntegerField(default=0)
+    threshold = models.FloatField(null=True)
+
+
+class SoldStock(models.Model):
+    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name="sold_stocks")
+    bought_stock = models.ForeignKey(BoughtStock, on_delete=models.CASCADE, related_name="sold_stock")
+    created_on = models.DateTimeField(auto_now_add=True)
+    quantity = models.PositiveIntegerField(default=1)
+    earning_price = models.FloatField()  # the price of which the <quantity> stocks sold
+    budget_left = models.FloatField()
+    gain_price = models.FloatField()  # its the profits gained from selling the stocks, which equals to
+    # <earning-price> - <bought_stocks_price>
 
 
 class WatchedStock(models.Model):
@@ -95,7 +165,7 @@ class WatchedStock(models.Model):
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        Profile.objects.create(user=instance, portfolio=Portfolio.objects.create())
 
 
 @receiver(post_save, sender=User)

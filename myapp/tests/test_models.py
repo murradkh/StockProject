@@ -46,12 +46,6 @@ class StockWatchlistTestCase(TestCase):
         response = self.client.post('/stock/APPL/wadd/')    # Must redirect to login page
         self.assertRedirects(response, '/accounts/login/?next=/stock/APPL/wadd/')
 
-    def test_stock_is_needed(self):
-        self.client.post('/accounts/login/', {'username': 'tester1', 'password': 'randomexample'})
-        self.client.post('/stock/APPL/wadd/')
-        self.client.logout()
-        self.client.post('/accounts/login/', {'username': 'tester2', 'password': 'secondpass468'})
-        self.client.post('/stock/APPL/wremove/')
 
     def test_watchlist_stock_deleted(self):
         self.client.post('/accounts/login/', {'username': 'tester1', 'password': 'randomexample'})

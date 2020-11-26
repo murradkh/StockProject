@@ -3,6 +3,7 @@
 {% block content %}
 
 {% include "subtemplate/list_rules.html" with counter=1 stockname=data.companyName stocksymbol=data.symbol %}
+{% include "subtemplate/buy_model.html" with id=2 name=data.companyName budget=budget latestPrice=data.latestPrice stock=data.symbol %}
 
 <div class="col-md-12 text-left">
     <table>
@@ -11,7 +12,11 @@
             <h2>{{ data.companyName }}<small class="text-muted">({{ data.symbol }}) &emsp14;</small></h2>
             </div>
             {% if profile %}
-            <div class="col text-left align-items-center">{% if stock.0 in profile.watchlist.all %}
+            <div class="col text-left align-items-center">
+                <button id ="buyBtn" class="btn btn-outline-success" data-toggle="modal" data-target="#buyModel2">
+                    <i class="fa fa-money" aria-hidden="true"></i> Buy
+                </button>
+                {% if stock.0 in profile.watchlist.all %}
                 <button id="editbutton" onclick="watchlistEdit()" class="btn btn-outline-danger"><i
                         class='fa fa-eye-slash'></i> Remove from watchlist
                 </button>
@@ -28,6 +33,7 @@
                     <i class='fa fa-cogs'></i>
                 </button>
                 {% endif %}
+            </td>
             </div>      
             {% endif %}
         </div>
@@ -41,7 +47,7 @@
 <div class="col-md-12 text-left" id="stock_data">
 	<span class="lead">
 	<big>
-			{{ data.latestPrice }}
+			<span id="price">{{ data.latestPrice }}</span>
 			<small class="lead">
 					{% if data.changePercent >= 0 %}
 									<span class="text-success">+{{ data.change }} (+{{ data.changePercent }}%)</span>
@@ -146,8 +152,7 @@
 
 {% block scripts %}
 {% load static %}
-<script type="text/javascript"
-        src="{% static 'js/myapp/single_stock.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/myapp/single_stock.js' %}"></script>
 <script>
 	window.onload = function(){
 	setOriginSymbol("{{data.symbol}}");
@@ -155,7 +160,12 @@
 	};
 //startInterval("{{ Interval }}" ,"{{ request.path }}")
 startInterval(10000 ,"{{ request.path }}")
+
+$(window).on('shown.bs.modal', function() {
+    //$('.buyModel').modal('show');
+    price = document.getElementById("price").innerHTML;
+    document.getElementById("staticPrice").value = price;
+
+});
 </script>
 {% endblock %}
-
-
