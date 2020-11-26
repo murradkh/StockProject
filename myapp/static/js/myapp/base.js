@@ -30,7 +30,7 @@ function getUnreadCount(){
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             var status = xhr.status;
-            if (status === 0 || (status >= 200 && status < 400)) {
+            if (status === 0 || status == 200) {
                 badge.innerHTML = "";
                 var responseDict = JSON.parse(xhr.responseText);
                 var numNotifications = responseDict['unread_count']
@@ -55,7 +55,7 @@ function getNotifications(){
     xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE) {
             var status = xhr.status;
-            if (status === 0 || (status >= 200 && status < 400)) {
+            if (status === 0 || status == 200) {
                 var responseDict = JSON.parse(xhr.responseText);
                 nContainer.innerHTML = "";
                 badge.innerHTML = "";
@@ -315,5 +315,6 @@ function getRuleName(ruleType){
     }
 }
 
-
-window.setInterval(getUnreadCount, 30000);
+if (isAuth == true) {
+    window.setInterval(getUnreadCount, 30000);
+}
