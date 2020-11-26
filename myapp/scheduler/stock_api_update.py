@@ -1,7 +1,11 @@
-from myapp.models import Stock, WatchStock, BoughtStock
+from django.db.models import F
+
+from myapp.models import Stock, WatchStock, BoughtStock, SoldStock
 from myapp import stock_api
 from django.db import transaction
 from datetime import datetime
+
+MAX_UNNEEDED_HISTORY_TO_PRESERVE_IN_PORTFOLIO = 20
 
 
 def stock_api_update():
@@ -53,20 +57,20 @@ def update_existing_stocks():
 
 
 def update_bought_stocks():
-    bought_stocks = BoughtStock.objects.all()
-    for bought_stock in bought_stocks:
-        if (datetime.now(bought_stock.stock.last_modified.tzinfo) - bought_stock.stock.last_modified).total_seconds() \
-                > 5:
-            data = stock_api.get_stock_info(bought_stock.stock.symbol)
-            Stock.objects.filter(symbol=bought_stock.stock.symbol).update(
-                name=data['companyName'],
-                top_rank=None,
-                price=data['latestPrice'],
-                change=data['change'],
-                change_percent=data['changePercent'],
-                market_cap=data['marketCap'],
-                primary_exchange=data['primaryExchange'],
-                last_modified=datetime.now(bought_stock.stock.last_modified.tzinfo))
+    needed_bought_stocks = list(BoughtStock.objects.exclude(sold_quantity=F("quantity")))
+    unneeded_bought_stocks_to_preserve = list(BoughtStock.objects.filter(sold_quantity=F("quantity")).order_by(
+        "-created_on")[:MAX_UNNEEDED_HISTORY_TO_PRESERVE_IN_PORTFOLIO])
+    for bought_stock in needed_bought_stocks + unneeded_bought_stocks_to_preserve:
+        data = stock_api.get_stock_info(bought_stock.stock.symbol)
+        Stock.objects.filter(symbol=bought_stock.stock.symbol).update(
+            name=data['companyName'],
+            top_rank=None,
+            price=data['latestPrice'],
+            change=data['change'],
+            change_percent=data['changePercent'],
+            market_cap=data['marketCap'],
+            primary_exchange=data['primaryExchange'],
+            last_modified=datetime.now(bought_stock.stock.last_modified.tzinfo))
 
 
 def delete_stocks(time_threshold):

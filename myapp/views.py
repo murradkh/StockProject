@@ -8,7 +8,6 @@ from myrails.settings import THREAD_INTERVAL
 from myapp import stock_api
 from myapp.models import Stock, Profile, SoldStock, BoughtStock, Portfolio
 
-
 from myapp.forms import CustomRegistrationFrom, CustomChangePasswordForm
 from django.http import JsonResponse, HttpResponse
 
@@ -19,7 +18,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout
 
 from .exceptions.stock_service import StockServerUnReachable, StockSymbolNotFound, InvalidTimeRange, \
-    InvalidSellQuantityValue
+    InvalidSellQuantityValue, InAdequateBudgetLeft, InvalidQuantityValue, InvalidBuyID
 
 from django.db.models import F
 
@@ -114,8 +113,8 @@ def single_stock(request, symbol):
         context = {'error_message': "Unknown Error occurred: {}".format(", ".join(e.args)), "status_code": status_code}
         template = "exception.html"
     else:
-        context = {'page_title': 'Stock Page - %s' % symbol, 'data': data, 'stock': stock, 'profile': profile ,
-                   'budget':budget}
+        context = {'page_title': 'Stock Page - %s' % symbol, 'data': data, 'stock': stock, 'profile': profile,
+                   'budget': budget}
     finally:
         response = render(request, template, context)
         response.status_code = status_code
@@ -196,13 +195,19 @@ def sell_stock_view(request, buy_id):
     status_code = 200
     profile, created = Profile.objects.get_or_create(user=request.user)
     try:
-        q = int(request.POST['quantity'])
+        q = request.POST.get("quantity")
+        portfolio, created = Portfolio.objects.get_or_create(profile=profile)
+        if created:
+            profile.save()
         if q is None:
-            profile.portfolio.sell_stock(buy_id, 1)
+            portfolio.sell_stock(buy_id, 1)
         else:
-            profile.portfolio.sell_stock(buy_id, int(q))
+            portfolio.sell_stock(buy_id, int(q))
         response = HttpResponse('OK')
     except InvalidSellQuantityValue as e:
+        status_code = 404
+        response = HttpResponse(e.message)
+    except InvalidBuyID as e:
         status_code = 404
         response = HttpResponse(e.message)
     except StockSymbolNotFound as e:
@@ -224,18 +229,25 @@ def buy_stock_view(request, symbol):
     status_code = 200
     profile, created = Profile.objects.get_or_create(user=request.user)
     try:
-        q = request.POST['quantity']
+        q = request.POST.get("quantity")
         threshold = request.POST['threshold']
         price = float(request.POST['staticPrice'])
         print('staticPrice', price)
+
+        portfolio, created = Portfolio.objects.get_or_create(profile=profile)
+        if created:
+            profile.save()
         if q is None:
-            profile.portfolio.buy_stock(symbol, 1)
+            portfolio.buy_stock(symbol, 1)
         elif threshold is not None and len(threshold.strip()) > 0:
             profile.portfolio.buy_stock(symbol, price, int(q), int(threshold))
         else:
             profile.portfolio.buy_stock(symbol, price, int(q))
         response = HttpResponse('OK')
-    except InvalidSellQuantityValue as e:
+    except InvalidQuantityValue as e:
+        status_code = 404
+        response = HttpResponse(e.message)
+    except InAdequateBudgetLeft as e:
         status_code = 404
         response = HttpResponse(e.message)
     except StockSymbolNotFound as e:
@@ -278,7 +290,7 @@ def single_stock_historic(request, symbols, time_range='1m'):
 
     try:
         data = stock_api.get_stock_historic_prices(symbols, time_range=time_range)
-        context = { 'data': data}
+        context = {'data': data}
     except StockSymbolNotFound as e:
         context = {"error_message": e.message}
         status_code = 404
@@ -319,8 +331,9 @@ def list_stocks_names_view(request, search_text):
 @login_required(login_url='login')
 def portfolio_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
-    context = {'page_title': 'My Portfolio', 'profile': profile, 
-               'bought_stocks': BoughtStock.objects.filter(portfolio=profile.portfolio, quantity__gt=F('sold_quantity')),
+    context = {'page_title': 'My Portfolio', 'profile': profile,
+               'bought_stocks': BoughtStock.objects.filter(portfolio=profile.portfolio,
+                                                           quantity__gt=F('sold_quantity')),
                'sold_stocks': SoldStock.objects.filter(portfolio=profile.portfolio),
                'Interval': (THREAD_INTERVAL * 1000)}
     return render(request, 'portfolio.html', context)
