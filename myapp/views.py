@@ -350,3 +350,6 @@ def rules_list_view (request, symbol):
                     'price_threshold': PriceThresholdRule.get_rules_dict(profile, symbol),
                     'recommendation_analyst': RecommendationAnalystRule.get_rules_dict(profile, symbol)}
     return JsonResponse(resposne_dict)
+
+def about(request):
+    return render(request, 'about.html', {'page_title': 'About'})
