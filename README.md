@@ -47,7 +47,7 @@ this transaction.
 - run `python manage.py runserver`.
 
 ## Future Features
-- Automation for buy/sell threshold price, i.e. a new rule   
+* [ ] Automation for buy/sell threshold price, i.e. a new rule   
 to buy or to sell a stock when specific price threshold reached
-- Automation for Stop-losing, to sell the stock when price goes   
+* [ ] Automation for Stop-losing, to sell the stock when price goes   
 below certain threshold.
