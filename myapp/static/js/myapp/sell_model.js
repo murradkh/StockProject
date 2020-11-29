@@ -42,7 +42,9 @@ function submitvalidate(id){
 });
 }
 function multiply(id){
+    gainLoss = Number(document.getElementById('gainLoss'+id).value);
     qty = Number(document.getElementById('quantity'+id).value);
     price = Number(document.getElementById('staticPrice'+id).value);
     document.getElementById('staticTotal'+id).value = Math.round(qty * price * 100) / 100;
+    document.getElementById('netGainLoss'+id).value = Math.round(qty * gainLoss * 100) / 100;
 }

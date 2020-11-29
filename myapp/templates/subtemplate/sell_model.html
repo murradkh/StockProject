@@ -12,7 +12,8 @@
             <div class="form-group row">
                 <label for="staticBudget" class="col-sm-2 col-form-label">Gain/Loss</label>
                 <div class="col-sm-10">
-                    <input type="text" readonly class="form-control-plaintext" id="staticBudget" value="{{ gainLoss }}">
+                    <input type="hidden" readonly class="form-control-plaintext" id="gainLoss{{ buy_id }}" value="{{ gainLoss }}">
+                    <input type="text" readonly class="form-control-plaintext" id="netGainLoss{{ buy_id }}" value="{{ gainLoss }}">
                 </div>
             </div>
             <div class="form-group row">
@@ -25,7 +26,7 @@
                 <label  class="col-sm-2 col-form-label ">Quantity </label>
                 <div class="col-sm-10 ">
                     <input type="number" class="form-control" id="quantity{{ buy_id }}" name="quantity" min="1" value ="1" name="quantity"
-                    max ="{{ qty }}" onKeyPress="if(this.value > Number({{ qty }})) return false;"   onChange="multiply('{{ buy_id }}')"  required >
+                    max ="{{ qty }}" onKeyPress="if(this.value > Number({{ qty }})) return false;"  onChange="multiply('{{ buy_id }}')"  required >
                 </div>
             </div>
             <div class="form-group row">
