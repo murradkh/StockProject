@@ -39,11 +39,15 @@ this transaction.
 ##### Stocks Change Comparison
 ![](myapp/static/img/comparing_stocks.png)
 
-
-## Architecture
-
-
 ## How To Run
-
+- cloning github repository into local machine
+- installing requirement packages `pip install -r requirements.txt`  
+- setting up database: see the related readme file in `myrails/configuration/Readme.md`  
+- run `python manage.py migrate` to initialize the DB
+- run `python manage.py runserver`.
 
 ## Future Features
+- Automation for buy/sell threshold price, i.e. a new rule   
+to buy or to sell a stock when specific price threshold reached
+- Automation for Stop-losing, to sell the stock when price goes   
+below certain threshold.
