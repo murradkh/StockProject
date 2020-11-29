@@ -48,8 +48,7 @@ def index(request):
                                     change=stock['change'],
                                     change_percent=stock['c'
                                                          'hangePercent'],
-                                    market_cap=stock['marketCap'],
-                                    primary_exchange=stock['primaryExchange']))
+                                    market_cap=stock['marketCap']))
         else:
             stocks = Stock.objects.all().order_by('top_rank')
 
