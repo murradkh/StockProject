@@ -18,7 +18,6 @@ class Stock(models.Model):
     change = models.FloatField(null=True)
     change_percent = models.FloatField(null=True)
     market_cap = models.FloatField(null=True)
-    primary_exchange = models.CharField(null=True, max_length=32)
     last_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -46,9 +45,7 @@ class Stock(models.Model):
                                   price=data['latestPrice'],
                                   change=data['change'],
                                   change_percent=data['changePercent'],
-                                  market_cap=data['marketCap'],
-                                  primary_exchange=data['primaryExchange'])
-
+                                  market_cap=data['marketCap'])
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

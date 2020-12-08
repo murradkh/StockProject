@@ -30,7 +30,6 @@ def top_stock_update():
                 'change': stock['change'],
                 'change_percent': stock['changePercent'],
                 'market_cap': stock['marketCap'],
-                'primary_exchange': stock['primaryExchange'],
             })
             stock_model.save()
             index += 1
@@ -51,7 +50,6 @@ def update_existing_stocks():
                 change=data['change'],
                 change_percent=data['changePercent'],
                 market_cap=data['marketCap'],
-                primary_exchange=data['primaryExchange'],
                 last_modified=datetime.now(stock.last_modified.tzinfo))
 
 
@@ -68,7 +66,6 @@ def update_bought_stocks():
             change=data['change'],
             change_percent=data['changePercent'],
             market_cap=data['marketCap'],
-            primary_exchange=data['primaryExchange'],
             last_modified=datetime.now(bought_stock.stock.last_modified.tzinfo))
 
 

@@ -43,7 +43,7 @@ def _request_data(url, filter='', additional_parameters={}):
 def get_top_stocks():
     try:
         return _request_data('/stable/stock/market/list/mostactive',
-                             filter='symbol,companyName,latestVolume,change,changePercent,primaryExchange,marketCap,'
+                             filter='symbol,companyName,latestVolume,change,changePercent,marketCap,'
                                     'latestPrice,calculationPrice',
                              additional_parameters={'displayPercent': 'true', 'listLimit': STOCKS_AMOUNT_TO_FETCH})
     except ConnectionError:
@@ -56,7 +56,7 @@ def get_top_stocks():
 
 
 def get_stock_info(symbol, filter=()):
-    # 'symbol,companyName,marketcap,totalCash,primaryExchange,latestPrice,latestSource,change,changePercent'
+    # 'symbol,companyName,marketcap,totalCash,latestPrice,latestSource,change,changePercent'
     try:
         return _request_data(f"/stable/stock/{symbol}/quote?{'' if not filter else ('filter=' + (','.join(filter)))}",
                              additional_parameters={'displayPercent': 'true'})
