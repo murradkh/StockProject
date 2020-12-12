@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  stock_project:
+    build: .
+    image: stock_project
+    command: sh entrypoint.sh
+    ports:
+      - "8000:8000"
+    volumes:
+      - static:/static/
+#      - stock_project-persistent_data:/mysqldb   #TODO: here add volume for m
+    environment:
+      - STOCK_PROJECT_MACHINE_TYPE=test
+      - STATIC_FILES_PATH=/static/
+#    env_file:
+#      - env-file
+  nginx:
+    build: ./nginx
+    image: nginx
+    ports:
+    - "80:80"
+    depends_on:
+      - stock_project
+    volumes:
+    - static:/static
+volumes:
+  static:
+#  stock_project-persistent_data:

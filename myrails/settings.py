@@ -13,15 +13,12 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 from myrails.configuration.config import Configurator
 
-
 # Build and parse configuration files
 config = Configurator()
 config.parse_machine_config()
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -32,13 +29,12 @@ SECRET_KEY = '!sq5o3kstxfaxw&%nq9*t63^q!cr_-4l7#b-nb*5@zv2b$9eut'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config.get_debug_val()
 
-ALLOWED_HOSTS = ['3.229.69.117', 'localhost', '127.0.0.1']
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
 INSTALLED_APPS = [
-	'myapp',
+    'myapp',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -79,7 +75,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myrails.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
@@ -87,7 +82,6 @@ DATABASES = {
     'default': config.get_db_params(),
     'OPTIONS': config.get_db_options(),
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -107,7 +101,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -121,11 +114,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.getenv("STATIC_FILES_PATH", './static/')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'myapp/static'),

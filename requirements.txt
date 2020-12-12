@@ -11,3 +11,4 @@ APScheduler==3.6.3
 mysqlclient==2.0.1
 django-mathfilters==1.0.0
 django-widget-tweaks==1.4.8
+gunicorn==20.0.4
