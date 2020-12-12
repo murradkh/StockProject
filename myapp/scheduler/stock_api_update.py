@@ -1,7 +1,7 @@
 from myapp.models import Stock, WatchedStock, BoughtStock, SoldStock
 from django.db.models import F
 from myapp import stock_api
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from datetime import datetime
 
 MAX_UNNEEDED_HISTORY_TO_PRESERVE_IN_PORTFOLIO = 20
@@ -19,8 +19,8 @@ def stock_api_update():
 def top_stock_update():
     top_stocks = stock_api.get_top_stocks()
     index = 1
-    try:
-        for stock in top_stocks:
+    for stock in top_stocks:
+        try:
             # This searches for a stock with the given 'symbol' (the primary key)
             # and updates/create it with the values specified in the 'defaults' parameter
             stock_model, created = Stock.objects.update_or_create(symbol=stock['symbol'], defaults={
@@ -33,8 +33,8 @@ def top_stock_update():
             })
             stock_model.save()
             index += 1
-    except KeyError as e:
-        pass
+        except IntegrityError as e:
+            pass
 
 
 def update_existing_stocks():
