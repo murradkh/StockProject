@@ -3,4 +3,3 @@ RUN mkdir -p /home/StockProject
 WORKDIR /home/StockProject/
 COPY . .
 RUN pip install -r requirements.txt
-#ENTRYPOINT ["sh","entrypoint.sh"]

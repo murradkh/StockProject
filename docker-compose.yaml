@@ -1,28 +1,36 @@
 version: "3.8"
 services:
+  mysql:
+    image: mysql/mysql-server:5.6
+    env_file:
+      - docker-mysql/docker-mysql-server-conf
+
+    volumes:
+      - mysqldb:/var/lib/mysql
+
   stock_project:
     build: .
     image: stock_project
-    command: sh entrypoint.sh
-    ports:
-      - "8000:8000"
+    command: sh docker-entrypoint.sh
     volumes:
       - static:/static/
-#      - stock_project-persistent_data:/mysqldb   #TODO: here add volume for m
     environment:
-      - STOCK_PROJECT_MACHINE_TYPE=test
-      - STATIC_FILES_PATH=/static/
-#    env_file:
-#      - env-file
+      - STOCK_PROJECT_MACHINE_TYPE=dev
+      - STATIC_ROOT=/static/
+      - DOCKER_ENV=true
+
+    depends_on:
+      - mysql
   nginx:
-    build: ./nginx
+    build: docker-nginx
     image: nginx
     ports:
-    - "80:80"
+      - "80:80"
     depends_on:
       - stock_project
     volumes:
-    - static:/static
+      - static:/static
+
 volumes:
   static:
-#  stock_project-persistent_data:
+  mysqldb:

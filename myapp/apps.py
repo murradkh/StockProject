@@ -6,8 +6,8 @@ class MyappConfig(AppConfig):
     name = 'myapp'
 
     def ready(self):
-        if 'runserver' not in sys.argv:
-            return True
+        # if 'django.core.wsgi' in sys.modules:
+        #     return True
         from .scheduler import scheduler
         job = scheduler()
         job.start()
