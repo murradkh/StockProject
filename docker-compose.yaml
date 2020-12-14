@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3"
 services:
   mysql:
     image: mysql/mysql-server:5.6
@@ -23,7 +23,7 @@ services:
       - mysql
   nginx:
     build: docker-nginx
-    image: nginx
+    image: nginx_stock_project
     ports:
       - "80:80"
     depends_on:
