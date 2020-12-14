@@ -8,7 +8,7 @@ services:
     volumes:
       - mysqldb:/var/lib/mysql
 
-  stock_project:
+  stock-project:
     build: .
     image: stock_project
 #    command: sh docker-entrypoint.sh
@@ -27,7 +27,7 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - stock_project
+      - stock-project
     volumes:
       - static:/static
 
