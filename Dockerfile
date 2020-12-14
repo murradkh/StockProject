@@ -3,3 +3,4 @@ RUN mkdir -p /home/StockProject
 WORKDIR /home/StockProject/
 COPY . .
 RUN pip install -r requirements.txt
+CMD ["sh", "docker-entrypoint.sh"]

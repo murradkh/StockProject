@@ -11,7 +11,7 @@ services:
   stock_project:
     build: .
     image: stock_project
-    command: sh docker-entrypoint.sh
+#    command: sh docker-entrypoint.sh
     volumes:
       - static:/static/
     environment:
