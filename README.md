@@ -25,6 +25,13 @@ below certain threshold.
 * [X] Adding WSGI Gunicorn as a production server.
 * [X] Dockerizing each app componentes (creating Images for application-code & Nginx & MySqlDB)
 
+## How To Run
+- cloning github repository into local machine
+- installing requirement packages `pip install -r requirements.txt`  
+- setting up database: see the related readme file in `myrails/configuration/Readme.md`  
+- run `python manage.py migrate` to initialize the DB
+- run `python manage.py runserver`.
+
 ## ScreenShots
 ##### Main Page
 ![](myapp/static/img/main_page.png)
@@ -47,10 +54,4 @@ below certain threshold.
 ##### Stocks Change Comparison
 ![](myapp/static/img/comparing_stocks.png)
 
-## How To Run
-- cloning github repository into local machine
-- installing requirement packages `pip install -r requirements.txt`  
-- setting up database: see the related readme file in `myrails/configuration/Readme.md`  
-- run `python manage.py migrate` to initialize the DB
-- run `python manage.py runserver`.
 
