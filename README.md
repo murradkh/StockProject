@@ -25,7 +25,7 @@ below certain threshold.
 * [X] Adding WSGI Gunicorn as a production server.
 * [X] Dockerizing each app componentes (creating Images for application-code & Nginx & MySqlDB)
 
-#### ScreenShots
+## ScreenShots
 ##### Main Page
 ![](myapp/static/img/main_page.png)
 ##### Single Stock Page
