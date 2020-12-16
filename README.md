@@ -51,3 +51,5 @@ this transaction.
 to buy or to sell a stock when specific price threshold reached
 * [ ] Automation for Stop-losing, to sell the stock when price goes   
 below certain threshold.
+* [X] Adding WSGI Gunicorn as a production server.
+* [X] Dockerizing each app componentes (creating Images for application-code & Nginx & MySqlDB)
