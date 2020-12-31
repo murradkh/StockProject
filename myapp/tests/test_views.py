@@ -67,7 +67,7 @@ class EndPointsTestCase(TestCase):
         self.assertIsInstance(response_json, list)
 
     def test_list_stocks_names_view(self):
-        response = self.client.get("/stocks/list_names/snap-mm")
+        response = self.client.get("/stocks/list_names/AALI-IJ")
         self.assertContains(response, 'stocks_names')
         self.assertEqual(len(response.json()['stocks_names']), 1)
         response = self.client.get("/stocks/list_names/ ")

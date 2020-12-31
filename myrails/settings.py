@@ -125,20 +125,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'myapp/static'),
 ]
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-}
-
 LOGIN_URL = '/accounts/login'
 LOGIN_REDIRECT_URL = '/'
 THREAD_INTERVAL = 10

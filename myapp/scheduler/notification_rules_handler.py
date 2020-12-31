@@ -1,10 +1,18 @@
+import time
+
 from myapp.models import ChangeStatusRule, Notification, ChangeThresholdRule, PriceThresholdRule, \
     RecommendationAnalystRule
 from myapp import stock_api
 
+CHANGE_STATUS_RULE_THREAD_INT = 1  # one minute interval
+CHANGE_THRESHOLD_RULE_THREAD_INT = 1  # one minute interval
+PRICE_THRESHOLD_RULE_THREAD_INT = 1  # one minute interval
+RECOMMENDATION_ANALYST_RULE_THREAD_INT = 1  # one minute interval
 
-def change_status_rule():
+
+def change_status_rule(periodic=False):
     rules = ChangeStatusRule.get_rules()
+    print("running change_status_rule")
     for rule in rules:
         if not rule.fired:
             num_of_days = rule.num_of_days
@@ -43,10 +51,14 @@ def change_status_rule():
 
                     rule.fired = True
                     rule.save()
+    if periodic:
+        time.sleep(CHANGE_STATUS_RULE_THREAD_INT * 60)
+        change_status_rule(True)
 
 
-def change_threshold_rule():
+def change_threshold_rule(periodic=False):
     rules = ChangeThresholdRule.get_rules()
+    print("running change_threshold_rule")
     for rule in rules:
         if not rule.fired:
             data = stock_api.get_stock_info(symbol=rule.watched_stock.stock.symbol, filter=("changePercent",))
@@ -77,10 +89,14 @@ def change_threshold_rule():
                                                 stock=rule.watched_stock.stock)
                     rule.fired = True
                     rule.save()
+    if periodic:
+        time.sleep(CHANGE_THRESHOLD_RULE_THREAD_INT * 60)
+        change_threshold_rule(True)
 
 
-def price_threshold_rule():
+def price_threshold_rule(periodic=False):
     rules = PriceThresholdRule.get_rules()
+    print("running price_threshold_rule")
     for rule in rules:
         if not rule.fired:
             data = stock_api.get_stock_info(symbol=rule.watched_stock.stock.symbol, filter=("latestPrice",))
@@ -109,10 +125,14 @@ def price_threshold_rule():
                                                 stock=rule.watched_stock.stock)
                     rule.fired = True
                     rule.save()
+    if periodic:
+        time.sleep(PRICE_THRESHOLD_RULE_THREAD_INT * 60)
+        price_threshold_rule(True)
 
 
-def recommendation_analyst_rule():
+def recommendation_analyst_rule(periodic=False):
     rules = RecommendationAnalystRule.get_rules()
+    print("running recommendation_analyst_rule")
     for rule in rules:
         if not rule.fired:
             data = stock_api.get_analyst_recommendations(symbol=rule.watched_stock.stock.symbol)
@@ -163,3 +183,6 @@ def recommendation_analyst_rule():
                                             stock=rule.watched_stock.stock)
                 rule.fired = True
                 rule.save()
+    if periodic:
+        time.sleep(RECOMMENDATION_ANALYST_RULE_THREAD_INT * 60)
+        recommendation_analyst_rule(True)
