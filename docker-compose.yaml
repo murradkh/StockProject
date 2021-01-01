@@ -3,7 +3,7 @@ services:
   mysql:
     image: mysql/mysql-server:5.6
     env_file:
-      - docker-mysql/docker-mysql-server-conf
+      - docker-mysql/docker-mysql-server-${STOCK_PROJECT_MACHINE_TYPE}.conf
 
     volumes:
       - mysqldb:/var/lib/mysql
@@ -15,7 +15,7 @@ services:
     volumes:
       - static:/static/
     environment:
-      - STOCK_PROJECT_MACHINE_TYPE=dev
+      - STOCK_PROJECT_MACHINE_TYPE=${STOCK_PROJECT_MACHINE_TYPE}
       - STATIC_ROOT=/static/
       - DOCKER_ENV=true
 

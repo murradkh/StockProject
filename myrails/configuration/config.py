@@ -35,7 +35,7 @@ class Configurator:
                 self.debug_val = config.getboolean('debug', 'value')
                 self.db_params = config._sections.get('db-params')
                 if os.getenv("DOCKER_ENV"):
-                    self.db_params['HOST'] = self.db_params['HOST_ON_DOCKER']
+                    self.db_params['HOST'] = self.db_params['HOSTNAME_ON_DOCKER']
                 self.db_options = config._sections.get('db-options')
             except ValueError:
                 raise
