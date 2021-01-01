@@ -18,12 +18,13 @@ to buy/sell/hold the stock (based on external recommendation-analyst service).
 this transaction.
 
 ## Future Features
+* [X] Adding WSGI Gunicorn as a production server.
+* [X] Dockerizing each app componentes (creating Images for application-code & Nginx & MySqlDB)
+* [ ] Seperating the auto-updater thread to new process
 * [ ] Automation for buy/sell threshold price, i.e. a new rule   
 to buy or to sell a stock when specific price threshold reached
 * [ ] Automation for Stop-losing, to sell the stock when price goes   
 below certain threshold.
-* [X] Adding WSGI Gunicorn as a production server.
-* [X] Dockerizing each app componentes (creating Images for application-code & Nginx & MySqlDB)
 
 ## How To Run
 - cloning github repository into local machine
